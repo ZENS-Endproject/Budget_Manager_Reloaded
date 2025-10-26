@@ -3,7 +3,7 @@
 
 terraform {
   backend "s3" {
-    bucket         = "tf-bud-man-state-bucket"
+    bucket         = "tf-bud-relo-state-bucket"
     key            = "infra/terraform.tfstate"
     region         = "eu-central-1"
     encrypt        = true
