@@ -10,7 +10,7 @@ Create the following credentions in Settings => Secrets and variables => Actions
 - AWS_ACCESS_KEY_ID
 - AWS_SECRET_ACCESS_KEY 
 - AWS_EC2_KEY_PEM (relates to the name of the EC2 key pair in `terraform.tfvars`)
-- AWS_POSTGRES_PASSWORD
+- AWS_POSTGRES_PASSWORD -> (to be implemented!)
 
 ## ToDo (backlog)
 1. The SQL script for initial Postgres setup should check
