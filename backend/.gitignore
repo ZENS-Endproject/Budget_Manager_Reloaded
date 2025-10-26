@@ -1,0 +1,2 @@
+# .env should not be copied to the docker image: 
+.env

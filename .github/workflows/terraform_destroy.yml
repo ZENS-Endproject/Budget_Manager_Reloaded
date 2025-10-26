@@ -1,0 +1,40 @@
+name: Terraform_Destroy
+
+#on: [push, workflow_dispatch]
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Choose environment"
+        required: true
+        default: "staging"
+
+jobs:
+    terraform-destroy:
+        runs-on: ubuntu-latest
+#        if: github.event_name == 'workflow_dispatch'
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v3
+
+            - name: Setup AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v5
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET_KEY }}
+                  aws-region: eu-central-1
+
+            - name: Terraform Init
+              run: | 
+                cd budget-infra
+                terraform init
+            
+            - name: Terraform Destroy
+              run: | 
+                cd budget-infra
+                terraform destroy -auto-approve
+        

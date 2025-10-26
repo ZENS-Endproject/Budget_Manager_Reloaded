@@ -1,0 +1,108 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.navbar-links a {
+  color: #0489A9 !important;
+}
+
+.navbar-links span {
+  color: #043C53 !important;
+}
+
+.navbar-links button {
+  color: #FBBF24 !important;
+  font-weight: bold;
+}
+
+body {
+
+  background: linear-gradient(90deg, #0488a957, white);
+
+}
+
+.expenses-nav {
+  padding: 20px;
+  background-color: transparent !important;
+  margin-bottom: 20px;
+  border: 1px solid rgb(221, 221, 221);
+  border-radius: 8px;
+  box-shadow: rgb(0 0 0 / 50%) 0px 2px 8px;
+}
+
+.dark .expenses-nav {
+  padding: 20px;
+  background-color: black !important;
+  margin-bottom: 20px;
+  border: 1px solid rgb(221, 221, 221);
+  border-radius: 8px;
+  box-shadow: rgb(0 0 0 / 50%) 0px 2px 8px;
+}
+
+.dark body {
+  background: black !important;
+}
+
+.dark .navbar-links * {
+  color: #0489A9 !important
+}
+
+.piechart {
+  background: transparent;
+}
+
+.dark .shadow,
+.dark .expenses-nav {
+  background-color: black !important;
+}
+
+.dark .navbar-links button {
+  color: red !important;
+}
+
+.dark button {
+  color: white !important;
+  border: 1px solid white;
+}
+
+td button {
+  margin-right: 5px !important;
+  margin-left: 5px;
+
+}

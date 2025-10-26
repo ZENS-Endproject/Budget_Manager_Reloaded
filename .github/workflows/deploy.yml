@@ -1,0 +1,28 @@
+name: deployflow
+
+#on: push
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Choose environment"
+        required: true
+        default: "staging"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout
+        uses: actions/checkout@v5
+
+      - name: SSH setup
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{secrets.ZAK_TERRAFORM_SSH_KEY}}" > ~/.ssh/MyPrivateKey.pem
+          chmod 400 ~/.ssh/MyPrivateKey.pem
+          ssh-keyscan -H "${{secrets.EC2_IP}}" >> ~/.ssh/known_hosts
+      - name: SSH connection
+        run: |
+          ssh -i ~/.ssh/MyPrivateKey.pem ubuntu@"${{secrets.EC2_IP}}" "mkdir -p testfolderfromgithubactions"

@@ -1,0 +1,81 @@
+name: Terraform_Apply
+
+#on: [push, workflow_dispatch]
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Choose environment"
+        required: true
+        default: "staging"
+
+jobs:
+    terraform-apply:
+        runs-on: ubuntu-latest
+        steps:
+
+#            - name: Post a message in a channel
+#              uses: slackapi/slack-github-action@v2.1.1
+#              with:
+#                webhook: ${{ secrets.SLACK_WEBHOOK_URL }}
+#                webhook-type: incoming-webhook
+#                payload: |
+#                    text: "🚀 Pipeline wurde soeben gestartet. Pipeline: ${{github.workflow}}"
+
+            - name: Checkout
+              uses: actions/checkout@v5
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v3
+
+            - name: Setup AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v5
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET_KEY }}
+                  aws-region: eu-central-1
+
+            - name: Terraform Init
+              run: | 
+                cd budget-infra
+                terraform init
+
+            - name: Terraform Apply
+              run: | 
+                cd budget-infra
+                terraform apply -auto-approve
+
+            - name: ssh setup
+            # sleep ist nur provisorisch hier, müsste optimiert werden
+              run: | 
+                sleep 15
+                cd budget-infra
+                ip=$(terraform output -raw public_ip)
+                mkdir -p ~/.ssh
+                echo "${{secrets.AWS_EC2_KEY_PEM}}" > ~/.ssh/myPrivateKey
+                chmod 400 ~/.ssh/myPrivateKey
+                ssh-keyscan -H $ip >> ~/.ssh/known_hosts 
+
+            - name: install docker-compose & npm
+              run: |
+                cd budget-infra
+                ip=$(terraform output -raw public_ip)
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt update"
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install docker.io -y"
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo usermod -aG docker ubuntu"   
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install docker-compose -y"
+           #ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install npm -y"      
+            
+            - name: scp repo
+              run: |
+               cd budget-infra
+               ip=$(terraform output -raw public_ip)
+               scp -i ~/.ssh/myPrivateKey -r /home/runner/work/Budget_Ausgaben_App_ZAK/Budget_Ausgaben_App_ZAK ubuntu@$ip:/home/ubuntu
+               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+               echo "DB_HOST=$ip" > "/home/ubuntu/Budget_Ausgaben_App_ZAK/backend/.env.local"
+               echo "REACT_APP_API_URL=http://$ip:5005"  > "/home/ubuntu/Budget_Ausgaben_App_ZAK/frontend/.env.local"
+               cd ~/Budget_Ausgaben_App_ZAK
+               docker-compose up -d   
+               "
+
