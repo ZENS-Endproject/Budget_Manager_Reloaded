@@ -25,7 +25,7 @@ Create the following credentions in Settings => Secrets and variables => Actions
 
 ## GitHub
 Best Practice: Always include package.json (and package-lock.json) in your GitHub repo
-💡 Why: package.json defines your application’s identity, dependencies, and scripts
+ Why: package.json defines your application’s identity, dependencies, and scripts
 
 It’s essential for reproducibility — others (and CI/CD) can just run:
 
@@ -71,7 +71,7 @@ It merges them together into a single plan internally.
 First time a S3 state bucket needs to be created with
 
 ```
-aws s3api create-bucket   --bucket tf-zak-bud-man-state-bucket   --region eu-central-1   --create-bucket-configuration LocationConstraint=eu-central-1
+aws s3api create-bucket   --bucket tf-bud-relo-state-bucket   --region eu-central-1   --create-bucket-configuration LocationConstraint=eu-central-1
 ```
 
 From inside your Terraform directory:
