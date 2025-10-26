@@ -30,7 +30,7 @@ resource "aws_instance" "app_server" {
   availability_zone = var.availability_zone
   user_data         = file("user_data.sh")
   tags = {
-    Name = "tf_zak_budget_manager"
+    Name = "tf_budget_manager_reloaded"
   }
 
   vpc_security_group_ids = [

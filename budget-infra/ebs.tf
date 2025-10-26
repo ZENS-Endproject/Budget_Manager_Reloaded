@@ -3,7 +3,7 @@
 ############################################
 
 variable "volume_name" {
-  default = "tf_zak_budget_manager_pg_vol"
+  default = "tf_budget_manager_reloaded_pg_vol"
 }
 
 variable "volume_size" {
