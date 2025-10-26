@@ -1,4 +1,4 @@
---
+--change all special characters in german like ae oe ue etc. to Ascii characters
 -- PostgreSQL database dump
 --
 
@@ -27,7 +27,7 @@ SET default_table_access_method = heap;
 -- Create the budget data base
 --
 
-CREATE DATABASE budget;
+CREATE DATABASE budget;  -- This is the name of the database added to the docker-compose file to avoid doing it manualy in pg admin  
 \connect budget
 
 --

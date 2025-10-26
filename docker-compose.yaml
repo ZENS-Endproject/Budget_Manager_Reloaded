@@ -19,8 +19,9 @@ services:
       - ./backend/budget_2025-05-08.sql:/docker-entrypoint-initdb.d/init_db.sql
       # Mount the host's EBS-backed directory into the container to store postgres DB on it:
       - /mnt/pgdata/data:/var/lib/postgresql/data
+      #one can also add the logs and bqackup volumes here, but not necessary for this demo
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"]
+      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"] # should be checked because of the user name and database(postgres resp. budget)
       interval: 10s      # run every 10 seconds
       timeout: 5s        # fail if takes longer than 5s
       retries: 5         # mark as unhealthy after 5 failures

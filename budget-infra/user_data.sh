@@ -5,6 +5,7 @@ set -xe
 
 # Find attached EBS volume that is *not* the root
 DEVICE=$(lsblk -d -n -o NAME,TYPE | awk '$2=="disk"{print "/dev/"$1}' | grep -v "nvme0n1" | head -n1)
+#nvme0n1 = device name assigned to postgress database volume. If found  
 
 echo "Detected device: $DEVICE"
 
@@ -28,7 +29,7 @@ if [ ! -b "$DEVICE" ]; then
   exit 1
 fi
 
-# Check if filesystem already exists
+# Check if filesystem already exists (formatting the EBS volume)
 if ! file -s $DEVICE | grep -q ext4; then
   echo "Formatting $DEVICE as ext4..."
   mkfs -t ext4 $DEVICE
