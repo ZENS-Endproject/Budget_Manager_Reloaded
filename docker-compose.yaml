@@ -12,22 +12,16 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      # mount the SQL file directly in Compose
-      # the SQL runs automatically on the first container startup
-      # subsequent restarts will not re-run the SQL file unless 
-      # you delete the database volume:
-      - ./backend/budget_2025-05-08.sql:/docker-entrypoint-initdb.d/init_db.sql
-      # Mount the host's EBS-backed directory into the container to store postgres DB on it:
-      - /mnt/pgdata/data:/var/lib/postgresql/data
-      #one can also add the logs and bqackup volumes here, but not necessary for this demo
+       - postgres_db_volume:/var/lib/postgresql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U myuser -d mydatabase"] # should be checked because of the user name and database(postgres resp. budget)
-      interval: 10s      # run every 10 seconds
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h","localhost"] # should be checked because of the user name and database(postgres resp. budget)
+      interval: 2s      # run every 10 seconds
       timeout: 5s        # fail if takes longer than 5s
       retries: 5         # mark as unhealthy after 5 failures
-      start_period: 20s  # wait 20s before first check (gives Postgres time to boot)  
+      #start_period: 20s  # wait 20s before first check (gives Postgres time to boot)  
 
   backend:
+    container_name: backend
     build: ./backend
     ports: 
       - "5005:5005"
@@ -46,6 +40,7 @@ services:
         condition: service_healthy
 
   frontend:
+    container_name: frontend
     build: ./frontend
     env_file:
       - ./frontend/.env
@@ -62,4 +57,5 @@ networks:
     driver: bridge
 
 volumes:
+  postgres_db_volume:
   db_data:
