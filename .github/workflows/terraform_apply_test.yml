@@ -1,11 +1,12 @@
-name: Terraform_Apply
+name: Terraform_Apply_test
 
 #on: [push, workflow_dispatch]
 
 on: 
   push:
-    tags:
-      - 'v*'
+    branches: [ "main" ]
+    tags-ignore:
+      - "v*"
 
 jobs:
     terraform-apply:
