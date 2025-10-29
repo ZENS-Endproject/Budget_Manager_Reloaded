@@ -10,7 +10,7 @@ const PDFDocument = require("pdfkit");
 const app = express();
 const PORT = 5005;
 
-//middleware 
+//middleware
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1];
@@ -312,6 +312,41 @@ app.get("/incomes/:user_id", authenticateToken, async (req, res) => {
   }
 });
 
+app.get("/incomes/:user_id/search", authenticateToken, async (req, res) => {
+  const { user_id } = req.params;
+  const { monthYear } = req.query;
+
+  // zum Beispiel
+  // localhost:5005/incomes/1/search?monthYear=2025-05
+  try {
+    let query = `
+      SELECT incomes.id, incomes.user_id, incomes.amount, incomes.name, incomes.date 
+      FROM public.incomes 
+      WHERE incomes.user_id = $1
+    `;
+    const values = [user_id];
+    if (monthYear) {
+      const [year, month] = monthYear.split("-").map(Number);
+      const monthStart = new Date(year, month - 1, 1);
+      const monthEnd = new Date(year, month, 0);
+
+      const isoStart = monthStart.toISOString().split("T")[0]; // YYYY-MM-DD
+      const isoEnd = monthEnd.toISOString().split("T")[0]; // YYYY-MM-DD
+
+      query += ` AND incomes.date BETWEEN $2 AND $3`;
+      values.push(isoStart, isoEnd);
+    }
+
+    query += " ORDER BY incomes.date DESC";
+
+    const result = await pool.query(query, values);
+    res.json(result.rows);
+  } catch (err) {
+    console.error("Error while fetching the incomes: ", err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
 app.post("/incomes", authenticateToken, async (req, res) => {
   const { user_id, amount, name, date } = req.body;
 
@@ -367,6 +402,57 @@ app.get("/monthly_incomes/:user_id", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+app.get(
+  "/monthly_incomes/:user_id/search",
+  authenticateToken,
+  async (req, res) => {
+    const { user_id } = req.params;
+    const { monthYear } = req.query;
+    // zum Beispiel
+    // localhost:5005/monthly_incomes/1/search?monthYear=2025-05
+
+    try {
+      let query = `
+      SELECT 
+        monthly_incomes.id, 
+        monthly_incomes.user_id, 
+        monthly_incomes.amount, 
+        monthly_incomes.name, 
+        monthly_incomes.date_start, 
+        monthly_incomes.date_end
+      FROM public.monthly_incomes
+      WHERE monthly_incomes.user_id = $1
+    `;
+
+      const values = [user_id];
+
+      if (monthYear) {
+        const [year, month] = monthYear.split("-").map(Number);
+
+        const monthStart = new Date(year, month - 1, 1);
+        const monthEnd = new Date(year, month, 0);
+        const isoMonthStart = monthStart.toISOString().split("T")[0];
+        const isoMonthEnd = monthEnd.toISOString().split("T")[0];
+
+        query += `
+        AND (
+          (monthly_incomes.date_start <= $2 AND (monthly_incomes.date_end IS NULL OR monthly_incomes.date_end >= $3))
+        )
+      `;
+        values.push(isoMonthEnd, isoMonthStart);
+      }
+
+      query += " ORDER BY monthly_incomes.date_start DESC";
+
+      const result = await pool.query(query, values);
+      res.json(result.rows);
+    } catch (err) {
+      console.error("Fehler beim Abrufen der monatlichen Einnahmen:", err);
+      res.status(500).json({ error: "Interner Serverfehler" });
+    }
+  }
+);
 
 app.put(
   "/monthly_incomes/:id_user/:id",
@@ -1238,32 +1324,49 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
     res.setHeader("Content-Type", "application/pdf");
     doc.pipe(res);
 
-    const [expensesResult, monthlyExpensesResult, incomesResult, monthlyIncomesResult] = await Promise.all([
-      pool.query(`
+    const [
+      expensesResult,
+      monthlyExpensesResult,
+      incomesResult,
+      monthlyIncomesResult,
+    ] = await Promise.all([
+      pool.query(
+        `
         SELECT e.id, e.user_id, e.amount, e.name, e.date, c.category
         FROM expenses e
         JOIN categories c ON e.category_id = c.id
         WHERE e.user_id = $1 AND date_trunc('month', e.date) = date_trunc('month', CURRENT_DATE)
-        ORDER BY e.date DESC`, [user_id]),
+        ORDER BY e.date DESC`,
+        [user_id]
+      ),
 
-      pool.query(`
+      pool.query(
+        `
         SELECT me.id, me.user_id, me.amount, me.name, me.date_start, me.date_end, c.category
         FROM monthly_expenses me
         JOIN categories c ON me.category_id = c.id
         WHERE me.user_id = $1 AND CURRENT_DATE BETWEEN me.date_start AND me.date_end
-        ORDER BY me.date_start DESC`, [user_id]),
+        ORDER BY me.date_start DESC`,
+        [user_id]
+      ),
 
-      pool.query(`
+      pool.query(
+        `
         SELECT id, user_id, amount, name, date
         FROM incomes
         WHERE user_id = $1 AND date_trunc('month', date) = date_trunc('month', CURRENT_DATE)
-        ORDER BY date DESC`, [user_id]),
+        ORDER BY date DESC`,
+        [user_id]
+      ),
 
-      pool.query(`
+      pool.query(
+        `
         SELECT id, user_id, amount, name, date_start, date_end
         FROM monthly_incomes
         WHERE user_id = $1 AND CURRENT_DATE BETWEEN date_start AND date_end
-        ORDER BY date_start DESC`, [user_id]),
+        ORDER BY date_start DESC`,
+        [user_id]
+      ),
     ]);
 
     const expenses = expensesResult.rows;
@@ -1271,37 +1374,73 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
     const incomes = incomesResult.rows;
     const monthlyIncomes = monthlyIncomesResult.rows;
 
-    if (expenses.length === 0 && monthlyExpenses.length === 0 && incomes.length === 0 && monthlyIncomes.length === 0) {
-      return res.status(404).json({ error: "No data found for the current month" });
+    if (
+      expenses.length === 0 &&
+      monthlyExpenses.length === 0 &&
+      incomes.length === 0 &&
+      monthlyIncomes.length === 0
+    ) {
+      return res
+        .status(404)
+        .json({ error: "No data found for the current month" });
     }
 
-    const [expTotalResult, monExpTotalResult, incTotalResult, monIncTotalResult] = await Promise.all([
-      pool.query(`
+    const [
+      expTotalResult,
+      monExpTotalResult,
+      incTotalResult,
+      monIncTotalResult,
+    ] = await Promise.all([
+      pool.query(
+        `
         SELECT SUM(amount) AS total FROM expenses
         WHERE user_id = $1 AND EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM CURRENT_DATE)
-        AND EXTRACT(MONTH FROM date) = EXTRACT(MONTH FROM CURRENT_DATE)`, [user_id]),
-      pool.query(`
+        AND EXTRACT(MONTH FROM date) = EXTRACT(MONTH FROM CURRENT_DATE)`,
+        [user_id]
+      ),
+      pool.query(
+        `
         SELECT SUM(amount) AS total FROM monthly_expenses
         WHERE user_id = $1 AND date_start <= DATE_TRUNC('month', CURRENT_DATE)
-        AND (date_end IS NULL OR date_end >= DATE_TRUNC('month', CURRENT_DATE))`, [user_id]),
-      pool.query(`
+        AND (date_end IS NULL OR date_end >= DATE_TRUNC('month', CURRENT_DATE))`,
+        [user_id]
+      ),
+      pool.query(
+        `
         SELECT SUM(amount) AS total FROM incomes
         WHERE user_id = $1 AND EXTRACT(YEAR FROM date) = EXTRACT(YEAR FROM CURRENT_DATE)
-        AND EXTRACT(MONTH FROM date) = EXTRACT(MONTH FROM CURRENT_DATE)`, [user_id]),
-      pool.query(`
+        AND EXTRACT(MONTH FROM date) = EXTRACT(MONTH FROM CURRENT_DATE)`,
+        [user_id]
+      ),
+      pool.query(
+        `
         SELECT SUM(amount) AS total FROM monthly_incomes
         WHERE user_id = $1 AND date_start <= DATE_TRUNC('month', CURRENT_DATE)
-        AND (date_end IS NULL OR date_end >= DATE_TRUNC('month', CURRENT_DATE))`, [user_id]),
+        AND (date_end IS NULL OR date_end >= DATE_TRUNC('month', CURRENT_DATE))`,
+        [user_id]
+      ),
     ]);
 
-    const totalExpenses = (expTotalResult.rows[0].total || 0) + (monExpTotalResult.rows[0].total || 0);
-    const totalIncome = (incTotalResult.rows[0].total || 0) + (monIncTotalResult.rows[0].total || 0);
+    const totalExpenses =
+      (expTotalResult.rows[0].total || 0) +
+      (monExpTotalResult.rows[0].total || 0);
+    const totalIncome =
+      (incTotalResult.rows[0].total || 0) +
+      (monIncTotalResult.rows[0].total || 0);
     const balance = totalIncome - totalExpenses;
-    const currentMonth = new Date().toLocaleString("default", { month: "long", year: "numeric" });
+    const currentMonth = new Date().toLocaleString("default", {
+      month: "long",
+      year: "numeric",
+    });
 
-    doc.fontSize(20).text(`Monthly Overview - ${currentMonth}`, { align: "center" });
+    doc
+      .fontSize(20)
+      .text(`Monthly Overview - ${currentMonth}`, { align: "center" });
     doc.moveDown(1);
-    doc.fontSize(14).fillColor("red").text(`Total Expenses: ${totalExpenses.toFixed(2)} €`);
+    doc
+      .fontSize(14)
+      .fillColor("red")
+      .text(`Total Expenses: ${totalExpenses.toFixed(2)} €`);
     doc.fillColor("green").text(`Total Income: ${totalIncome.toFixed(2)} €`);
     doc.fillColor("darkgreen").text(`Balance: ${balance.toFixed(2)} €`);
     doc.moveDown(2);
@@ -1354,11 +1493,14 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
 
     // One-Time Expenses : affiche juste après résumé
     if (expenses.length > 0) {
-      doc.fontSize(16).fillColor("black").text("One-Time Expenses", 50, currentY, { underline: true });
+      doc
+        .fontSize(16)
+        .fillColor("black")
+        .text("One-Time Expenses", 50, currentY, { underline: true });
       currentY += 25; // décaler pour le tableau
       const headers = ["Date", "Name", "Category", "Amount (€)"];
       const widths = [100, 150, 150, 100];
-      const rows = expenses.map(exp => [
+      const rows = expenses.map((exp) => [
         new Date(exp.date).toLocaleDateString("en-GB"),
         exp.name,
         exp.category,
@@ -1370,10 +1512,19 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
 
     // Monthly Expenses (nouvelle page)
     if (monthlyExpenses.length > 0) {
-      doc.fontSize(16).fillColor("black").text("Monthly Expenses", 50, 50, { underline: true });
-      const headers = ["Start Date", "End Date", "Name", "Category", "Amount (€)"];
+      doc
+        .fontSize(16)
+        .fillColor("black")
+        .text("Monthly Expenses", 50, 50, { underline: true });
+      const headers = [
+        "Start Date",
+        "End Date",
+        "Name",
+        "Category",
+        "Amount (€)",
+      ];
       const widths = [80, 80, 150, 150, 100];
-      const rows = monthlyExpenses.map(exp => [
+      const rows = monthlyExpenses.map((exp) => [
         new Date(exp.date_start).toLocaleDateString("en-GB"),
         new Date(exp.date_end).toLocaleDateString("en-GB"),
         exp.name,
@@ -1386,10 +1537,13 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
 
     // One-Time Incomes (nouvelle page)
     if (incomes.length > 0) {
-      doc.fontSize(16).fillColor("black").text("One-Time Incomes", 50, 50, { underline: true });
+      doc
+        .fontSize(16)
+        .fillColor("black")
+        .text("One-Time Incomes", 50, 50, { underline: true });
       const headers = ["Date", "Name", "Amount (€)"];
       const widths = [100, 200, 100];
-      const rows = incomes.map(inc => [
+      const rows = incomes.map((inc) => [
         new Date(inc.date).toLocaleDateString("en-GB"),
         inc.name,
         parseFloat(inc.amount).toFixed(2),
@@ -1400,10 +1554,13 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
 
     // Monthly Incomes (nouvelle page)
     if (monthlyIncomes.length > 0) {
-      doc.fontSize(16).fillColor("black").text("Monthly Incomes", 50, 50, { underline: true });
+      doc
+        .fontSize(16)
+        .fillColor("black")
+        .text("Monthly Incomes", 50, 50, { underline: true });
       const headers = ["Start Date", "End Date", "Name", "Amount (€)"];
       const widths = [80, 80, 200, 100];
-      const rows = monthlyIncomes.map(inc => [
+      const rows = monthlyIncomes.map((inc) => [
         new Date(inc.date_start).toLocaleDateString("en-GB"),
         new Date(inc.date_end).toLocaleDateString("en-GB"),
         inc.name,
