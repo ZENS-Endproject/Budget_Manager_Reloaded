@@ -1,15 +1,21 @@
-#STAGE 1
+
+# STAGE 1
 FROM node AS builder
+
 
 WORKDIR /app
 
-COPY package*.json ./
-RUN npm install
-RUN npm run build
-EXPOSE 5173 
 
 COPY . .
 
-#STAGE 2
+RUN npm install
+RUN npm run build
+EXPOSE 5173
+
+# STAGE 2
 FROM nginx:alpine
-CMD ["npm", "start"]
+
+COPY default.conf /etc/nginx/conf.d/default.conf
+COPY --from=builder /app/build /usr/share/nginx/html
+
+EXPOSE 80
