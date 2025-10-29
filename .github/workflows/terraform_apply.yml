@@ -2,10 +2,12 @@ name: Terraform_Apply
 
 #on: [push, workflow_dispatch]
 
+
 on: 
   push:
     tags:
       - 'v*'
+
 
 jobs:
     terraform-apply:
@@ -22,7 +24,8 @@ jobs:
 
             - name: Checkout
               uses: actions/checkout@v5
-
+            - run: echo "Deploying to staging "
+#
             - name: Setup Terraform
               uses: hashicorp/setup-terraform@v3
 

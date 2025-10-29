@@ -6,6 +6,7 @@ services:
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: 1VMgjjD3D4kW
+      # Need to change the password!!!
       POSTGRES_DB: postgres
     networks:
       - backend-database-net      
