@@ -47,7 +47,7 @@ jobs:
             - name: ssh setup
             # sleep ist nur provisorisch hier, müsste optimiert werden
               run: | 
-                sleep 15
+                sleep 25
                 cd budget-infra
                 ip=$(terraform output -raw public_ip)
                 mkdir -p ~/.ssh
