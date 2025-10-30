@@ -1,36 +1,21 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 5.0"
-    }
-  }
-
-  required_version = ">= 1.6.0"
+provider "aws" {
+  region = "eu-central-1"
 }
 
-provider "aws" {
-  region = var.region
+variable "aws_instance_type" {
+    description = "wert des instance typen"
+    type = string
+    default = "t3.small"
 }
 
 resource "aws_instance" "app_server" {
-  // this is the ID of the Amazon standard Ubuntu-Image: 
-  ami               = "ami-0a116fa7c861dd5f9"
-  key_name          = var.key_name
-  instance_type     = "t3.small"
-  
-  # Override the default root volume size
-  # (docker with three containers won't work with only 8GB)
-  root_block_device {
-    volume_size = 16          # in GB
-    volume_type = "gp3"       # or "gp2", "io1", etc.
-    delete_on_termination = true
-  }
+  instance_type = var.aws_instance_type
+  ami = "ami-0a116fa7c861dd5f9"
+  key_name = var.key_name
+  subnet_id = aws_subnet.public_subnet.id
 
-  availability_zone = var.availability_zone
-  user_data         = file("user_data.sh")
   tags = {
-    Name = "tf_budget_manager_reloaded"
+    Name = "app_server"
   }
 
   vpc_security_group_ids = [
@@ -41,7 +26,7 @@ resource "aws_instance" "app_server" {
 resource "aws_security_group" "sg-frontend" {
   name = "securitygroup_from_tf"
 
-  //vpc_id = "vpc-0e69cf4346ac204e3"
+  vpc_id = aws_vpc.my_vpc.id
 
   ingress {
     cidr_blocks = [
@@ -61,26 +46,6 @@ resource "aws_security_group" "sg-frontend" {
     protocol  = "tcp"
   }
 
-  // backend
-  ingress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 5005
-    to_port   = 5005
-    protocol  = "tcp"
-  }
-
-  // postgres
-  ingress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 5432
-    to_port   = 5432
-    protocol  = "tcp"
-  }
-
   egress {
     from_port   = 0
     to_port     = 0
@@ -89,7 +54,23 @@ resource "aws_security_group" "sg-frontend" {
   }
 }      
 
+resource "aws_vpc" "my_vpc" {
+  cidr_block           = "10.0.0.0/16"
+  enable_dns_support   = true
+  enable_dns_hostnames = true
+  tags = { Name = "main_vpc" }
+}
+
+resource "aws_subnet" "public_subnet" {
+  vpc_id                  = aws_vpc.my_vpc.id
+  cidr_block              = "10.0.1.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "eu-central-1a"
+  tags = { Name = "public_subnet" }
+}
+
+
 output "public_ip" {
-    description = "Hier findet sich der Wert der Public IP der ersten Instanz"
+    description = " Public IP EC2 instance"
     value = aws_instance.app_server.public_ip
 }
