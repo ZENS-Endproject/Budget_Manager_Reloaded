@@ -42,7 +42,7 @@ jobs:
             - name: Terraform Apply
               run: | 
                 cd budget-infra
-                terraform apply -auto-approve
+                terraform apply -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve
 
             - name: ssh setup
             # sleep ist nur provisorisch hier, müsste optimiert werden

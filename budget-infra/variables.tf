@@ -16,3 +16,8 @@ variable "key_name" {
   type        = string
 }
 
+variable "db_password" {
+  description = "password for PostgreSQL RDS"
+  type        = string
+  sensitive   = true
+}

@@ -112,6 +112,30 @@ resource "aws_route_table_association" "public_subnet_asso" {
   subnet_id      = aws_subnet.public_subnet.id
   route_table_id = aws_route_table.route_table.id
 }
+resource "aws_db_instance" "postgres_rds" {
+  identifier          = "my-postgres-db"
+  engine              = "postgres"
+  engine_version      = "16.4"
+  instance_class      = "db.t3.micro"
+  allocated_storage   = 20
+  username            = "postgres"
+  password            = var.db_password
+  db_name             = "Budget"
+  publicly_accessible = true
+  skip_final_snapshot = true
+  vpc_security_group_ids = [aws_security_group.sg-frontend.id]
+  db_subnet_group_name   = aws_db_subnet_group.main.name
+}
+
+resource "aws_db_subnet_group" "subnet_group" {
+  name       = "main-subnet-group"
+  subnet_ids = [aws_subnet.public_subnet.id]  
+
+  tags = {
+    Name = "Main DB Subnet Group"
+  }
+}
+
 
 output "public_ip" {
     description = " Public IP EC2 instance"
