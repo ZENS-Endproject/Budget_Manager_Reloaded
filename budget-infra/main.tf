@@ -124,7 +124,9 @@ resource "aws_db_instance" "postgres_rds" {
   publicly_accessible = true
   skip_final_snapshot = true
   vpc_security_group_ids = [aws_security_group.sg-frontend.id]
-  db_subnet_group_name   = aws_db_subnet_group.main.name
+
+  db_subnet_group_name   = aws_db_subnet_group.subnet_group.name
+
 }
 
 resource "aws_db_subnet_group" "subnet_group" {
