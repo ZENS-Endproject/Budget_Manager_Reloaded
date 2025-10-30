@@ -42,15 +42,14 @@ jobs:
             - name: Terraform Apply
               run: | 
                 cd budget-infra
-                terraform apply -auto-approve -lock-timeout=5s
+                terraform apply -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve
 
             - name: ssh setup
             # sleep ist nur provisorisch hier, müsste optimiert werden
               run: | 
-                sleep 10
+                sleep 30
                 cd budget-infra
                 ip=$(terraform output -raw public_ip)
-                echo $ip
                 mkdir -p ~/.ssh
                 echo "${{secrets.AWS_EC2_KEY_PEM}}" > ~/.ssh/myPrivateKey
                 chmod 400 ~/.ssh/myPrivateKey

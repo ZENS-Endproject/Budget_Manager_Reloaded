@@ -15,3 +15,9 @@ variable "key_name" {
   description = "Your AWS EC2 key pair name for SSH"
   type        = string
 }
+
+variable "db_password" {
+  description = "password for PostgreSQL RDS"
+  type        = string
+  sensitive   = true
+}
