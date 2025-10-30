@@ -50,11 +50,11 @@ jobs:
                 sleep 30
                 cd budget-infra
                 ip=$(terraform output -raw public_ip)
+                echo $ip
                 mkdir -p ~/.ssh
                 echo "${{secrets.AWS_EC2_KEY_PEM}}" > ~/.ssh/myPrivateKey
                 chmod 400 ~/.ssh/myPrivateKey
                 ssh-keyscan -H $ip >> ~/.ssh/known_hosts 
-                sleep 10
 
             - name: install docker-compose & npm
               run: |
