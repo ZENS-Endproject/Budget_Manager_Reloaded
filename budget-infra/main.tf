@@ -45,6 +45,24 @@ resource "aws_security_group" "sg-frontend" {
     to_port   = 80
     protocol  = "tcp"
   }
+  ingress {
+    cidr_blocks = [
+      "0.0.0.0/0"
+    ]
+    from_port = 5005
+    to_port   = 5005
+    protocol  = "tcp"
+  }
+
+  // postgres
+  ingress {
+    cidr_blocks = [
+      "0.0.0.0/0"
+    ]
+    from_port = 5432
+    to_port   = 5432
+    protocol  = "tcp"
+  }
 
   egress {
     from_port   = 0
