@@ -87,6 +87,18 @@ resource "aws_subnet" "public_subnet" {
   tags = { Name = "public_subnet" }
 }
 
+resource "aws_subnet" "public_subnet_b" {
+  vpc_id                  = aws_vpc.my_vpc.id
+  cidr_block              = "10.0.2.0/24"
+  map_public_ip_on_launch = true
+  availability_zone       = "eu-central-1b"
+
+  tags = {
+    Name = "public_subnet_b"
+  }
+}
+
+
 resource "aws_internet_gateway" "internet_gateway" {
  vpc_id = aws_vpc.my_vpc.id
  
@@ -131,12 +143,16 @@ resource "aws_db_instance" "postgres_rds" {
 
 resource "aws_db_subnet_group" "subnet_group" {
   name       = "main-subnet-group"
-  subnet_ids = [aws_subnet.public_subnet.id]  
+  subnet_ids = [
+    aws_subnet.public_subnet.id,
+    aws_subnet.public_subnet_b.id
+  ]
 
   tags = {
     Name = "Main DB Subnet Group"
   }
 }
+
 
 
 output "public_ip" {
