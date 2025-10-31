@@ -34,7 +34,8 @@ jobs:
                 terraform init
             
             - name: Terraform Destroy
-              run: | 
+              run: |
                 cd budget-infra
-                terraform destroy -auto-approve
+                terraform destroy -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve
+
         
