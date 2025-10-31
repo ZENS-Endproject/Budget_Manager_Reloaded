@@ -1,13 +1,11 @@
 name: Terraform_Apply
 
-#on: [push, workflow_dispatch]
-
-
 on: 
   push:
     tags:
       - 'v*'
 
+  workflow_dispatch:
 
 jobs:
     terraform-apply:
