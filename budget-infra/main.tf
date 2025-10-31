@@ -3,65 +3,53 @@ provider "aws" {
 }
 
 variable "aws_instance_type" {
-    description = "wert des instance typen"
-    type = string
-    default = "t3.small"
+  description = "wert des instance typen"
+  type        = string
+  default     = "t3.small"
 }
+
+# EC2 Instance
 
 resource "aws_instance" "app_server" {
   instance_type = var.aws_instance_type
-  ami = "ami-0a116fa7c861dd5f9"
-  key_name = var.key_name
-  subnet_id = aws_subnet.public_subnet.id
+  ami           = "ami-0a116fa7c861dd5f9"
+  key_name      = var.key_name
+  subnet_id     = aws_subnet.public_subnet.id
 
   tags = {
     Name = "app_server"
   }
 
   vpc_security_group_ids = [
-    aws_security_group.sg-frontend.id
+    aws_security_group.sg_frontend.id
   ]
 }
 
-resource "aws_security_group" "sg-frontend" {
-  name = "securitygroup_from_tf"
+# Security Group for EC2
 
+resource "aws_security_group" "sg_frontend" {
+  name   = "sg_frontend"
   vpc_id = aws_vpc.my_vpc.id
 
   ingress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 22
-    to_port   = 22
-    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
   }
 
   ingress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 80
-    to_port   = 80
-    protocol  = "tcp"
-  }
-  ingress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 5005
-    to_port   = 5005
-    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
   }
 
-  // postgres
   ingress {
-    cidr_blocks = [
-      "0.0.0.0/0"
-    ]
-    from_port = 5432
-    to_port   = 5432
-    protocol  = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 5005
+    to_port     = 5005
+    protocol    = "tcp"
   }
 
   egress {
@@ -70,14 +58,20 @@ resource "aws_security_group" "sg-frontend" {
     protocol    = -1
     cidr_blocks = ["0.0.0.0/0"]
   }
-}      
+}
+
+
+# VPC
 
 resource "aws_vpc" "my_vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_support   = true
   enable_dns_hostnames = true
+
   tags = { Name = "main_vpc" }
 }
+
+
 
 resource "aws_subnet" "public_subnet" {
   vpc_id                  = aws_vpc.my_vpc.id
@@ -87,75 +81,155 @@ resource "aws_subnet" "public_subnet" {
   tags = { Name = "public_subnet" }
 }
 
-resource "aws_subnet" "public_subnet_b" {
+resource "aws_subnet" "private_subnet_a" {
   vpc_id                  = aws_vpc.my_vpc.id
   cidr_block              = "10.0.2.0/24"
-  map_public_ip_on_launch = true
-  availability_zone       = "eu-central-1b"
-
-  tags = {
-    Name = "public_subnet_b"
-  }
+  map_public_ip_on_launch = false
+  availability_zone       = "eu-central-1a"
+  tags                     = { Name = "private_subnet_a" }
 }
 
+resource "aws_subnet" "private_subnet_b" {
+  vpc_id                  = aws_vpc.my_vpc.id
+  cidr_block              = "10.0.3.0/24"
+  map_public_ip_on_launch = false
+  availability_zone       = "eu-central-1b"
+  tags = { Name = "private_subnet_b" }
+}
+
+
+# Internet Gateway
 
 resource "aws_internet_gateway" "internet_gateway" {
- vpc_id = aws_vpc.my_vpc.id
- 
- tags = {
-   Name = "Project VPC IG"
- }
+  vpc_id = aws_vpc.my_vpc.id
+  tags   = { Name = "Project VPC IG" }
 }
 
+
+# Public Route Table
+
 resource "aws_route_table" "route_table" {
- vpc_id = aws_vpc.my_vpc.id
- 
- route {
-   cidr_block = "0.0.0.0/0"
-   gateway_id = aws_internet_gateway.internet_gateway.id
- }
- 
- tags = {
-   Name = "Route Table"
- }
+  vpc_id = aws_vpc.my_vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.internet_gateway.id
+  }
+
+  tags = { Name = "Route Table" }
 }
 
 resource "aws_route_table_association" "public_subnet_asso" {
   subnet_id      = aws_subnet.public_subnet.id
   route_table_id = aws_route_table.route_table.id
 }
+
+
+# NAT Gateway
+
+resource "aws_eip" "nat_eip" {
+  vpc  = true
+  tags = { Name = "nat-eip" }
+}
+
+resource "aws_nat_gateway" "nat" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = aws_subnet.public_subnet.id
+  tags          = { Name = "Main NAT Gateway" }
+
+  depends_on = [aws_internet_gateway.internet_gateway]
+}
+
+# Private Route Table
+
+resource "aws_route_table" "private_rt" {
+  vpc_id = aws_vpc.my_vpc.id
+
+  route {
+    cidr_block     = "0.0.0.0/0"
+    nat_gateway_id = aws_nat_gateway.nat.id
+  }
+
+  tags = { Name = "Private Route Table" }
+}
+
+resource "aws_route_table_association" "private_a_assoc" {
+  subnet_id      = aws_subnet.private_subnet_a.id
+  route_table_id = aws_route_table.private_rt.id
+}
+
+resource "aws_route_table_association" "private_b_assoc" {
+  subnet_id      = aws_subnet.private_subnet_b.id
+  route_table_id = aws_route_table.private_rt.id
+}
+
+
+# RDS Security Group
+
+resource "aws_security_group" "sg_rds" {
+  name   = "sg-rds"
+  vpc_id = aws_vpc.my_vpc.id
+
+  ingress {
+    description     = "Postgres from EC2"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.sg_frontend.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = -1
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = { Name = "sg-rds" }
+}
+
+# RDS Instance
+
 resource "aws_db_instance" "postgres_rds" {
-  identifier          = "my-postgres-db"
-  engine              = "postgres"
-  engine_version      = "17.4"
-  instance_class      = "db.t3.micro"
-  allocated_storage   = 20
-  username            = "postgres"
-  password            = var.db_password
-  db_name             = "Budget"
-  publicly_accessible = true
-  skip_final_snapshot = true
-  vpc_security_group_ids = [aws_security_group.sg-frontend.id]
+  identifier            = "my-postgres-db"
+  engine                = "postgres"
+  engine_version        = "16.6"
+  instance_class        = "db.t3.micro"
+  allocated_storage     = 20
+  username              = "postgres"
+  password              = var.db_password
+  db_name               = "Budget"
+  publicly_accessible   = false
+  skip_final_snapshot   = true
+  vpc_security_group_ids = [aws_security_group.sg_rds.id]
+  db_subnet_group_name  = aws_db_subnet_group.subnet_group.name
 
-  db_subnet_group_name   = aws_db_subnet_group.subnet_group.name
-
+  depends_on = [aws_db_subnet_group.subnet_group]
 }
 
 resource "aws_db_subnet_group" "subnet_group" {
   name       = "main-subnet-group"
   subnet_ids = [
-    aws_subnet.public_subnet.id,
-    aws_subnet.public_subnet_b.id
+    aws_subnet.private_subnet_a.id,
+    aws_subnet.private_subnet_b.id
   ]
-
-  tags = {
-    Name = "Main DB Subnet Group"
-  }
+  tags = { Name = "Main DB Subnet Group" }
 }
 
 
+# Outputs
 
 output "public_ip" {
-    description = " Public IP EC2 instance"
-    value = aws_instance.app_server.public_ip
+  description = "Public IP EC2 instance"
+  value       = aws_instance.app_server.public_ip
+}
+
+output "rds_endpoint" {
+  description = "RDS endpoint"
+  value       = aws_db_instance.postgres_rds.endpoint
+}
+
+output "rds_port" {
+  description = "RDS port"
+  value       = aws_db_instance.postgres_rds.port
 }
