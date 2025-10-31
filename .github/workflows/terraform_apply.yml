@@ -22,8 +22,7 @@ jobs:
 
             - name: Checkout
               uses: actions/checkout@v5
-            - run: echo "Deploying to staging "
-#
+
             - name: Setup Terraform
               uses: hashicorp/setup-terraform@v3
 
@@ -42,12 +41,12 @@ jobs:
             - name: Terraform Apply
               run: | 
                 cd budget-infra
-                terraform apply -auto-approve
+                terraform apply -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve
 
             - name: ssh setup
             # sleep ist nur provisorisch hier, müsste optimiert werden
               run: | 
-                sleep 15
+                sleep 30
                 cd budget-infra
                 ip=$(terraform output -raw public_ip)
                 mkdir -p ~/.ssh
@@ -76,4 +75,3 @@ jobs:
                cd ~/Budget_Manager_Reloaded
                docker-compose up -d   
                "
-
