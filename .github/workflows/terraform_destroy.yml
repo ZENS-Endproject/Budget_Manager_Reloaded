@@ -36,6 +36,6 @@ jobs:
             - name: Terraform Destroy
               run: |
                 cd budget-infra
-                terraform destroy -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve
+                terraform destroy -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve -lock=false
 
         
