@@ -33,20 +33,14 @@ jobs:
                 cd budget-infra
                 terraform init
             
-            - name: Attempt Terraform Destroy
+            - name: Terraform Destroy
               run: |
                 cd budget-infra
-                terraform destroy -auto-approve -lock-timeout=5m
-              continue-on-error: true
-
-            - name: Force Unlock if Needed
-              if: failure() # Only run if previous step failed
-              run: |
-                cd budget-infra
-                # Replace LOCK_ID with the actual lock ID from the error message
-                LOCK_ID=$(terraform state pull | grep 'ID' | head -n1 | awk '{print $2}')
-                echo "Force unlocking Terraform state: $LOCK_ID"
-                terraform force-unlock $LOCK_ID
-                terraform destroy -auto-approve -lock-timeout=1m
+                # Retry in case of lock
+                for i in {1..3}; do
+                  terraform destroy -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve -lock-timeout=5m && break
+                  echo "Retrying destroy due to lock..."
+                  sleep 10
+                done
 
         
