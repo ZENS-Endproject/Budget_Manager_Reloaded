@@ -4,10 +4,10 @@ name: Terraform_Apply_test
 
 on: 
   push:
-    branches: [ "main" ]
+    branches: [ "_main" ]
     tags-ignore:
       - "v*"
-  workflow_dispatch:
+
 # In this case we can manually select the branch where to execute terrafotm workflow
 jobs:
     terraform-apply:
