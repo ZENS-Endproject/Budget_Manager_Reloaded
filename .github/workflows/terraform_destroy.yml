@@ -36,11 +36,6 @@ jobs:
             - name: Terraform Destroy
               run: |
                 cd budget-infra
-                # Retry in case of lock
-                for i in {1..3}; do
-                  terraform destroy -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve -lock-timeout=5m && break
-                  echo "Retrying destroy due to lock..."
-                  sleep 10
-                done
+                terraform destroy -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve
 
         
