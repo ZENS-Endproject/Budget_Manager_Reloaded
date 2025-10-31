@@ -8,7 +8,6 @@ on:
     tags-ignore:
       - "v*"
 
-# In this case we can manually select the branch where to execute terrafotm workflow
 jobs:
     terraform-apply:
         runs-on: ubuntu-latest
