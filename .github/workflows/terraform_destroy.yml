@@ -33,15 +33,9 @@ jobs:
                 cd budget-infra
                 terraform init
             
-
-            - name: Force Terraform Destroy (ignore S3 lock)
+            - name: Terraform Destroy
               run: |
                 cd budget-infra
-                # Use -lock=false to bypass S3 state lock issues
-                terraform destroy \
-                  -var "db_password=${{ secrets.DB_PASSWORD }}" \
-                  -auto-approve \
-                  -lock=false \
-                  -lock-timeout=5m
+                terraform destroy -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve
 
         
