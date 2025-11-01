@@ -42,7 +42,7 @@ jobs:
                 echo "Using bucket: $BUCKET_NAME"
                 cd budget-infra
                 terraform init -backend-config="key=infra/${SAFE_BRANCH}/terraform.tfstate"
-                terraform apply -var "branch_name=${SAFE_BRANCH}" -var "db_password=${{ secrets.DB_PASSWORD }}" 
+                terraform apply -var "branch_name=${SAFE_BRANCH}" -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve
                 
             - name: ssh setup
             # sleep ist nur provisorisch hier, müsste optimiert werden
