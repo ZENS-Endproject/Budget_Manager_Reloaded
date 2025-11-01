@@ -192,6 +192,11 @@ output "public_ip" {
   value       = aws_instance.app_server.public_ip
 }
 
+output "private_ip" {
+  description = "Private IP of EC2 instance"
+  value = aws_instance.app_server.private_ip
+}
+
 output "rds_endpoint" {
   description = "RDS endpoint (host)"
   value       = aws_db_instance.postgres_rds.endpoint
