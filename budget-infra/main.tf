@@ -18,7 +18,7 @@ resource "aws_instance" "app_server" {
   subnet_id     = aws_subnet.public_subnet.id
 
   tags = {
-    Name = "app_server"
+    Name = "${var.branch_name}-app_server"
   }
 
   vpc_security_group_ids = [
