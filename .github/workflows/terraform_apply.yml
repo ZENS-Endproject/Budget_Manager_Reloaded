@@ -80,7 +80,7 @@ jobs:
             - name: Initialize DB schema
               run: |
                 sudo apt install postgresql-client -y
-                ENDPOINT=$(terraform output -raw rds_endpoint
+                ENDPOINT=$(terraform output -raw rds_endpoint)
                 # Remove :5432 if present
                 HOST=$(echo "$ENDPOINT" | cut -d':' -f1)
                 echo "Connecting to host: $HOST"
