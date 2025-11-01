@@ -161,7 +161,7 @@ resource "aws_security_group" "sg_rds" {
 # RDS Instance (in private subnets)
 
 resource "aws_db_instance" "postgres_rds" {
-  identifier            = "my-postgres-db"
+  identifier            = "${var.branch_name}-postgres-db"
   engine                = "postgres"
   engine_version        = "16.6"
   instance_class        = "db.t3.micro"
