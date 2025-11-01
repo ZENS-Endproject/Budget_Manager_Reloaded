@@ -108,7 +108,7 @@ resource "aws_subnet" "private_subnet_b" {
 
 resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.my_vpc.id
-  tags   = { Name = "Project VPC IG" }
+  tags   = { Name = "${var.branch_name}-Project_VPC_IG" }
 }
 
 
