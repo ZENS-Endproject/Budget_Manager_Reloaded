@@ -80,3 +80,8 @@ jobs:
                cd ~/Budget_Manager_Reloaded
                docker-compose up -d   
                "
+               
+            - name: Initialize DB schema
+              run: |
+                psql "host=${{ steps.tf.outputs.rds_endpoint }} port=5432 user=postgres dbname=budget password=${{ secrets.DB_PASSWORD }}" -f ./backend/budget_2025-05-08.sql
+               
