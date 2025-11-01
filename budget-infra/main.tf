@@ -29,7 +29,7 @@ resource "aws_instance" "app_server" {
 # Security Group for EC2
 
 resource "aws_security_group" "sg_frontend" {
-  name   = "sg_frontend"
+  name   = "${var.branch_name}-sg_frontend"
   vpc_id = aws_vpc.my_vpc.id
 
   # Allow SSH
@@ -73,7 +73,7 @@ resource "aws_vpc" "my_vpc" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = { Name = "main_vpc" }
+  tags = { Name = "${var.branch_name}-main_vpc" }
 }
 
 
@@ -84,7 +84,7 @@ resource "aws_subnet" "public_subnet" {
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1a"
-  tags = { Name = "public_subnet" }
+  tags = { Name = "${var.branch_name}-public_subnet" }
 }
 
 resource "aws_subnet" "private_subnet_a" {
@@ -92,7 +92,7 @@ resource "aws_subnet" "private_subnet_a" {
   cidr_block              = "10.0.2.0/24"
   map_public_ip_on_launch = false
   availability_zone       = "eu-central-1a"
-  tags = { Name = "private_subnet_a" }
+  tags = { Name = "${var.branch_name}-private_subnet_a" }
 }
 
 resource "aws_subnet" "private_subnet_b" {
@@ -100,7 +100,7 @@ resource "aws_subnet" "private_subnet_b" {
   cidr_block              = "10.0.3.0/24"
   map_public_ip_on_launch = false
   availability_zone       = "eu-central-1b"
-  tags = { Name = "private_subnet_b" }
+  tags = { Name = "${var.branch_name}-private_subnet_b" }
 }
 
 
@@ -122,7 +122,7 @@ resource "aws_route_table" "public_rt" {
     gateway_id = aws_internet_gateway.internet_gateway.id
   }
 
-  tags = { Name = "Public Route Table" }
+  tags = { Name = "${var.branch_name}-Public_Route_Table" }
 }
 
 resource "aws_route_table_association" "public_subnet_assoc" {
@@ -154,7 +154,7 @@ resource "aws_security_group" "sg_rds" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = { Name = "sg_rds" }
+  tags = { Name = "${var.branch_name}-sg_rds" }
 }
 
 
@@ -181,7 +181,7 @@ resource "aws_db_subnet_group" "subnet_group" {
     aws_subnet.private_subnet_a.id,
     aws_subnet.private_subnet_b.id
   ]
-  tags = { Name = "Main DB Subnet Group" }
+  tags = { Name = "${var.branch_name}-Main_DB_Subnet_Group" }
 }
 
 
