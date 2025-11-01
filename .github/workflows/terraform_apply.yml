@@ -33,7 +33,7 @@ jobs:
                   aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET_KEY }}
                   aws-region: eu-central-1
 
-            - name: Terraform Init
+            - name: Terraform Init & Apply
               run: | 
                 BRANCH_NAME=${GITHUB_REF##*/}
                 # Sanitize the branch name for S3 (replace slashes)
@@ -42,12 +42,8 @@ jobs:
                 echo "Using bucket: $BUCKET_NAME"
                 cd budget-infra
                 terraform init -backend-config="key=infra/${SAFE_BRANCH}/terraform.tfstate"
-
-            - name: Terraform Apply
-              run: | 
-                cd budget-infra
-                terraform apply -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve
-
+                terraform apply -var "branch_name=${SAFE_BRANCH}" -var "db_password=${{ secrets.DB_PASSWORD }}" 
+                
             - name: ssh setup
             # sleep ist nur provisorisch hier, müsste optimiert werden
               run: | 
