@@ -80,6 +80,10 @@ jobs:
             - name: Initialize DB schema
               run: |
                 sudo apt install postgresql-client -y
-                ENDPOINT=$(terraform output -raw rds_endpoint)
-                psql "host=$ENDPOINT port=5432 user=postgres dbname=budget password=${{ secrets.DB_PASSWORD }}" -f ./backend/budget_2025-05-08.sql
-               
+                ENDPOINT=$(terraform output -raw rds_endpoint
+                # Remove :5432 if present
+                HOST=$(echo "$ENDPOINT" | cut -d':' -f1)
+                echo "Connecting to host: $HOST"
+                psql "host=$HOST port=5432 user=postgres dbname=budget password=${{ secrets.DB_PASSWORD }}" \
+                 -f ./backend/budget_2025-05-08.sql
+
