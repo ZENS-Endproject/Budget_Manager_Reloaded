@@ -80,27 +80,19 @@ jobs:
                cd ~/Budget_Manager_Reloaded
                docker-compose up -d   
                "
-               
+              
             - name: Initialize DB schema
               run: |
-                ip=$(terraform output -raw public_ip)
-                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install postgresql-client -y"        
-                ENDPOINT=$(terraform output -raw rds_endpoint)
-                # Remove :5432 if present
-                HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
-                echo "Connecting to host: $HOST"
-                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-                sudo apt update -y
-                sudo apt install postgresql-client -y
-                echo "Running SQL script on RDS..."
-                echo "$HOST" >  "/home/ubuntu/test.txt"
-                "
-                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-                PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql \
-                  -h "$HOST" \
-                  -p 5432 \
-                  -U postgres \
-                  -d budget \
-                  -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
-                "
+               ip=$(terraform output -raw public_ip)
+               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install postgresql-client -y"        
+               ENDPOINT=$(terraform output -raw rds_endpoint)
+               HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
+               echo "Connecting to host: $HOST"
+               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+               sudo apt update -y
+               sudo apt install postgresql-client -y
+               echo "Running SQL script on RDS..."
+               echo "$HOST" >  "/home/ubuntu/test.txt"
+               "
+               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h "$HOST" -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql"
 
