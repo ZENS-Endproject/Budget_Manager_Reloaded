@@ -87,7 +87,9 @@ jobs:
                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install postgresql-client -y"        
                ENDPOINT=$(terraform output -raw rds_endpoint)
                HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
+               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
                echo "Connecting to host: $HOST" >  "/home/ubuntu/test.txt"
+               "
 #               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
 #               sudo apt update -y
 #               sudo apt install postgresql-client -y
