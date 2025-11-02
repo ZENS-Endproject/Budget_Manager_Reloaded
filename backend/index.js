@@ -37,6 +37,9 @@ const pool = new Pool({
   database: process.env.DB_NAME, // Name deiner Datenbank
   password: process.env.DB_PASSWORD, // Dein Passwort
   port: process.env.DB_PORT, // Standardport für PostgreSQL
+  ssl: {
+    rejectUnauthorized: false
+  }	
 });
 
 const createTable = async () => {
