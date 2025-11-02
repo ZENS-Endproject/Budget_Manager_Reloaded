@@ -83,18 +83,12 @@ jobs:
               
             - name: Initialize DB schema
               run: |
+               cd budget-infra
                ip=$(terraform output -raw public_ip)
                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install postgresql-client -y"        
                ENDPOINT=$(terraform output -raw rds_endpoint)
                HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-               echo "Connecting to host: $HOST" >  "/home/ubuntu/test.txt"
+               echo "$HOST" >  "/home/ubuntu/test.txt"
+               PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h "$HOST" -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
                "
-#               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-#               sudo apt update -y
-#               sudo apt install postgresql-client -y
-#               echo "Running SQL script on RDS..."
-#               echo "$HOST" >  "/home/ubuntu/test.txt"
-#               "
-#               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h "$HOST" -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql"
-
