@@ -1,6 +1,6 @@
 # Overview
 
-## About nassi
+## About us
 - Entstanden aus einem 1-jährigen IT training
 - Mehrere Contributors
 - Tools used: GitHub, Git Actions, REACT, Tailwind, docker, terraform, Postgres
@@ -18,6 +18,24 @@ Create the following credentions in Settings => Secrets and variables => Actions
 2. Remove ALL hard coded credentials (like Postgres password)
 3. Switch from HTTP to HTTPS
 4. 
+
+# 2025-11-03 ReCap BMR   
+  
+**Done**  
+  
+1. Renamed “main” to “_main” im Senda’s copy of the apply - action file to avoid that workflow starts every time something is committed to the main branch.   
+2. Introduce “workflow_dispatch” for the “apply” workflow so that one can choose the branch (that will be used for the workflow) when starting the workflow manually.   
+3. Have one individual Terraform state file for each single branch in the S3 bucket. This allows to run TF separately and simultaneously.   
+4. Introduce the branch name as prefix for the different resources names in the “main.tf”.   
+5. Background: Steps 2. - 4. are supposed to allow parallel development:  Each developer can run independent the apply and destroy workflows paralelly in its respective branch. This will enable parallel development, deployment to AWS and testing of independent features. Once the respective feature is done and tested in the individual branch, it can be merged to the main branch.    
+6. Fixed the issue that the frontend / nginx was not responding when called via browser on public ip. To fix this the port mapping for the frontend in the docker-compose file needed to be changed to “80:80”.   
+  
+**Open points**  
+  
+1. Fix the “initiate data base” step of the apply workflow.  Currently the psql complains about wrong characters in the hostname.   
+2. Currently the logon page of the apps can be called in the browser but after entering the user name and password, a “server error” is displayed. Probably needs to fix the network connection between frontend and backend.    
+3. Sooner or later the repo needs to be made public because the 2000 minutes monthly  allowed for private repos wont be sufficient.    
+
 
 ## Tips & Tricks
 

@@ -37,6 +37,9 @@ const pool = new Pool({
   database: process.env.DB_NAME, // Name deiner Datenbank
   password: process.env.DB_PASSWORD, // Dein Passwort
   port: process.env.DB_PORT, // Standardport für PostgreSQL
+  ssl: {
+    rejectUnauthorized: false
+  }	
 });
 
 const createTable = async () => {
@@ -61,7 +64,15 @@ const createTable = async () => {
 
 createTable();
 
-app.use(cors());
+// Allow requests from anywhere (or restrict to your frontend domain)
+app.use(cors({
+  origin: "*",  // <-- for testing; restrict later
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+//app.use(cors());
+
 app.use(express.json()); // Ermöglicht Express Json aus einem Body auszulesen
 app.use(express.static("public"));
 

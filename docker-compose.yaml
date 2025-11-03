@@ -37,9 +37,9 @@ services:
     networks:
       - backend-database-net
       - backend-frontend-net
-    depends_on:
-      postgres-db:
-        condition: service_healthy
+#    depends_on:
+#      postgres-db:
+#        condition: service_healthy
 
   frontend:
     container_name: frontend
@@ -48,7 +48,7 @@ services:
       - ./frontend/.env
       - ./frontend/.env.local
     ports: 
-      - "80:3000"
+      - "80:80"
     networks:
       - backend-frontend-net
 
