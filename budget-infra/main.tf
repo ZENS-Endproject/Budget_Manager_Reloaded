@@ -181,6 +181,9 @@ resource "aws_db_subnet_group" "subnet_group" {
     aws_subnet.private_subnet_a.id,
     aws_subnet.private_subnet_b.id
   ]
+  lifecycle {
+    prevent_destroy = true
+  }
   tags = { Name = "${local.safe_branch_name}-Main_DB_Subnet_Group" }
 }
 
