@@ -18,7 +18,7 @@ resource "aws_instance" "app_server" {
   subnet_id     = aws_subnet.public_subnet.id
 
   tags = {
-    Name = "${var.branch_name}-app_server"
+    Name = "${local.safe_branch_name}-app_server"
   }
 
   vpc_security_group_ids = [
@@ -29,7 +29,7 @@ resource "aws_instance" "app_server" {
 # Security Group for EC2
 
 resource "aws_security_group" "sg_frontend" {
-  name   = "${var.branch_name}-sg_frontend"
+  name   = "${local.safe_branch_name}-sg_frontend"
   vpc_id = aws_vpc.my_vpc.id
 
   # Allow SSH
@@ -73,7 +73,7 @@ resource "aws_vpc" "my_vpc" {
   enable_dns_support   = true
   enable_dns_hostnames = true
 
-  tags = { Name = "${var.branch_name}-main_vpc" }
+  tags = { Name = "${local.safe_branch_name}-main_vpc" }
 }
 
 
@@ -84,7 +84,7 @@ resource "aws_subnet" "public_subnet" {
   cidr_block              = "10.0.1.0/24"
   map_public_ip_on_launch = true
   availability_zone       = "eu-central-1a"
-  tags = { Name = "${var.branch_name}-public_subnet" }
+  tags = { Name = "${local.safe_branch_name}-public_subnet" }
 }
 
 resource "aws_subnet" "private_subnet_a" {
@@ -92,7 +92,7 @@ resource "aws_subnet" "private_subnet_a" {
   cidr_block              = "10.0.2.0/24"
   map_public_ip_on_launch = false
   availability_zone       = "eu-central-1a"
-  tags = { Name = "${var.branch_name}-private_subnet_a" }
+  tags = { Name = "${local.safe_branch_name}-private_subnet_a" }
 }
 
 resource "aws_subnet" "private_subnet_b" {
@@ -100,7 +100,7 @@ resource "aws_subnet" "private_subnet_b" {
   cidr_block              = "10.0.3.0/24"
   map_public_ip_on_launch = false
   availability_zone       = "eu-central-1b"
-  tags = { Name = "${var.branch_name}-private_subnet_b" }
+  tags = { Name = "${local.safe_branch_name}-private_subnet_b" }
 }
 
 
@@ -108,7 +108,7 @@ resource "aws_subnet" "private_subnet_b" {
 
 resource "aws_internet_gateway" "internet_gateway" {
   vpc_id = aws_vpc.my_vpc.id
-  tags   = { Name = "${var.branch_name}-Project_VPC_IG" }
+  tags   = { Name = "${local.safe_branch_name}-Project_VPC_IG" }
 }
 
 
@@ -122,7 +122,7 @@ resource "aws_route_table" "public_rt" {
     gateway_id = aws_internet_gateway.internet_gateway.id
   }
 
-  tags = { Name = "${var.branch_name}-Public_Route_Table" }
+  tags = { Name = "${local.safe_branch_name}-Public_Route_Table" }
 }
 
 resource "aws_route_table_association" "public_subnet_assoc" {
@@ -134,7 +134,7 @@ resource "aws_route_table_association" "public_subnet_assoc" {
 # Security Group for RDS
 
 resource "aws_security_group" "sg_rds" {
-  name   = "${var.branch_name}-sg_rds"
+  name   = "${local.safe_branch_name}-sg_rds"
   vpc_id = aws_vpc.my_vpc.id
 
   # Allow Postgres traffic only from EC2 security group
@@ -154,14 +154,14 @@ resource "aws_security_group" "sg_rds" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
-  tags = { Name = "${var.branch_name}-sg_rds" }
+  tags = { Name = "${local.safe_branch_name}-sg_rds" }
 }
 
 
 # RDS Instance (in private subnets)
 
 resource "aws_db_instance" "postgres_rds" {
-  identifier            = "${var.branch_name}-postgres-db"
+  identifier            = "${local.safe_branch_name}-postgres-db"
   engine                = "postgres"
   engine_version        = "16.6"
   instance_class        = "db.t3.micro"
@@ -176,12 +176,12 @@ resource "aws_db_instance" "postgres_rds" {
 }
 
 resource "aws_db_subnet_group" "subnet_group" {
-  name       = "${var.branch_name}-subnet-group"
+  name       = "${local.safe_branch_name}-subnet-group"
   subnet_ids = [
     aws_subnet.private_subnet_a.id,
     aws_subnet.private_subnet_b.id
   ]
-  tags = { Name = "${var.branch_name}-Main_DB_Subnet_Group" }
+  tags = { Name = "${local.safe_branch_name}-Main_DB_Subnet_Group" }
 }
 
 
