@@ -70,11 +70,15 @@ jobs:
               run: |
                 cd budget-infra
                 ip=$(terraform output -raw public_ip)
-                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt update"
-                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install docker.io -y"
-                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo usermod -aG docker ubuntu"   
-                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install docker-compose -y"
-           #ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install npm -y"      
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip'         
+                  sudo apt update
+                  sudo apt install docker.io -y
+                  DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
+                  mkdir -p $DOCKER_CONFIG/cli-plugins
+                  curl -SL https://github.com/docker/compose/releases/download/v2.40.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
+                  chmod +x $DOCKER_CONFIG/cli-plugins/docker-compose
+                  sudo usermod -aG docker ubuntu
+                  ' 
             
             - name: scp repo
               run: |
