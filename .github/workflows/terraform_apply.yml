@@ -93,7 +93,7 @@ jobs:
                echo "DB_HOST=$HOST" > "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
                echo "REACT_APP_API_URL=http://$ip:5005"  > "/home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local"
                cd ~/Budget_Manager_Reloaded
-               docker-compose up -d   
+               docker compose up -d   
                "
               
             - name: Initialize DB schema
