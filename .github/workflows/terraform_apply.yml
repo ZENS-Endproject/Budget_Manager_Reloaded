@@ -35,6 +35,7 @@ jobs:
 
             - name: Terraform Init & Apply
               run: | 
+                needs: install docker-compose & npm
                 BRANCH_NAME=${GITHUB_REF##*/}
                 # Sanitize the branch name for S3 (replace slashes)
                 SAFE_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-')
