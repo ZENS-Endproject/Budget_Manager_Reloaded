@@ -74,7 +74,8 @@ resource "aws_vpc" "my_vpc" {
   enable_dns_hostnames = true
 
   tags = { Name = "${local.safe_branch_name}-main_vpc" }
-  force_destroy = true 
+  
+   force_destroy = true
 }
 
 
