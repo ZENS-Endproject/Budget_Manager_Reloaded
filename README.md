@@ -1,6 +1,6 @@
 # Overview
 
-## About nassi
+## About nassi v2
 - Entstanden aus einem 1-jährigen IT training
 - Mehrere Contributors
 - Tools used: GitHub, Git Actions, REACT, Tailwind, docker, terraform, Postgres
