@@ -134,7 +134,7 @@ resource "aws_route_table_association" "public_subnet_assoc" {
 # Security Group for RDS
 
 resource "aws_security_group" "sg_rds" {
-  name   = "sg_rds"
+  name   = "${var.branch_name}-sg_rds"
   vpc_id = aws_vpc.my_vpc.id
 
   # Allow Postgres traffic only from EC2 security group
@@ -176,7 +176,7 @@ resource "aws_db_instance" "postgres_rds" {
 }
 
 resource "aws_db_subnet_group" "subnet_group" {
-  name       = "main-subnet-group"
+  name       = "${var.branch_name}-subnet-group"
   subnet_ids = [
     aws_subnet.private_subnet_a.id,
     aws_subnet.private_subnet_b.id

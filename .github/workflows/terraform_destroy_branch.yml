@@ -1,0 +1,54 @@
+name: Terraform_Destroy_Branch
+
+on: 
+  workflow_dispatch:
+    inputs:
+      branch:
+        description: "Name of the branch to destroy"
+        required: true   
+
+jobs:
+  terraform-destroy:
+    runs-on: ubuntu-latest
+
+    steps:
+      #Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      #Setup Terraform
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      #Configure AWS credentials
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-region: eu-central-1
+
+      #Destroy Terraform resources
+      - name: Destroy Terraform resources
+        working-directory: budget-infra
+        run: |
+          # Get the branch name from workflow input (mandatory)
+          BRANCH="${{ github.event.inputs.branch }}"
+          SAFE_BRANCH=$(echo "$BRANCH" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+          echo "Destroying resources for branch: $SAFE_BRANCH"
+
+          # S3 bucket name for the backend
+          BUCKET_NAME="tf-bud-relo-state-bucket-${SAFE_BRANCH}"
+          echo "Using S3 bucket: $BUCKET_NAME"
+
+          # Initialize Terraform with backend specific to the branch
+          terraform init \
+            -backend-config="bucket=$BUCKET_NAME" \
+            -backend-config="key=infra/${SAFE_BRANCH}/terraform.tfstate" \
+            -backend-config="region=eu-central-1"
+
+          # Automatically destroy all resources
+          terraform destroy -auto-approve \
+            -var "branch_name=${SAFE_BRANCH}" \
+            -var "db_password=${{ secrets.DB_PASSWORD }}" \
+            -var "aws_instance_type=t3.small"

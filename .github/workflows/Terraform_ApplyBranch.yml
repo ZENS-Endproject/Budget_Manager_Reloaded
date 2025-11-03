@@ -1,0 +1,76 @@
+name: Terraform Apply per Branch
+
+on:
+  push:
+    branches:
+      - '*'        # with each push on any branch
+  workflow_dispatch:
+
+jobs:
+  terraform-apply:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v5
+
+      - name: Extract branch name
+        id: extract_branch
+        run: |
+          BRANCH_NAME=${GITHUB_REF##*/}
+          SAFE_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-')
+          echo "branch_name=$SAFE_BRANCH" >> $GITHUB_OUTPUT
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET_KEY }}
+          aws-region: eu-central-1
+
+      - name: Terraform Init
+        run: |
+          cd Terraform
+          terraform init \
+            -backend-config="bucket=tf-bud-relo-state-bucket-f" \
+            -backend-config="key=infra/${{ steps.extract_branch.outputs.branch_name }}/terraform.tfstate" \
+            -backend-config="region=eu-central-1"
+
+      - name: Terraform Apply
+        run: |
+          cd Terraform
+          terraform apply -auto-approve \
+            -var "branch_name=${{ steps.extract_branch.outputs.branch_name }}" \
+            -var "aws_region=eu-central-1" \
+            -var "key_name=mykeypair-aws" \
+            -var "aws_instance_type=t3.small"
+
+      - name: Get EC2 IP
+        id: ec2_ip
+        run: |
+          cd Terraform
+          ip=$(terraform output -raw public_ip)
+          echo "ip=$ip" >> $GITHUB_OUTPUT
+
+      - name: Deploy App to EC2
+        env:
+          AWS_EC2_KEY_PEM: ${{ secrets.AWS_EC2_KEY_PEM }}
+        run: |
+          IP=${{ steps.ec2_ip.outputs.ip }}
+          BRANCH=${{ steps.extract_branch.outputs.branch_name }}
+          echo "$AWS_EC2_KEY_PEM" > private_key.pem
+          chmod 600 private_key.pem
+          
+          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@$IP <<EOF
+          sudo apt update -y
+          sudo apt install -y docker.io docker-compose
+          cd /home/ubuntu
+          rm -rf app || true
+          mkdir app && cd app
+          git clone https://github.com/${{ github.repository }} .
+          git checkout $BRANCH
+          docker-compose up -d --build
+          EOF
