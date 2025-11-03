@@ -33,7 +33,7 @@ jobs:
                   aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET_KEY }}
                   aws-region: eu-central-1
 
-            - name: Terraform Init
+            - name: Terraform Init & Apply
               run: | 
                 BRANCH_NAME=${GITHUB_REF##*/}
                 # Sanitize the branch name for S3 (replace slashes)
@@ -42,17 +42,6 @@ jobs:
                 echo "Using bucket: $BUCKET_NAME"
                 cd budget-infra
                 terraform init -backend-config="key=infra/${SAFE_BRANCH}/terraform.tfstate"
-
-
-                
-            - name: Terraform Apply
-              run: | 
-                BRANCH_NAME=${GITHUB_REF##*/}
-                # Sanitize the branch name for S3 (replace slashes)
-                SAFE_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-')
-                BUCKET_NAME="tf-bud-relo-state-bucket-${SAFE_BRANCH}"
-                echo "Using bucket: $BUCKET_NAME"
-                cd budget-infra
                 terraform apply -var "branch_name=${SAFE_BRANCH}" -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve
                 
             - name: ssh setup
@@ -70,17 +59,11 @@ jobs:
               run: |
                 cd budget-infra
                 ip=$(terraform output -raw public_ip)
-                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip '         
-                  sudo apt update
-                  sudo apt install docker.io -y
-                  DOCKER_CONFIG=${DOCKER_CONFIG:-$HOME/.docker}
-                  mkdir -p $DOCKER_CONFIG/cli-plugins
-                  curl -SL https://github.com/docker/compose/releases/download/v2.40.1/docker-compose-linux-x86_64 -o $DOCKER_CONFIG/cli-plugins/docker-compose
-                  sudo mv $DOCKER_CONFIG/cli-plugins/docker-compose /usr/bin/docker-compose 
-                  chmod +x /usr/bin/docker-compose
-                  
-                  sudo usermod -aG docker ubuntu 
-                  ' 
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt update"
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install docker.io -y"
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo usermod -aG docker ubuntu"   
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install docker-compose -y"
+           #ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install npm -y"      
             
             - name: scp repo
               run: |
@@ -91,12 +74,12 @@ jobs:
                # Remove :5432 if present
                HOST=$(echo "$ENDPOINT" | cut -d':' -f1)
                scp -i ~/.ssh/myPrivateKey -r /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded ubuntu@$ip:/home/ubuntu
-               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip '
+               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
                echo "DB_HOST=$HOST" > "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
                echo "REACT_APP_API_URL=http://$ip:5005"  > "/home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local"
                cd ~/Budget_Manager_Reloaded
                docker-compose up -d   
-               '
+               "
               
             - name: Initialize DB schema
               run: |
