@@ -3,7 +3,7 @@ name: Terraform Apply per Branch
 on:
   push:
     branches:
-      - '*'        # with each push on any branch
+      - '*'
   workflow_dispatch:
 
 jobs:
@@ -18,59 +18,68 @@ jobs:
         id: extract_branch
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
-          SAFE_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-')
+          SAFE_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
           echo "branch_name=$SAFE_BRANCH" >> $GITHUB_OUTPUT
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET_KEY }}
           aws-region: eu-central-1
 
-      - name: Terraform Init
+      - name: Terraform Init & Apply
+        working-directory: budget-infra
         run: |
-          cd budget-infra
           terraform init \
-            -backend-config="bucket=tf-bud-relo-state-bucket-f" \
+            -backend-config="bucket=tf-bud-relo-state-bucket-${{ steps.extract_branch.outputs.branch_name }}" \
             -backend-config="key=infra/${{ steps.extract_branch.outputs.branch_name }}/terraform.tfstate" \
             -backend-config="region=eu-central-1"
 
-      - name: Terraform Apply
-        run: |
-          cd budget-infra
           terraform apply -auto-approve \
             -var "branch_name=${{ steps.extract_branch.outputs.branch_name }}" \
-            -var "region=eu-central-1" \
-            -var "key_name=mykeypair-aws" \
+            -var "db_password=${{ secrets.DB_PASSWORD }}" \
+            -var "key_name=${{ secrets.AWS_KEY_NAME }}" \
             -var "aws_instance_type=t3.small"
 
-      - name: Get EC2 IP
-        id: ec2_ip
-        run: |
-          cd budget-infra
-          ip=$(terraform output -raw public_ip)
-          echo "ip=$ip" >> $GITHUB_OUTPUT
+      - name: Wait for EC2 SSH
+        run: sleep 30
 
-      - name: Deploy App to EC2
-        env:
-          AWS_EC2_KEY_PEM: ${{ secrets.AWS_EC2_KEY_PEM }}
+      - name: Setup SSH key
         run: |
-          IP=${{ steps.ec2_ip.outputs.ip }}
-          BRANCH=${{ steps.extract_branch.outputs.branch_name }}
-          echo "$AWS_EC2_KEY_PEM" > private_key.pem
-          chmod 600 private_key.pem
-          
-          ssh -i private_key.pem -o StrictHostKeyChecking=no ubuntu@$IP <<EOF
-          sudo apt update -y
-          sudo apt install -y docker.io docker-compose
-          cd /home/ubuntu
-          rm -rf app || true
-          mkdir app && cd app
-          git clone https://github.com/${{ github.repository }} .
-          git checkout $BRANCH
-          docker-compose up -d --build
-          EOF
+          mkdir -p ~/.ssh
+          echo "${{ secrets.AWS_EC2_KEY_PEM }}" > ~/.ssh/myPrivateKey
+          chmod 400 ~/.ssh/myPrivateKey
+          IP=$(terraform -chdir=budget-infra output -raw public_ip)
+          ssh-keyscan -H $IP >> ~/.ssh/known_hosts
+
+      - name: Install Docker & Docker Compose
+        run: |
+          IP=$(terraform -chdir=budget-infra output -raw public_ip)
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$IP "sudo apt update && sudo apt install -y docker.io docker-compose"
+
+      - name: Deploy App
+        run: |
+          IP=$(terraform -chdir=budget-infra output -raw public_ip)
+          ENDPOINT=$(terraform -chdir=budget-infra output -raw rds_endpoint)
+          HOST=$(echo "$ENDPOINT" | cut -d':' -f1)
+          scp -i ~/.ssh/myPrivateKey -r ./Budget_Manager_Reloaded ubuntu@$IP:/home/ubuntu
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$IP "
+            echo \"DB_HOST=$HOST\" > /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
+            echo \"REACT_APP_API_URL=http://$IP:5005\" > /home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local
+            cd /home/ubuntu/Budget_Manager_Reloaded
+            docker-compose up -d
+          "
+
+      - name: Initialize DB schema
+        run: |
+          IP=$(terraform -chdir=budget-infra output -raw public_ip)
+          ENDPOINT=$(terraform -chdir=budget-infra output -raw rds_endpoint)
+          HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$IP "
+            sudo apt install -y postgresql-client
+            PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h $HOST -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
+          "
