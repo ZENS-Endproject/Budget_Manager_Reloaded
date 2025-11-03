@@ -45,7 +45,6 @@ function IncomesNav() {
   }, [userId]);
   return (
     <>
-      <Navbar />
       <div
         className="expenses-nav"
         style={{
