@@ -33,7 +33,7 @@ jobs:
 
       - name: Terraform Init
         run: |
-          cd Terraform
+          cd budget-infra
           terraform init \
             -backend-config="bucket=tf-bud-relo-state-bucket-f" \
             -backend-config="key=infra/${{ steps.extract_branch.outputs.branch_name }}/terraform.tfstate" \
@@ -41,7 +41,7 @@ jobs:
 
       - name: Terraform Apply
         run: |
-          cd Terraform
+          cd budget-infra
           terraform apply -auto-approve \
             -var "branch_name=${{ steps.extract_branch.outputs.branch_name }}" \
             -var "aws_region=eu-central-1" \
@@ -51,7 +51,7 @@ jobs:
       - name: Get EC2 IP
         id: ec2_ip
         run: |
-          cd Terraform
+          cd budget-infra
           ip=$(terraform output -raw public_ip)
           echo "ip=$ip" >> $GITHUB_OUTPUT
 
