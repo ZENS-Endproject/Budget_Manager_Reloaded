@@ -1,10 +1,6 @@
 # Overview
 
-<<<<<<< HEAD
 ## About nassi
-=======
-## About her
->>>>>>> main
 - Entstanden aus einem 1-jährigen IT training
 - Mehrere Contributors
 - Tools used: GitHub, Git Actions, REACT, Tailwind, docker, terraform, Postgres
