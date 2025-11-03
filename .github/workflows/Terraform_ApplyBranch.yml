@@ -31,6 +31,17 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET_KEY }}
           aws-region: eu-central-1
 
+    
+      - name: Create S3 bucket if missing
+        run: |
+            SAFE_BRANCH=${{ steps.extract_branch.outputs.branch_name }}
+            BUCKET_NAME="tf-bud-relo-state-bucket-${SAFE_BRANCH}"
+            aws s3api head-bucket --bucket $BUCKET_NAME 2>/dev/null || \
+            aws s3api create-bucket \
+            --bucket $BUCKET_NAME \
+            --region eu-central-1 \
+            --create-bucket-configuration LocationConstraint=eu-central-1
+
       - name: Terraform Init & Apply
         working-directory: budget-infra
         run: |
