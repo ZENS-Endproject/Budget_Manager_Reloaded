@@ -64,7 +64,15 @@ const createTable = async () => {
 
 createTable();
 
-app.use(cors());
+// Allow requests from anywhere (or restrict to your frontend domain)
+app.use(cors({
+  origin: "*",  // <-- for testing; restrict later
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+//app.use(cors());
+
 app.use(express.json()); // Ermöglicht Express Json aus einem Body auszulesen
 app.use(express.static("public"));
 
