@@ -1,4 +1,4 @@
-name: Terraform Destroy per Branch
+name: Terraform_Destroy_Branch
 
 on: 
   workflow_dispatch:
