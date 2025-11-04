@@ -84,7 +84,7 @@ jobs:
           ENDPOINT=$(terraform output -raw rds_endpoint)
           HOST=$(echo "$ENDPOINT" | cut -d':' -f1)
           scp -i ~/.ssh/myPrivateKey -r ./Budget_Manager_Reloaded ubuntu@$ip:/home/ubuntu
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip " 
             echo \"DB_HOST=$HOST\" > /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
             echo \"REACT_APP_API_URL=http://$ip:5005\" > /home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local
             cd /home/ubuntu/Budget_Manager_Reloaded
