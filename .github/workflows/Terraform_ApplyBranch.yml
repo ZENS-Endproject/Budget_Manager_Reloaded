@@ -70,8 +70,7 @@ jobs:
 
       - name: Install Docker & Docker Compose
         run: |
-            cd budget-infra
-            ip=$(terraform output -raw public_ip)
+                ip=$(terraform -chdir=budget-infra output -raw public_ip)
                 ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt update"
                 ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install docker.io -y"
                 ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo usermod -aG docker ubuntu"   
