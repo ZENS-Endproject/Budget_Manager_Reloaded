@@ -61,8 +61,7 @@ jobs:
 
       - name: Setup SSH key
         run: |
-          cd budget-infra
-          ip=$(terraform output -raw public_ip)
+          ip=$(terraform -chdir=budget-infra output -raw public_ip)
           mkdir -p ~/.ssh
           echo "${{ secrets.AWS_EC2_KEY_PEM }}" > ~/.ssh/myPrivateKey
           chmod 400 ~/.ssh/myPrivateKey
@@ -91,8 +90,7 @@ jobs:
 
       - name: Initialize DB schema
         run: |
-               cd budget-infra
-               ip=$(terraform output -raw public_ip)
+               ip=$(terraform -chdir=budget-infra output -raw public_ip)
                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install postgresql-client -y"        
                ENDPOINT=$(terraform output -raw rds_endpoint)
                HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
