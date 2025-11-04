@@ -22,23 +22,14 @@ services:
 #      retries: 5         # mark as unhealthy after 5 failures
 #      #start_period: 20s  # wait 20s before first check (gives Postgres time to boot)  
 
-  backend:
-    container_name: backend
-    build: ./backend
-    ports: 
-      - "5005:5005"
-    environment:
-      DB_HOST: ${DB_HOST}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: budget
-      PORT: 5005
-# Docker injects the values as environment variables. 
-# Node.js apps (if they use dotenv) will still work, because dotenv reads from the 
-# environment if .env is not present.
-# By default Docker respects a .dockerignore file (to avoid that it's copied to the image)
-    env_file:
-      - ./backend/.env.local
-    restart: always
+    backend:
+      container_name: backend
+      build: ./backend
+      ports: 
+        - "5005:5005"
+      env_file:
+        - ./backend/.env.local
+      restart: always
     networks:
       - backend-database-net
       - backend-frontend-net
@@ -46,24 +37,24 @@ services:
 #      postgres-db:
 #        condition: service_healthy
 
-  frontend:
-    container_name: frontend
-    build: ./frontend
-    environment:
-      REACT_APP_API_URL: http://${BACKEND_HOST:-backend}:5005
-    depends_on:
-      - backend
-    restart: always
-    ports: 
-      - "80:80"
-    networks:
-      - backend-frontend-net
+    frontend:
+      container_name: frontend
+      build: ./frontend
+      environment:
+        REACT_APP_API_URL: http://${BACKEND_HOST:-backend}:5005
+      depends_on:
+        - backend
+      restart: always
+      ports: 
+        - "80:80"
+      networks:
+        - backend-frontend-net
 
-networks:
-  backend-database-net:
-    driver: bridge
-  backend-frontend-net:
-    driver: bridge
+    networks:
+      backend-database-net:
+        driver: bridge
+      backend-frontend-net:
+        driver: bridge
 
 #volumes:
 #  postgres_db_volume:
