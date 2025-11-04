@@ -88,15 +88,30 @@ jobs:
             docker-compose up -d
           "
 
+    #   - name: Initialize DB schema
+    #     run: |
+    #            ip=$(terraform -chdir=budget-infra output -raw public_ip)
+                    
+    #            ENDPOINT=$(terraform -chdir=budget-infra output -raw rds_endpoint)
+    #            HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
+
+    #            ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt update && sudo apt install -y postgresql-client" 
+    #            ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+    #            echo "$HOST" >  "/home/ubuntu/test.txt"
+    #            PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h "$HOST" -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
+    #            "
       - name: Initialize DB schema
         run: |
-               ip=$(terraform -chdir=budget-infra output -raw public_ip)
-                    
-               ENDPOINT=$$(terraform -chdir=budget-infra output -raw rds_endpoint)
-               HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
+            
+            ip=$(terraform -chdir=budget-infra output -raw public_ip)
+            endpoint=$(terraform -chdir=budget-infra output -raw rds_endpoint)
+            host=$(echo "$endpoint" | cut -d':' -f1 | tr -d '\r\n')
 
-               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt update && sudo apt install -y postgresql-client" 
-               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-               echo "$HOST" >  "/home/ubuntu/test.txt"
-               PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h "$HOST" -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
-               "
+           
+            ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt update && sudo apt install -y postgresql-client"
+
+         
+            ssh -i ~/.ssh/myPrivateKey ubuntu@$ip bash -c "'
+            echo \"$host\" > /home/ubuntu/test.txt
+            PGPASSWORD=\"${{ secrets.DB_PASSWORD }}\" psql -h \"$host\" -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
+            '"
