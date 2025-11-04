@@ -14,6 +14,7 @@ import { Button } from "./ui/button";
 import { FormItem, FormLabel, FormControl } from "./ui/form";
 import { Input } from "./ui/input";
 import { API_URL } from "../lib/utils";
+import Text from "./Text";
 function MonthlyIncomes() {
   const [income, setIncome] = useState([]);
   const [monthlySum, setMonthlySum] = useState(0);
@@ -113,9 +114,9 @@ function MonthlyIncomes() {
   return (
     <>
       <AddIncomeForm />
-      <h1 className="text-2xl font-bold text-center my-6">
-        Monthly Incomes {selectedMonthYear}
-      </h1>
+      <Text variant="subtitleBlue" className="text-center my-6">
+        Regular Incomes {selectedMonthYear}
+      </Text>
 
       <div className="text-center mt-10">
         <Button

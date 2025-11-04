@@ -13,6 +13,7 @@ import { Button } from "./ui/button";
 import { FormItem, FormLabel, FormControl } from "./ui/form";
 import { Input } from "./ui/input";
 import { API_URL } from "../lib/utils";
+import Text from "./Text";
 
 function Income() {
   const [income, setIncome] = useState([]);
@@ -108,9 +109,9 @@ function Income() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-center my-6">
+      <Text variant="subtitleBlue" className="text-center my-6">
         One-Time Incomes {selectedMonthYear}
-      </h1>
+      </Text>
       <div className="text-center mt-10">
         <Button
           onClick={() => setShowMonthFilter(!showMonthFilter)}
