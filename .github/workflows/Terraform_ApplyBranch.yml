@@ -102,16 +102,19 @@ jobs:
     #            "
       - name: Initialize DB schema
         run: |
-            
             ip=$(terraform -chdir=budget-infra output -raw public_ip)
             endpoint=$(terraform -chdir=budget-infra output -raw rds_endpoint)
             host=$(echo "$endpoint" | cut -d':' -f1 | tr -d '\r\n')
 
-           
+            # Installer psql
             ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt update && sudo apt install -y postgresql-client"
 
-         
+            # Créer la base 'budget' si elle n'existe pas
             ssh -i ~/.ssh/myPrivateKey ubuntu@$ip bash -c "'
-            echo \"$host\" > /home/ubuntu/test.txt
-            PGPASSWORD=\"${{ secrets.DB_PASSWORD }}\" psql -h \"$host\" -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
+            PGPASSWORD=\"${{ secrets.DB_PASSWORD }}\" psql -h \"$host\" -U postgres -tc \"SELECT 1 FROM pg_database WHERE datname='budget'\" | grep -q 1 || PGPASSWORD=\"${{ secrets.DB_PASSWORD }}\" psql -h \"$host\" -U postgres -c \"CREATE DATABASE budget;\"
+            '"
+
+            # Appliquer ton SQL sur la base 'budget'
+            ssh -i ~/.ssh/myPrivateKey ubuntu@$ip bash -c "'
+            PGPASSWORD=\"${{ secrets.DB_PASSWORD }}\" psql -h \"$host\" -U postgres -d budget -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
             '"
