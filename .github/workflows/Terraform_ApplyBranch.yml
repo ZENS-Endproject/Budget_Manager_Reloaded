@@ -53,6 +53,7 @@ jobs:
           terraform apply -auto-approve \
             -var "branch_name=${{ steps.extract_branch.outputs.branch_name }}" \
             -var "db_password=${{ secrets.DB_PASSWORD }}" \
+            -var "key_name=var.key_name" \
             -var "aws_instance_type=t3.small"
 
       - name: Wait for EC2 SSH
