@@ -18,6 +18,7 @@ import EditMonthExpense from "./pages/EditMonthExpense";
 import EditMonthlyIncome from "./pages/EditMonthlyIncome";
 import { ThemeProvider } from "next-themes";
 import Signup from "./pages/Signup";
+import AppLayout from "./layout/AppLayout";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
