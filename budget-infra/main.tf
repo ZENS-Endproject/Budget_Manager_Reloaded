@@ -21,6 +21,10 @@ resource "aws_instance" "app_server" {
     Name = "${local.safe_branch_name}-app_server"
   }
 
+ root_block_device {
+    volume_size = 30   # 30 Go au lieu de 8 Go par défaut
+    volume_type = "gp3"
+  }
   vpc_security_group_ids = [
     aws_security_group.sg_frontend.id
   ]
