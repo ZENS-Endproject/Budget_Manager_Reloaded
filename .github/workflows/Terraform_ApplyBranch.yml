@@ -52,7 +52,9 @@ jobs:
 
           terraform apply \
             -var "branch_name=${{ steps.extract_branch.outputs.branch_name }}" \
-            -var "db_password=${{ secrets.DB_PASSWORD }}"  -auto-approve
+            -var "db_password=${{ secrets.DB_PASSWORD }}"\
+            -var "key_name=ssh-budget-reloaded-key" \
+            -auto-approve
 
       - name: Wait for EC2 SSH
         run: sleep 30
