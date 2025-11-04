@@ -77,16 +77,24 @@ jobs:
 
       - name: Deploy App
         run: |
-          ip=$(terraform -chdir=budget-infra output -raw public_ip)
-          ENDPOINT=$(terraform -chdir=budget-infra output -raw rds_endpoint)
-          HOST=$(echo "$ENDPOINT" | cut -d':' -f1)
-          scp -i ~/.ssh/myPrivateKey -r /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded ubuntu@$ip:/home/ubuntu
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip " 
-            echo \"DB_HOST=$HOST\" > /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
-            echo \"REACT_APP_API_URL=http://$ip:5005\" > /home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local
+            ip=$(terraform -chdir=budget-infra output -raw public_ip)
+            ENDPOINT=$(terraform -chdir=budget-infra output -raw rds_endpoint)
+            HOST=$(echo "$ENDPOINT" | cut -d':' -f1)
+
+            scp -i ~/.ssh/myPrivateKey -r /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded ubuntu@$ip:/home/ubuntu
+
+            ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+            export DB_HOST=$HOST
+            export DB_PASSWORD='${{ secrets.DB_PASSWORD }}'
             cd /home/ubuntu/Budget_Manager_Reloaded
+            echo \"DB_HOST=$DB_HOST\" > backend/.env.local
+            echo \"DB_PASSWORD=$DB_PASSWORD\" >> backend/.env.local
+            echo \"REACT_APP_API_URL=http://$ip:5005\" > frontend/.env.local
+            docker-compose down -v || true
+            docker-compose build --no-cache
             docker-compose up -d
-          "
+            "
+
 
       - name: Initialize DB schema
         run: |

@@ -37,8 +37,8 @@ services:
 # environment if .env is not present.
 # By default Docker respects a .dockerignore file (to avoid that it's copied to the image)
     env_file:
-      - ./backend/.env
       - ./backend/.env.local
+    restart: always
     networks:
       - backend-database-net
       - backend-frontend-net
@@ -49,9 +49,11 @@ services:
   frontend:
     container_name: frontend
     build: ./frontend
-    env_file:
-      - ./frontend/.env
-      - ./frontend/.env.local
+    environment:
+      REACT_APP_API_URL: http://${BACKEND_HOST:-backend}:5005
+    depends_on:
+      - backend
+    restart: always
     ports: 
       - "80:80"
     networks:
