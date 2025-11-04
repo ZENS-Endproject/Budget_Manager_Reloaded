@@ -6,6 +6,7 @@ import AddExpenseForm from "./AddExpense";
 
 import { API_URL } from "../lib/utils";
 import { Button } from "./ui/button";
+import Text from "./Text";
 
 function ExpensesNav() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -93,9 +94,9 @@ function ExpensesNav() {
       >
         <Button onClick={handleDownloadPDF}>Download (PDF)</Button> <br />{" "}
         <br />
-        <h2 style={{ color: "#1e88e5", marginBottom: "16px" }}>
+        <Text variant="subtitleBlue" className="my-6">
           Monthly Overview
-        </h2>
+        </Text>
         {error && <p style={{ color: "red" }}>{error}</p>}
         {totalExpenses !== null && totalIncome !== null && (
           <>
