@@ -53,7 +53,6 @@ jobs:
           terraform apply -auto-approve \
             -var "branch_name=${{ steps.extract_branch.outputs.branch_name }}" \
             -var "db_password=${{ secrets.DB_PASSWORD }}" \
-            -var "key_name=${{ secrets.AWS_KEY_NAME }}" \
             -var "aws_instance_type=t3.small"
 
       - name: Wait for EC2 SSH
@@ -61,36 +60,44 @@ jobs:
 
       - name: Setup SSH key
         run: |
+          cd budget-infra
+          ip=$(terraform output -raw public_ip)
           mkdir -p ~/.ssh
           echo "${{ secrets.AWS_EC2_KEY_PEM }}" > ~/.ssh/myPrivateKey
           chmod 400 ~/.ssh/myPrivateKey
-          IP=$(terraform -chdir=budget-infra output -raw public_ip)
-          ssh-keyscan -H $IP >> ~/.ssh/known_hosts
+          ssh-keyscan -H $ip >> ~/.ssh/known_hosts
 
       - name: Install Docker & Docker Compose
         run: |
-          IP=$(terraform -chdir=budget-infra output -raw public_ip)
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$IP "sudo apt update && sudo apt install -y docker.io docker-compose"
+            cd budget-infra
+            ip=$(terraform output -raw public_ip)
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt update"
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install docker.io -y"
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo usermod -aG docker ubuntu"   
+                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install docker-compose -y"
 
       - name: Deploy App
         run: |
-          IP=$(terraform -chdir=budget-infra output -raw public_ip)
-          ENDPOINT=$(terraform -chdir=budget-infra output -raw rds_endpoint)
+          cd budget-infra
+          ip=$(terraform output -raw public_ip)
+          ENDPOINT=$(terraform output -raw rds_endpoint)
           HOST=$(echo "$ENDPOINT" | cut -d':' -f1)
-          scp -i ~/.ssh/myPrivateKey -r ./Budget_Manager_Reloaded ubuntu@$IP:/home/ubuntu
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$IP "
+          scp -i ~/.ssh/myPrivateKey -r ./Budget_Manager_Reloaded ubuntu@$ip:/home/ubuntu
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
             echo \"DB_HOST=$HOST\" > /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
-            echo \"REACT_APP_API_URL=http://$IP:5005\" > /home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local
+            echo \"REACT_APP_API_URL=http://$ip:5005\" > /home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local
             cd /home/ubuntu/Budget_Manager_Reloaded
             docker-compose up -d
           "
 
       - name: Initialize DB schema
         run: |
-          IP=$(terraform -chdir=budget-infra output -raw public_ip)
-          ENDPOINT=$(terraform -chdir=budget-infra output -raw rds_endpoint)
-          HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$IP "
-            sudo apt install -y postgresql-client
-            PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h $HOST -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
-          "
+               cd budget-infra
+               ip=$(terraform output -raw public_ip)
+               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "sudo apt install postgresql-client -y"        
+               ENDPOINT=$(terraform output -raw rds_endpoint)
+               HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
+               ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+               echo "$HOST" >  "/home/ubuntu/test.txt"
+               PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h "$HOST" -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
+               "
