@@ -27,6 +27,11 @@ services:
     build: ./backend
     ports: 
       - "5005:5005"
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: budget
+      PORT: 5005
 # Docker injects the values as environment variables. 
 # Node.js apps (if they use dotenv) will still work, because dotenv reads from the 
 # environment if .env is not present.
