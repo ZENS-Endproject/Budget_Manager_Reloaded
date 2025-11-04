@@ -30,11 +30,13 @@ jobs:
 
             - name: Terraform Init
               run: | 
+                BRANCH_NAME=${GITHUB_REF##*/}
+                # Sanitize the branch name for S3 (replace slashes)
+                SAFE_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-')
+                BUCKET_NAME="tf-bud-relo-state-bucket-${SAFE_BRANCH}"
+                echo "Using bucket: $BUCKET_NAME"
                 cd budget-infra
-                terraform init
-            
-            - name: Terraform Destroy
-              run: | 
-                cd budget-infra
-                terraform destroy -auto-approve
+                terraform init -backend-config="key=infra/${SAFE_BRANCH}/terraform.tfstate"
+                terraform destroy -var "branch_name=${SAFE_BRANCH}" -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve              
+
         

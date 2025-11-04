@@ -4,6 +4,7 @@ import darkLogo from "../assets/images/dark_logo.svg";
 import lightLogo from "../assets/images/light_logo.svg";
 import "../styles/responsive.css";
 import { ModeToggle } from "./ModeToggle";
+import Text from "./Text";
 
 function Navbar() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -18,7 +19,7 @@ function Navbar() {
   };
 
   return (
-      <div
+    <div
       style={{
         position: "relative", // NEU
         display: "flex",
@@ -28,40 +29,65 @@ function Navbar() {
         padding: "1.5rem 2rem",
         gap: "2rem",
       }}
-          >
-          {/* Logo */}
+    >
+      {/* Logo */}
       <div style={{ flexShrink: 0 }}>
-        <img src={lightLogo} className="logo-dark" style={{ height: "70px" }} alt="light logo" />
-        <img src={darkLogo} className="logo-light" style={{ height: "70px" }} alt="dark logo" />
+        <img
+          src={lightLogo}
+          className="logo-dark"
+          style={{ height: "70px" }}
+          alt="light logo"
+        />
+        <img
+          src={darkLogo}
+          className="logo-light"
+          style={{ height: "70px" }}
+          alt="dark logo"
+        />
       </div>
       <button className="hamburger" onClick={() => setMenuOpen(!menuOpen)}>
         ☰
       </button>
       {/* Links */}
-        <div className={`navbar-links ${menuOpen ? "open" : ""}`}>
-        <Link to="/" style={styles.linkb}>Monthly Reporting</Link>
-        <Link to="/expenses" style={styles.linkb}>Expenses</Link>
-        <Link to="/incomes" style={styles.linkb}>Income</Link>
-        <Link to="/about" style={styles.linkb}>About ZENS</Link>
+      <div className={`navbar-links ${menuOpen ? "open" : ""}`}>
+        <Link to="/" style={styles.linkb}>
+          <Text variant="menuBlue">Statistics</Text>
+        </Link>
+        <Link to="/expenses" style={styles.linkb}>
+          <Text variant="menuBlue">Expenses</Text>
+        </Link>
+        <Link to="/incomes" style={styles.linkb}>
+          <Text variant="menuBlue">Income</Text>
+        </Link>
+        <Link to="/about" style={styles.linkb}>
+          <Text variant="menuBlue">About ZENS</Text>
+        </Link>
       </div>
 
       {/* User & Dark-Light-Mode */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          gap: "1rem",
+          flexShrink: 0,
+        }}
+      >
         <div
           style={{
             display: "flex",
-            alignItems: "center",
-            gap: "1rem",
-            flexShrink: 0,
+            flexDirection: "column",
+            alignItems: "flex-end",
           }}
         >
-          <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end" }}>
-            <span className="username">{user_name}</span>
-            <button onClick={handleLogout} style={styles.logoutButton}>Logout</button>
-          </div>
-          <ModeToggle />
+          <span className="username">{user_name}</span>
+          <button onClick={handleLogout} style={styles.logoutButton}>
+            Logout
+          </button>
         </div>
+        <ModeToggle />
+      </div>
     </div>
-
   );
 }
 

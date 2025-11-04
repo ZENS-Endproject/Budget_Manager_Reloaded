@@ -10,37 +10,41 @@ import {
   TableHeader,
   TableRow,
 } from "./ui/table";
-
-import { API_URL } from "../lib/utils";
 import { Button } from "./ui/button";
-
-function Monthly_incomes() {
+import { FormItem, FormLabel, FormControl } from "./ui/form";
+import { Input } from "./ui/input";
+import { API_URL } from "../lib/utils";
+import Text from "./Text";
+function MonthlyIncomes() {
   const [income, setIncome] = useState([]);
+  const [monthlySum, setMonthlySum] = useState(0);
+  const [selectedMonthYear, setSelectedMonthYear] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [monthlySum, setMonthlySum] = useState(0);
+  const [showMonthFilter, setShowMonthFilter] = useState(false);
+
   const user = JSON.parse(localStorage.getItem("user"));
-  const user_id = user?.id;
+  const userId = user?.id;
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchMonthlyIncomes();
+    const today = new Date();
+    const currentMonth = today.toISOString().slice(0, 7);
+    setSelectedMonthYear(currentMonth);
+    fetchMonthlyIncomes(currentMonth);
     fetchMonthlyIncomesSum();
   }, []);
   const fetchMonthlyIncomesSum = async () => {
     const token = localStorage.getItem("token");
 
     try {
-      const response = await fetch(
-        `${API_URL}/monthly_incomes/sum/${user_id}`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/monthly_incomes/sum/${userId}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (!response.ok) {
         throw new Error("Failed to fetch sum");
@@ -53,10 +57,13 @@ function Monthly_incomes() {
     }
   };
 
-  const fetchMonthlyIncomes = async () => {
+  const fetchMonthlyIncomes = async (monthYear = "") => {
     const token = localStorage.getItem("token");
+    const url = monthYear
+      ? `${API_URL}/monthly_incomes/${userId}/search?monthYear=${monthYear}`
+      : `${API_URL}/monthly_incomes/${userId}`;
     try {
-      const response = await fetch(`${API_URL}/monthly_incomes/${user_id}`, {
+      const response = await fetch(url, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
@@ -83,11 +90,11 @@ function Monthly_incomes() {
     if (!confirmed) return;
     const token = localStorage.getItem("token");
     try {
-      const res = await fetch(`${API_URL}/monthly_incomes/${user_id}/${id}`, {
+      const res = await fetch(`${API_URL}/monthly_incomes/${userId}/${id}`, {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -107,14 +114,53 @@ function Monthly_incomes() {
   return (
     <>
       <AddIncomeForm />
-      <h1 className="text-2xl font-bold text-center my-6">Monthly Incomes</h1>
+      <Text variant="subtitleBlue" className="text-center my-6">
+        Regular Incomes {selectedMonthYear}
+      </Text>
+
+      <div className="text-center mt-10">
+        <Button
+          onClick={() => setShowMonthFilter(!showMonthFilter)}
+          className="mb-4"
+        >
+          {showMonthFilter ? "Hide filter" : "Filter by Month"}
+        </Button>
+
+        {showMonthFilter && (
+          <div className="max-w-sm mx-auto mt-4">
+            <FormItem>
+              <FormLabel>Select Month</FormLabel>
+              <FormControl>
+                <Input
+                  type="month"
+                  value={selectedMonthYear}
+                  onChange={(e) => {
+                    setSelectedMonthYear(e.target.value);
+                    fetchMonthlyIncomes(e.target.value);
+                  }}
+                />
+              </FormControl>
+            </FormItem>
+            <br />
+            <Button
+              onClick={() => {
+                setSelectedMonthYear("");
+                fetchMonthlyIncomes();
+                setShowMonthFilter(false);
+              }}
+            >
+              Reset Filter
+            </Button>
+          </div>
+        )}
+      </div>
 
       {loading && <p className="text-center">Loading incomes...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
       {!loading && !error && (
         <div className="max-w-4xl mx-auto">
-          <Table>
+          <Table className="incomes-table">
             <TableCaption></TableCaption>
             <TableHeader>
               <TableRow>
@@ -144,7 +190,7 @@ function Monthly_incomes() {
                     <Button
                       onClick={() =>
                         navigate(
-                          `/edit-monthly-income/${income.user_id}/${income.id}`,
+                          `/edit-monthly-income/${income.userId}/${income.id}`,
                           {
                             state: { income },
                           }
@@ -162,22 +208,24 @@ function Monthly_incomes() {
                   </TableCell>
                 </TableRow>
               ))}
-              <TableRow
-                style={{
-                  backgroundColor: "#61DAFB",
-                  fontWeight: "bold",
-                  color: "#333",
-                }}
-              >
-                <TableCell className="font-medium">
-                  Total Monthly Incomes for this month
-                </TableCell>
-                <TableCell>{parseFloat(monthlySum).toFixed(2)} €</TableCell>
+              {selectedMonthYear === new Date().toISOString().slice(0, 7) && (
+                <TableRow
+                  style={{
+                    backgroundColor: "#7FDBFF",
+                    fontWeight: "bold",
+                    color: "#333",
+                  }}
+                >
+                  <TableCell className="font-medium">
+                    Total Monthly Incomes for this month {selectedMonthYear}
+                  </TableCell>
+                  <TableCell>{parseFloat(monthlySum).toFixed(2)} €</TableCell>
 
-                <TableCell />
-                <TableCell />
-                <TableCell />
-              </TableRow>
+                  <TableCell />
+                  <TableCell />
+                  <TableCell />
+                </TableRow>
+              )}
             </TableBody>
           </Table>
         </div>
@@ -186,4 +234,4 @@ function Monthly_incomes() {
   );
 }
 
-export default Monthly_incomes;
+export default MonthlyIncomes;

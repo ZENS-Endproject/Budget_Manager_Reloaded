@@ -16,3 +16,13 @@ variable "key_name" {
   type        = string
 }
 
+variable "db_password" {
+  description = "password for PostgreSQL RDS"
+  type        = string
+  sensitive   = true
+}
+
+variable "branch_name" {
+  description = "Name of the current Git branch (used as prefix or postfix for resources)"
+  type        = string
+}

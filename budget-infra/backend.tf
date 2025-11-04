@@ -3,8 +3,8 @@
 
 terraform {
   backend "s3" {
-    bucket         = "tf-bud-relo-state-bucket"
-    key            = "infra/terraform.tfstate"
+    bucket         = "tf-bud-relo-state-bucket-f"
+    # key            = "infra/terraform.tfstate"
     region         = "eu-central-1"
     encrypt        = true
     use_lockfile   = true

@@ -5,6 +5,7 @@ import Monthly_incomes from "./Monthly_incomes";
 import { useParams } from "react-router-dom";
 
 import { API_URL } from "../lib/utils";
+import Text from "./Text";
 
 function IncomesNav() {
   const user = JSON.parse(localStorage.getItem("user"));
@@ -53,7 +54,9 @@ function IncomesNav() {
           marginBottom: "20px",
         }}
       >
-        <h3>Monthly Overview</h3>
+        <Text variant="subtitleBlue" className="my-6">
+          Monthly Overview
+        </Text>
         {error && <p style={{ color: "red" }}>{error}</p>}
         {totalExpenses !== null && totalIncome !== null && (
           <>

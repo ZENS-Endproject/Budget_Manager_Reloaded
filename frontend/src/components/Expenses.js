@@ -22,6 +22,7 @@ import {
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { API_URL } from "../lib/utils";
+import Text from "./Text";
 
 function Expenses() {
   const [expenses, setExpenses] = useState([]);
@@ -175,15 +176,15 @@ function Expenses() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-center my-6">
+      <Text variant="subtitleBlue" className="text-center my-6">
         One-time expenses {selectedMonthYear}
-      </h1>
-      <div className="flex items-center justify-center gap-4 mb-6">
+      </Text>
+      <div className="text-center mt-10">
         <Button
           onClick={() => setShowMonthFilter(!showMonthFilter)}
-          className="text-right font-medium"
+          className="mb-4"
         >
-          {"Filter by Month"}
+          {showMonthFilter ? "Hide filter" : "Filter by Month"}
         </Button>
 
         {showMonthFilter && (
@@ -198,7 +199,6 @@ function Expenses() {
                     setSelectedMonthYear(e.target.value);
                     fetchExpenses(e.target.value);
                   }}
-                  className="w-[200px]"
                 />
               </FormControl>
             </FormItem>
@@ -243,7 +243,6 @@ function Expenses() {
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
                       <TableCell key={cell.id} className="font-medium">
-
                         {flexRender(
                           cell.column.columnDef.cell,
                           cell.getContext()
@@ -255,7 +254,7 @@ function Expenses() {
                 {selectedMonthYear === new Date().toISOString().slice(0, 7) && (
                   <TableRow
                     style={{
-                      backgroundColor: "#0489A9",
+                      backgroundColor: "#7FDBFF",
                       fontWeight: "bold",
                       color: "#333",
                     }}

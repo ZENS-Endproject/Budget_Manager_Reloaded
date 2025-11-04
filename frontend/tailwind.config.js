@@ -69,6 +69,8 @@ module.exports = {
       fontFamily: {
         //      sans: ["var(--font-sans)", ...fontFamily.sans],
         sans: ["Arial", "sans-serif"],
+        voces: ["Voces", "sans-serif"],
+        sourceserif: ['"Source Serif 4"', "serif"],
       },
       keyframes: {
         "accordion-down": {
