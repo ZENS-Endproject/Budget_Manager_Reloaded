@@ -8,7 +8,8 @@ const { refreshToken } = require("./tokenController");
 const PDFDocument = require("pdfkit");
 
 const app = express();
-const PORT = 5005;
+//const PORT = 5005;
+const PORT = process.env.PORT || 5005;
 
 //middleware
 function authenticateToken(req, res, next) {
@@ -39,7 +40,7 @@ const pool = new Pool({
   port: process.env.DB_PORT, // Standardport für PostgreSQL
   ssl: {
     rejectUnauthorized: false
-  }	
+  }
 });
 
 const createTable = async () => {
@@ -1587,6 +1588,7 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server läuft: http://localhost:${PORT}`);
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server läuft: http://0.0.0.0:${PORT}`);
 });
