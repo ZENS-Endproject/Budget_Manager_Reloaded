@@ -110,16 +110,16 @@ jobs:
             PORT=5005
             EOL
 
-                        # Create frontend environment file
-                        cat > frontend/.env.local <<EOL
+            # Create frontend environment file
+            cat > frontend/.env.local <<EOL
             REACT_APP_API_URL=http://$ip:5005
             EOL
 
-                        # Stop any running containers and rebuild
-                        docker compose down -v || true
-                        docker compose build --no-cache
-                        docker compose up -d
-                    "
+            # Stop any running containers and rebuild
+            docker compose down -v || true
+            docker compose build --no-cache
+            docker compose up -d
+            "
 
       # Initialize PostgreSQL database schema
       - name: Initialize DB schema
