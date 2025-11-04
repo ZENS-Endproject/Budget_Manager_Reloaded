@@ -22,7 +22,7 @@ resource "aws_instance" "app_server" {
   }
 
  root_block_device {
-    volume_size = 30   # 30 Go au lieu de 8 Go par défaut
+    volume_size = 30   # 8 Go =>30 Go ebs
     volume_type = "gp3"
   }
   vpc_security_group_ids = [
