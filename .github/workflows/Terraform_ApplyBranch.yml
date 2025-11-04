@@ -43,7 +43,6 @@ jobs:
             --create-bucket-configuration LocationConstraint=eu-central-1
 
       - name: Terraform Init & Apply
-        working-directory: budget-infra
         run: |
           cd budget-infra
           terraform init \
