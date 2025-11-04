@@ -79,9 +79,8 @@ jobs:
 
       - name: Deploy App
         run: |
-          cd budget-infra
-          ip=$(terraform output -raw public_ip)
-          ENDPOINT=$(terraform output -raw rds_endpoint)
+          ip=$(terraform -chdir=budget-infra output -raw public_ip)
+          ENDPOINT=$(terraform -chdir=budget-infra output -raw rds_endpoint)
           HOST=$(echo "$ENDPOINT" | cut -d':' -f1)
           scp -i ~/.ssh/myPrivateKey -r ./Budget_Manager_Reloaded ubuntu@$ip:/home/ubuntu
           ssh -i ~/.ssh/myPrivateKey ubuntu@$ip " 
