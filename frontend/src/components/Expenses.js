@@ -22,6 +22,7 @@ import {
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { API_URL } from "../lib/utils";
+import Text from "./Text";
 
 function Expenses() {
   const [expenses, setExpenses] = useState([]);
@@ -175,9 +176,9 @@ function Expenses() {
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-center my-6">
+      <Text variant="subtitleBlue" className="text-center my-6">
         One-time expenses {selectedMonthYear}
-      </h1>
+      </Text>
       <div className="text-center mt-10">
         <Button
           onClick={() => setShowMonthFilter(!showMonthFilter)}
