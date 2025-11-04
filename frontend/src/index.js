@@ -18,6 +18,7 @@ import EditMonthExpense from "./pages/EditMonthExpense";
 import EditMonthlyIncome from "./pages/EditMonthlyIncome";
 import { ThemeProvider } from "next-themes";
 import Signup from "./pages/Signup";
+import AppLayout from "./layout/AppLayout";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -25,22 +26,29 @@ root.render(
     <React.StrictMode>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <Router>
-          <Routes>
-            <Route path="/" element={<App />} />
-            <Route path="/expenses" element={<ExpensesNav />} />
-            <Route path="/incomes" element={<IncomesNav />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/test" element={<FormExpenses />} />
-            <Route path="/edit-income/:userId/:expenseId" element={<EditIncome />} />
-            <Route path="/edit-monthly-income/:user_id/:id" element={<EditMonthlyIncome />} />
-            <Route path="/edit-expense/:userId/:expenseId" element={<MyForm />} />
-            <Route path="/edit-monthlyexpense/:userId/:expenseId" element={<EditMonthExpense />} />
-            <Route path="/signup" element={<Signup />} />
-            <Route path="/dark_light" element={<Dark_light />} />
-            {/* autres routes */}
+  <Routes>
+    {/* Public */}
+    <Route path="/login" element={<Login />} />
+    <Route path="/signup" element={<Signup />} />
+    {/* App mit neuem Layout */}
+            <Route element={<AppLayout />}>
+              <Route path="/" element={<App />} />
+              <Route path="/expenses" element={<ExpensesNav />} />
+              <Route path="/incomes" element={<IncomesNav />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/edit-income/:userId/:expenseId" element={<EditIncome />} />
+              <Route
+                path="/edit-monthly-income/:user_id/:id"
+                element={<EditMonthlyIncome />}
+              />
+              <Route path="/edit-expense/:userId/:expenseId" element={<MyForm />} />
+              <Route
+                path="/edit-monthlyexpense/:userId/:expenseId"
+                element={<EditMonthExpense />}
+              />
+            </Route>
           </Routes>
-        </Router>
+        </Router>;
       </ThemeProvider>
     </React.StrictMode>
   </React.StrictMode>

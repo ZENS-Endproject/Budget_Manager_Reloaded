@@ -79,7 +79,6 @@ function ExpensesNav() {
 
   return (
     <>
-      <Navbar />
 
       <div
         className="expenses-nav"
