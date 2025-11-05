@@ -25,14 +25,14 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_KEY }}
+          aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET_KEY }}
           aws-region: eu-central-1
 
-      #Destroy Terraform resources
+      # Destroy Terraform resources
       - name: Destroy Terraform resources
         working-directory: budget-infra
         run: |
-          # Get the branch name from workflow input (mandatory)
+          # Get the branch name from workflow input
           BRANCH="${{ github.event.inputs.branch }}"
           SAFE_BRANCH=$(echo "$BRANCH" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
           echo "Destroying resources for branch: $SAFE_BRANCH"
@@ -41,14 +41,20 @@ jobs:
           BUCKET_NAME="tf-bud-relo-state-bucket-${SAFE_BRANCH}"
           echo "Using S3 bucket: $BUCKET_NAME"
 
-          # Initialize Terraform with backend specific to the branch
+          # Initialize Terraform backend for this branch
           terraform init \
             -backend-config="bucket=$BUCKET_NAME" \
             -backend-config="key=infra/${SAFE_BRANCH}/terraform.tfstate" \
             -backend-config="region=eu-central-1"
 
-          # Automatically destroy all resources
-          terraform destroy -auto-approve \
+          # Optional: destroy dependent resources first (RDS) to avoid conflicts
+          terraform destroy -target=aws_db_instance.postgres_rds -auto-approve \
+            -var "branch_name=${SAFE_BRANCH}" \
+            -var "db_password=${{ secrets.DB_PASSWORD }}" \
+            -var "aws_instance_type=t3.small"
+
+          # Destroy all remaining resources
+          terraform destroy -auto-approve -refresh=true -parallelism=1 \
             -var "branch_name=${SAFE_BRANCH}" \
             -var "db_password=${{ secrets.DB_PASSWORD }}" \
             -var "aws_instance_type=t3.small"

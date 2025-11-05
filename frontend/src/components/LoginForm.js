@@ -29,7 +29,7 @@ export function LoginForm({ className, ...props }) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ e_mail: email, password }),
+        body: JSON.stringify({ e_mail: email, password: password }),
       });
 
       const data = await res.json();
