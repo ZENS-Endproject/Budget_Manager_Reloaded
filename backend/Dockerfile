@@ -3,7 +3,8 @@ FROM node:20-alpine
 WORKDIR /app
 
 # Installer le client PostgreSQL
-RUN apt-get update && apt-get install -y postgresql-client && rm -rf /var/lib/apt/lists/*
+#RUN apt update && apt install -y postgresql-client && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache postgresql-client bash curl
 
 COPY package*.json ./
 
