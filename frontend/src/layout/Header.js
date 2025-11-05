@@ -51,8 +51,8 @@ export default function Header() {
           </g>
         </svg>
       </div>
-      <div className="relative z-10 h-full">
-        <div className="mx-auto flex h-full max-w-6xl items-center justify-start gap-6 px-6">
+      <div className="relative z-10 padding-left: 64px; h-full">
+        <div className="mx-auto flex h-full items-center justify-start gap-2 px-20">
           <img src={logo}  alt="Logo"     className="w-14 h-14 hover:scale-105 transition" />
           <img src={lang}  alt="Language" className="w-14 h-14 hover:scale-105 transition" />
           <img src={moon}  alt="Darkmode" className="w-14 h-14 hover:scale-105 transition" />

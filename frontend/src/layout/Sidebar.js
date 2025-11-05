@@ -23,8 +23,7 @@ export default function Sidebar() {
         backgroundColor: "#FEFEEF",
       }}
     >
-      {/* Sidebar-Inhalt: flex column + justify-between */}
-      <div className="sticky top-[120px] pl-16 pr-10 pt-10 pb-12 mr-12 min-h-[calc(100vh-72px)] flex flex-col justify-between">
+      <div className="sticky top-[120px] pl-16 pr-10 pt-10 pb-10 mr-12 min-h-[calc(100vh-120px)] flex flex-col justify-between">
         {/* Navigation oben */}
         <nav className="flex flex-col gap-4">
           <NavLink
@@ -56,8 +55,8 @@ export default function Sidebar() {
           </NavLink>
         </nav>
 
-        {/* Footer-Link automatisch unten */}
-        <div className="mt-auto pt-8">
+        {/* Footer-Link leicht angehoben */}
+        <div className="mt-auto pb-4">
           <NavLink
             to="/about"
             className={({ isActive }) =>
