@@ -1590,5 +1590,5 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
 
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`Server läuft: http://localhost:${PORT}`);
 });
