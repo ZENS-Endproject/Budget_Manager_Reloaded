@@ -5,6 +5,11 @@ FROM node AS builder
 
 WORKDIR /app
 
+# Build argument for React API URL
+ARG REACT_APP_API_URL
+
+# Set environment variable
+ENV REACT_APP_API_URL=$REACT_APP_API_URL
 
 COPY . .
 
