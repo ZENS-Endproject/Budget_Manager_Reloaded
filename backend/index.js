@@ -6,11 +6,20 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const { refreshToken } = require("./tokenController");
 const PDFDocument = require("pdfkit");
+const { Issuer, generators } = require('openid-client');
+const session = require("express-session");
 
 const app = express();
 const PORT = 5005;
 //const PORT = process.env.PORT || 5005;
+app.set('view engine', 'ejs');
+app.set('views', path.join(__dirname, 'views'));
+let client;
+// Initialize OpenID Client
 
+
+
+initializeCognitoClient().catch(console.error);
 //middleware
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
@@ -76,6 +85,94 @@ app.use(cors({
 
 app.use(express.json()); // Ermöglicht Express Json aus einem Body auszulesen
 app.use(express.static("public"));
+
+app.use(session({
+  secret: '123Senda?456',
+  resave: false,
+  saveUninitialized: false
+}));
+
+const checkAuth = (req, res, next) => {
+  if (!req.session.userInfo) {
+    req.isAuthenticated = false;
+  } else {
+    req.isAuthenticated = true;
+  }
+  next();
+};
+
+app.get('/', checkAuth, (req, res) => {
+  res.render('home', {
+    isAuthenticated: req.isAuthenticated,
+    userInfo: req.session.userInfo
+  });
+});
+
+app.get('/login', (req, res) => {
+  const nonce = generators.nonce();
+  const state = generators.state();
+
+  req.session.nonce = nonce;
+  req.session.state = state;
+
+  const authUrl = client.authorizationUrl({
+    scope: 'phone openid email',
+    state: state,
+    nonce: nonce,
+  });
+
+  res.redirect(authUrl);
+});
+
+function getPathFromURL(urlString) {
+  try {
+    const url = new URL(urlString);
+    return url.pathname;
+  } catch (error) {
+    console.error('Invalid URL:', error);
+    return null;
+  }
+}
+app.get(getPathFromURL('http://localhost:3000/expenses'), async (req, res) => {
+  try {
+    const params = client.callbackParams(req);
+    const tokenSet = await client.callback(
+      'https://d84l1y8p4kdic.cloudfront.net',
+      params,
+      {
+        nonce: req.session.nonce,
+        state: req.session.state
+      }
+    );
+
+    const userInfo = await client.userinfo(tokenSet.access_token);
+    req.session.userInfo = userInfo;
+
+    res.redirect('/');
+  } catch (err) {
+    console.error('Callback error:', err);
+    res.redirect('/');
+  }
+});
+
+// Logout route
+app.get('/logout', (req, res) => {
+  req.session.destroy();
+  const logoutUrl = `https://eu-central-1e4pot9dqq.auth.eu-central-1.amazoncognito.com/logout?client_id=6tat4u7lrgtmuisu8ctf9t1nhv&logout_uri=http://localhost:3000/login`;
+  res.redirect(logoutUrl);
+});
+
+async function initializeClient() {
+  const issuer = await Issuer.discover('https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_e4POt9DqQ');
+  client = new issuer.Client({
+    client_id: '6tat4u7lrgtmuisu8ctf9t1nhv',
+    client_secret: '<client secret>',
+    redirect_uris: ['https://d84l1y8p4kdic.cloudfront.net'],
+    response_types: ['code']
+  });
+  console.log('Cognito client initialized');
+};
+initializeClient().catch(console.error);
 
 app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
   const { user_id } = req.params;
@@ -530,41 +627,41 @@ app.put(
   }
 );
 
-app.post("/login", async (req, res) => {
-  const { e_mail, password } = req.body;
-  console.log("Request login:", e_mail, password);
+// app.post("/login", async (req, res) => {
+//   const { e_mail, password } = req.body;
+//   console.log("Request login:", e_mail, password);
 
-  try {
-    const result = await pool.query("SELECT * FROM users WHERE e_mail = $1", [
-      e_mail,
-    ]);
-    const user = result.rows[0];
+//   try {
+//     const result = await pool.query("SELECT * FROM users WHERE e_mail = $1", [
+//       e_mail,
+//     ]);
+//     const user = result.rows[0];
 
-    if (!user) {
-      return res.json({ error: "e_mail incorrect!" });
-    }
+//     if (!user) {
+//       return res.json({ error: "e_mail incorrect!" });
+//     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ error: "Passwort incorrect!" });
-    }
+//     const passwordMatch = await bcrypt.compare(password, user.password);
+//     if (!passwordMatch) {
+//       return res.status(401).json({ error: "Passwort incorrect!" });
+//     }
 
-    const token = jwt.sign(
-      { userId: user.id, e_mail: user.e_mail },
-      process.env.JWT_SECRET || "default_secret",
-      { expiresIn: "1d" }
-    );
+//     const token = jwt.sign(
+//       { userId: user.id, e_mail: user.e_mail },
+//       process.env.JWT_SECRET || "default_secret",
+//       { expiresIn: "1d" }
+//     );
 
-    res.json({
-      message: "Connexion OK",
-      user: { id: user.id, e_mail: user.e_mail },
-      token,
-    });
-  } catch (error) {
-    console.error("Error login:", error);
-    res.status(500).json({ error: "Error server" });
-  }
-});
+//     res.json({
+//       message: "Connexion OK",
+//       user: { id: user.id, e_mail: user.e_mail },
+//       token,
+//     });
+//   } catch (error) {
+//     console.error("Error login:", error);
+//     res.status(500).json({ error: "Error server" });
+//   }
+// });
 
 app.put("/income/:id_user/:id", authenticateToken, async (req, res) => {
   try {
@@ -1294,36 +1391,36 @@ app.get("/total_balance/:user_id", authenticateToken, async (req, res) => {
   }
 });
 
-app.post("/signup", async (req, res) => {
-  const { e_mail, name, password } = req.body;
+// app.post("/signup", async (req, res) => {
+//   const { e_mail, name, password } = req.body;
 
-  try {
-    // Check if the email is already registered
-    const existingUser = await pool.query(
-      "SELECT * FROM users WHERE e_mail = $1",
-      [e_mail]
-    );
+//   try {
+//     // Check if the email is already registered
+//     const existingUser = await pool.query(
+//       "SELECT * FROM users WHERE e_mail = $1",
+//       [e_mail]
+//     );
 
-    if (existingUser.rows.length > 0) {
-      return res.status(400).json({ error: "This email is already in use." });
-    }
+//     if (existingUser.rows.length > 0) {
+//       return res.status(400).json({ error: "This email is already in use." });
+//     }
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
+//     // Hash the password
+//     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Insert the new user into the database
-    const result = await pool.query(
-      "INSERT INTO users (name, password, e_mail) VALUES ($1, $2, $3) RETURNING *",
-      [name, hashedPassword, e_mail]
-    );
+//     // Insert the new user into the database
+//     const result = await pool.query(
+//       "INSERT INTO users (name, password, e_mail) VALUES ($1, $2, $3) RETURNING *",
+//       [name, hashedPassword, e_mail]
+//     );
 
-    // Send back the newly created user (excluding password)
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error("Error during signup:", err);
-    res.status(500).json({ error: "Server error" });
-  }
-});
+//     // Send back the newly created user (excluding password)
+//     res.json(result.rows[0]);
+//   } catch (err) {
+//     console.error("Error during signup:", err);
+//     res.status(500).json({ error: "Server error" });
+//   }
+// });
 
 app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
   const { user_id } = req.params;
