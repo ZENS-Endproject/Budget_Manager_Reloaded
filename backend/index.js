@@ -7,7 +7,9 @@ const jwt = require("jsonwebtoken");
 const { refreshToken } = require("./tokenController");
 const PDFDocument = require("pdfkit");
 const { Issuer, generators } = require('openid-client');
+
 const session = require("express-session");
+const path = require('path');
 
 const app = express();
 const PORT = 5005;
@@ -18,28 +20,71 @@ let client;
 // Initialize OpenID Client
 
 
+const jwksClient = require("jwks-rsa");
 
-initializeCognitoClient().catch(console.error);
-//middleware
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+const clientJwks = jwksClient({
+  jwksUri: "https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_e4POt9DqQ/.well-known/jwks.json"
+});
 
-  if (!token) {
-    return res.status(401).json({ error: "Missing token" });
-  }
+function getKey(header, callback) {
+  clientJwks.getSigningKey(header.kid, (err, key) => {
+    const signingKey = key.getPublicKey();
+    callback(null, signingKey);
+  });
+}
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ error: "Invalid token" });
-    }
+function verifyCognitoToken(req, res, next) {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) return res.status(401).json({ error: "Token manquant" });
 
-    req.user = user;
+  jwt.verify(token, getKey, {
+    algorithms: ["RS256"],
+    issuer: "https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_e4POt9DqQ",
+  }, (err, decoded) => {
+    if (err) return res.status(403).json({ error: "Token invalide" });
+    req.user = decoded;
     next();
   });
 }
 
-app.post("/refresh-token", refreshToken);
+
+
+
+//initializeCognitoClient().catch(console.error);
+//middleware
+// function verifyCognitoToken(req, res, next) {
+//   const authHeader = req.headers["authorization"];
+//   const token = authHeader && authHeader.split(" ")[1];
+
+//   if (!token) {
+//     return res.status(401).json({ error: "Missing token" });
+//   }
+
+//   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+//     if (err) {
+//       return res.status(403).json({ error: "Invalid token" });
+//     }
+
+//     req.user = user;
+//     next();
+//   });
+// }
+
+//app.post("/refresh-token", refreshToken);
+
+const CLIENT_ID = "6tat4u7lrgtmuisu8ctf9t1nhv";
+const CLIENT_SECRET = "3fjtoe4kp3crmuk87a3e40op05tuu1m4cdpo5i3j10h48gq98gg";
+const COGNITO_DOMAIN = "https://eu-central-1e4pot9dqq.auth.eu-central-1.amazoncognito.com";
+const REDIRECT_URI = "http://localhost:5005/callback";
+
+// 🧩 PostgreSQL
+// const db = new Pool({
+//   host: "backup-main-postgres-db.crwi4cya2xob.eu-central-1.rds.amazonaws.com",
+//   port: 5432,
+//   user: "postgres",
+//   password: "123Senda?456",
+//   database: "budget",
+// });
 
 const pool = new Pool({
   user: process.env.DB_USER, // Dein PostgreSQL-Benutzername
@@ -108,21 +153,40 @@ app.get('/', checkAuth, (req, res) => {
   });
 });
 
-app.get('/login', (req, res) => {
-  const nonce = generators.nonce();
-  const state = generators.state();
+app.post("/login", async (req, res) => {
+  const { e_mail, password } = req.body;
+  try {
+    const result = await pool.query(
+      "SELECT * FROM users WHERE e_mail = $1",
+      [e_mail]
+    );
 
-  req.session.nonce = nonce;
-  req.session.state = state;
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: "Utilisateur non trouvé" });
+    }
 
-  const authUrl = client.authorizationUrl({
-    scope: 'phone openid email',
-    state: state,
-    nonce: nonce,
-  });
+    const user = result.rows[0];
 
-  res.redirect(authUrl);
+    // Vérifie le mot de passe hashé
+    const validPassword = await bcrypt.compare(password, user.password);
+    if (!validPassword) {
+      return res.status(401).json({ error: "Mot de passe incorrect" });
+    }
+
+    // Crée un token JWT pour l’app React
+    const token = jwt.sign(
+      { userId: user.id, email: user.e_mail },
+      process.env.JWT_SECRET,
+      { expiresIn: "1h" }
+    );
+
+    res.json({ token, user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erreur serveur" });
+  }
 });
+
 
 function getPathFromURL(urlString) {
   try {
@@ -133,11 +197,11 @@ function getPathFromURL(urlString) {
     return null;
   }
 }
-app.get(getPathFromURL('http://localhost:3000/expenses'), async (req, res) => {
+app.get(getPathFromURL('http://localhost:3000/callback'), async (req, res) => {
   try {
     const params = client.callbackParams(req);
     const tokenSet = await client.callback(
-      'https://d84l1y8p4kdic.cloudfront.net',
+      'http://localhost:5005/callback',
       params,
       {
         nonce: req.session.nonce,
@@ -156,25 +220,50 @@ app.get(getPathFromURL('http://localhost:3000/expenses'), async (req, res) => {
 });
 
 // Logout route
-app.get('/logout', (req, res) => {
-  req.session.destroy();
-  const logoutUrl = `https://eu-central-1e4pot9dqq.auth.eu-central-1.amazoncognito.com/logout?client_id=6tat4u7lrgtmuisu8ctf9t1nhv&logout_uri=http://localhost:3000/login`;
-  res.redirect(logoutUrl);
-});
+//app.get('/logout', (req, res) => {
+//  req.session.destroy();
+// const logoutUrl = `https://eu-central-1e4pot9dqq.auth.eu-central-1.amazoncognito.com/logout?client_id=6tat4u7lrgtmuisu8ctf9t1nhv&logout_uri=http://localhost:3000/login`;
+// res.redirect(logoutUrl);
+//});
 
 async function initializeClient() {
   const issuer = await Issuer.discover('https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_e4POt9DqQ');
   client = new issuer.Client({
     client_id: '6tat4u7lrgtmuisu8ctf9t1nhv',
-    client_secret: '<client secret>',
-    redirect_uris: ['https://d84l1y8p4kdic.cloudfront.net'],
+    client_secret: CLIENT_SECRET,
+    redirect_uris: ['http://localhost:5005/callback'],
     response_types: ['code']
   });
   console.log('Cognito client initialized');
 };
 initializeClient().catch(console.error);
 
-app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
+app.get('/callback', async (req, res) => {
+  try {
+    const params = client.callbackParams(req);
+    const tokenSet = await client.callback(
+      'http://localhost:5005/callback',
+      params,
+      {
+        nonce: req.session.nonce,
+        state: req.session.state,
+      }
+    );
+
+    const userInfo = await client.userinfo(tokenSet.access_token);
+    req.session.userInfo = userInfo;
+
+    console.log('User connected:', userInfo);
+
+    res.redirect('http://localhost:3000'); // redirige ton front React
+  } catch (err) {
+    console.error('Callback error:', err);
+    res.redirect('/');
+  }
+});
+
+
+app.get("/expenses/:user_id", verifyCognitoToken, async (req, res) => {
   const { user_id } = req.params;
   try {
     const result = await pool.query(
@@ -188,7 +277,7 @@ app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
   }
 });
 
-app.get("/expenses/:user_id/search", authenticateToken, async (req, res) => {
+app.get("/expenses/:user_id/search", verifyCognitoToken, async (req, res) => {
   const { user_id } = req.params;
   const { monthYear } = req.query;
 
@@ -225,7 +314,7 @@ app.get("/expenses/:user_id/search", authenticateToken, async (req, res) => {
   }
 });
 
-app.post("/expenses", authenticateToken, async (req, res) => {
+app.post("/expenses", verifyCognitoToken, async (req, res) => {
   const { user_id, category_id, amount, name, date } = req.body;
 
   if (!user_id || !category_id || !amount || !name || !date) {
@@ -246,7 +335,7 @@ app.post("/expenses", authenticateToken, async (req, res) => {
   }
 });
 
-app.delete("/expenses/:id_user/:id", authenticateToken, async (req, res) => {
+app.delete("/expenses/:id_user/:id", verifyCognitoToken, async (req, res) => {
   const { id_user, id } = req.params;
 
   try {
@@ -268,7 +357,7 @@ app.delete("/expenses/:id_user/:id", authenticateToken, async (req, res) => {
   }
 });
 
-app.get("/monthly_expenses/:user_id", authenticateToken, async (req, res) => {
+app.get("/monthly_expenses/:user_id", verifyCognitoToken, async (req, res) => {
   const { user_id } = req.params;
   try {
     const result = await pool.query(
@@ -284,7 +373,7 @@ app.get("/monthly_expenses/:user_id", authenticateToken, async (req, res) => {
 
 app.get(
   "/monthly_expenses/:user_id/search",
-  authenticateToken,
+  verifyCognitoToken,
   async (req, res) => {
     const { user_id } = req.params;
     const { monthYear } = req.query;
@@ -336,7 +425,7 @@ app.get(
   }
 );
 
-app.post("/monthly_expenses", authenticateToken, async (req, res) => {
+app.post("/monthly_expenses", verifyCognitoToken, async (req, res) => {
   const { user_id, category_id, amount, name, date_start, date_end } = req.body;
 
   if (!user_id || !category_id || !amount || !date_start) {
@@ -360,7 +449,7 @@ app.post("/monthly_expenses", authenticateToken, async (req, res) => {
 // DELETE: Monatlichen Eintrag löschen
 app.delete(
   "/monthly_expenses/:id_user/:id",
-  authenticateToken,
+  verifyCognitoToken,
   async (req, res) => {
     const { id_user, id } = req.params;
     const new_date = new Date();
@@ -407,7 +496,7 @@ app.delete(
   }
 );
 
-app.get("/incomes/:user_id", authenticateToken, async (req, res) => {
+app.get("/incomes/:user_id", verifyCognitoToken, async (req, res) => {
   const { user_id } = req.params;
   try {
     const result = await pool.query(
@@ -421,7 +510,7 @@ app.get("/incomes/:user_id", authenticateToken, async (req, res) => {
   }
 });
 
-app.get("/incomes/:user_id/search", authenticateToken, async (req, res) => {
+app.get("/incomes/:user_id/search", verifyCognitoToken, async (req, res) => {
   const { user_id } = req.params;
   const { monthYear } = req.query;
 
@@ -456,7 +545,7 @@ app.get("/incomes/:user_id/search", authenticateToken, async (req, res) => {
   }
 });
 
-app.post("/incomes", authenticateToken, async (req, res) => {
+app.post("/incomes", verifyCognitoToken, async (req, res) => {
   const { user_id, amount, name, date } = req.body;
 
   if (!user_id || !amount || !date) {
@@ -477,7 +566,7 @@ app.post("/incomes", authenticateToken, async (req, res) => {
   }
 });
 
-app.post("/monthly_incomes", authenticateToken, async (req, res) => {
+app.post("/monthly_incomes", verifyCognitoToken, async (req, res) => {
   const { user_id, amount, name, date_start, date_end } = req.body;
 
   if (!user_id || !amount || !date_start) {
@@ -498,7 +587,7 @@ app.post("/monthly_incomes", authenticateToken, async (req, res) => {
   }
 });
 
-app.get("/monthly_incomes/:user_id", authenticateToken, async (req, res) => {
+app.get("/monthly_incomes/:user_id", verifyCognitoToken, async (req, res) => {
   const { user_id } = req.params;
   try {
     const result = await pool.query(
@@ -514,7 +603,7 @@ app.get("/monthly_incomes/:user_id", authenticateToken, async (req, res) => {
 
 app.get(
   "/monthly_incomes/:user_id/search",
-  authenticateToken,
+  verifyCognitoToken,
   async (req, res) => {
     const { user_id } = req.params;
     const { monthYear } = req.query;
@@ -565,7 +654,7 @@ app.get(
 
 app.put(
   "/monthly_incomes/:id_user/:id",
-  authenticateToken,
+  verifyCognitoToken,
   async (req, res) => {
     try {
       const { id, id_user } = req.params;
@@ -663,7 +752,7 @@ app.put(
 //   }
 // });
 
-app.put("/income/:id_user/:id", authenticateToken, async (req, res) => {
+app.put("/income/:id_user/:id", verifyCognitoToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { id_user } = req.params;
@@ -688,7 +777,7 @@ app.put("/income/:id_user/:id", authenticateToken, async (req, res) => {
     res.status(500).send("An error occurred");
   }
 });
-app.delete("/income/:id_user/:id", authenticateToken, async (req, res) => {
+app.delete("/income/:id_user/:id", verifyCognitoToken, async (req, res) => {
   try {
     const id = req.params.id;
     const user_id = req.params.id_user;
@@ -711,7 +800,7 @@ app.delete("/income/:id_user/:id", authenticateToken, async (req, res) => {
 
 app.delete(
   "/monthly_incomes/:id_user/:id",
-  authenticateToken,
+  verifyCognitoToken,
   async (req, res) => {
     const { id_user, id } = req.params;
     const new_date = new Date(); // heutiges Datum
@@ -758,7 +847,7 @@ app.delete(
   }
 );
 
-app.put("/expenses/:id_user/:id", authenticateToken, async (req, res) => {
+app.put("/expenses/:id_user/:id", verifyCognitoToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { id_user } = req.params;
@@ -782,7 +871,7 @@ app.put("/expenses/:id_user/:id", authenticateToken, async (req, res) => {
     res.status(500).send("some error has occured");
   }
 });
-app.get("/expenses/search", authenticateToken, async (req, res) => {
+app.get("/expenses/search", verifyCognitoToken, async (req, res) => {
   const { year } = req.query; // Get the year from the query string
 
   if (!year) {
@@ -842,7 +931,7 @@ app.get("/expenses/search", authenticateToken, async (req, res) => {
   }
 });
 
-app.post("/piedata/:id_user", authenticateToken, async (req, res) => {
+app.post("/piedata/:id_user", verifyCognitoToken, async (req, res) => {
   const { year, month } = req.body;
   const { id_user } = req.params;
 
@@ -997,7 +1086,7 @@ app.post("/piedata/:id_user", authenticateToken, async (req, res) => {
 
 app.post(
   "/barchartdata/:id_user",
-  authenticateToken,
+  verifyCognitoToken,
   (async = async (req, res) => {
     const { year, month } = req.body;
     const { id_user } = req.params;
@@ -1127,7 +1216,7 @@ app.post(
 
 app.put(
   "/monthly_expenses/:id_user/:id",
-  authenticateToken,
+  verifyCognitoToken,
   async (req, res) => {
     try {
       const { id, id_user } = req.params;
@@ -1203,7 +1292,7 @@ app.put(
 ////////////////////////////////////////
 app.get(
   "/monthly_expenses/sum/:user_id",
-  authenticateToken,
+  verifyCognitoToken,
   async (req, res) => {
     const { user_id } = req.params;
     const currentDate = new Date();
@@ -1237,7 +1326,7 @@ app.get(
 
 app.get(
   "/monthly_incomes/sum/:user_id",
-  authenticateToken,
+  verifyCognitoToken,
   async (req, res) => {
     const { user_id } = req.params;
     const currentDate = new Date();
@@ -1269,7 +1358,7 @@ app.get(
   }
 );
 
-app.get("/expenses/sum/:user_id", authenticateToken, async (req, res) => {
+app.get("/expenses/sum/:user_id", verifyCognitoToken, async (req, res) => {
   const { user_id } = req.params;
 
   try {
@@ -1291,7 +1380,7 @@ app.get("/expenses/sum/:user_id", authenticateToken, async (req, res) => {
   }
 });
 
-app.get("/incomes/sum/:user_id", authenticateToken, async (req, res) => {
+app.get("/incomes/sum/:user_id", verifyCognitoToken, async (req, res) => {
   const { user_id } = req.params;
 
   try {
@@ -1313,7 +1402,7 @@ app.get("/incomes/sum/:user_id", authenticateToken, async (req, res) => {
   }
 });
 
-app.get("/total_balance/:user_id", authenticateToken, async (req, res) => {
+app.get("/total_balance/:user_id", verifyCognitoToken, async (req, res) => {
   const { user_id } = req.params;
 
   try {
@@ -1422,7 +1511,7 @@ app.get("/total_balance/:user_id", authenticateToken, async (req, res) => {
 //   }
 // });
 
-app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
+app.get("/download-expenses/:user_id", verifyCognitoToken, async (req, res) => {
   const { user_id } = req.params;
 
   try {
@@ -1686,6 +1775,8 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
 });
 
 
-app.listen(PORT, () => {
-  console.log(`Server läuft: http://localhost:${PORT}`);
-});
+initializeClient().then(() => {
+  app.listen(PORT, () => {
+    console.log(`Server läuft: http://localhost:${PORT}`);
+  });
+}).catch(console.error);
