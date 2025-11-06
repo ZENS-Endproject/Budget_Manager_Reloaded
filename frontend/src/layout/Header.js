@@ -11,9 +11,10 @@ export default function Header() {
 
   return (
     <header
-      className="relative w-full"
-      style={{ height: HEADER_HEIGHT, backgroundColor: "#FEFEEF" }}
+      className="sticky top-0 z-50 w-full"
+      style={{ height: 120, backgroundColor: "#FEFEEF" }}
     >
+
       {/* --- Hintergrund: Wellen-SVG --- */}
       <div className="absolute inset-0 pointer-events-none select-none">
         <svg
@@ -51,12 +52,13 @@ export default function Header() {
           </g>
         </svg>
       </div>
-      <div className="relative z-10 padding-left: 64px; h-full">
-        <div className="mx-auto flex h-full items-center justify-start gap-2 px-20">
-          <img src={logo}  alt="Logo"     className="w-14 h-14 hover:scale-105 transition" />
-          <img src={lang}  alt="Language" className="w-14 h-14 hover:scale-105 transition" />
-          <img src={moon}  alt="Darkmode" className="w-14 h-14 hover:scale-105 transition" />
-          <img src={power} alt="Power"    className="w-14 h-14 hover:scale-105 transition" />
+
+      <div className="relative z-10 pl-16 h-full">
+        <div className="mx-auto flex h-full items-center justify-start gap-2 px-3">
+          <img src={logo} alt="Logo" className="w-14 h-14 hover:scale-105 transition" />
+          <img src={lang} alt="Language" className="w-14 h-14 hover:scale-105 transition" />
+          <img src={moon} alt="Darkmode" className="w-14 h-14 hover:scale-105 transition" />
+          <img src={power} alt="Power" className="w-14 h-14 hover:scale-105 transition" />
         </div>
       </div>
     </header>

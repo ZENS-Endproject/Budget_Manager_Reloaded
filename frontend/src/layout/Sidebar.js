@@ -23,7 +23,7 @@ export default function Sidebar() {
         backgroundColor: "#FEFEEF",
       }}
     >
-      <div className="sticky top-[120px] pl-16 pr-10 pt-10 pb-10 mr-12 min-h-[calc(100vh-120px)] flex flex-col justify-between">
+      <div className="sticky top-[100px] pl-16 pr-10 pt-10 pb-10 min-h-[calc(100vh-120px)] flex flex-col justify-between">
         {/* Navigation oben */}
         <nav className="flex flex-col gap-4">
           <NavLink
