@@ -3,7 +3,7 @@ name: Terraform Apply per Branch
 on:
   push:
     branches:
-      - '*'
+      - 'IACSenda'
   workflow_dispatch:
 
 jobs:
@@ -111,7 +111,6 @@ jobs:
           cd ~/Budget_Manager_Reloaded
 
             # # Stop any running containers and rebuild
-            
           docker compose down -v || true
             # docker compose build --no-cache
           
