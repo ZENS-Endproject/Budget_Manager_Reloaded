@@ -1,35 +1,26 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-require("dotenv").config();
 const { Pool } = require("pg");
-const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const { refreshToken } = require("./tokenController");
-const PDFDocument = require("pdfkit");
-const { Issuer, generators } = require('openid-client');
-
-const session = require("express-session");
-const path = require('path');
+const jwksClient = require("jwks-rsa");
+const AWS = require("aws-sdk");
 
 const app = express();
-const PORT = 5005;
-//const PORT = process.env.PORT || 5005;
-app.set('view engine', 'ejs');
-app.set('views', path.join(__dirname, 'views'));
-let client;
-// Initialize OpenID Client
+const PORT = process.env.PORT || 5005;
 
-
-const jwksClient = require("jwks-rsa");
+// ---------- AWS Cognito SDK ----------
+const cognito = new AWS.CognitoIdentityServiceProvider({
+  region: process.env.COGNITO_REGION
+});
 
 const clientJwks = jwksClient({
-  jwksUri: "https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_e4POt9DqQ/.well-known/jwks.json"
+  jwksUri: `https://cognito-idp.${process.env.COGNITO_REGION}.amazonaws.com/${process.env.COGNITO_USER_POOL_ID}/.well-known/jwks.json`
 });
 
 function getKey(header, callback) {
   clientJwks.getSigningKey(header.kid, (err, key) => {
-    const signingKey = key.getPublicKey();
-    callback(null, signingKey);
+    callback(null, key.getPublicKey());
   });
 }
 
@@ -39,7 +30,7 @@ function verifyCognitoToken(req, res, next) {
 
   jwt.verify(token, getKey, {
     algorithms: ["RS256"],
-    issuer: "https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_e4POt9DqQ",
+    issuer: `https://cognito-idp.${process.env.COGNITO_REGION}.amazonaws.com/${process.env.COGNITO_USER_POOL_ID}`,
   }, (err, decoded) => {
     if (err) return res.status(403).json({ error: "Token invalide" });
     req.user = decoded;
@@ -47,221 +38,67 @@ function verifyCognitoToken(req, res, next) {
   });
 }
 
+// ---------- Middleware ----------
+app.use(express.json());
+app.use(cors({ origin: "*", methods: ["GET", "POST", "PUT", "DELETE"] }));
 
-
-
-//initializeCognitoClient().catch(console.error);
-//middleware
-// function verifyCognitoToken(req, res, next) {
-//   const authHeader = req.headers["authorization"];
-//   const token = authHeader && authHeader.split(" ")[1];
-
-//   if (!token) {
-//     return res.status(401).json({ error: "Missing token" });
-//   }
-
-//   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-//     if (err) {
-//       return res.status(403).json({ error: "Invalid token" });
-//     }
-
-//     req.user = user;
-//     next();
-//   });
-// }
-
-//app.post("/refresh-token", refreshToken);
-
-const CLIENT_ID = "6tat4u7lrgtmuisu8ctf9t1nhv";
-const CLIENT_SECRET = "3fjtoe4kp3crmuk87a3e40op05tuu1m4cdpo5i3j10h48gq98gg";
-const COGNITO_DOMAIN = "https://eu-central-1e4pot9dqq.auth.eu-central-1.amazoncognito.com";
-const REDIRECT_URI = "http://localhost:5005/callback";
-
-// 🧩 PostgreSQL
-// const db = new Pool({
-//   host: "backup-main-postgres-db.crwi4cya2xob.eu-central-1.rds.amazonaws.com",
-//   port: 5432,
-//   user: "postgres",
-//   password: "123Senda?456",
-//   database: "budget",
-// });
-
+// ---------- PostgreSQL Connection ----------
 const pool = new Pool({
-  user: process.env.DB_USER, // Dein PostgreSQL-Benutzername
-  host: process.env.DB_HOST, // z. B. 'localhost'
-  database: process.env.DB_NAME, // Name deiner Datenbank
-  password: process.env.DB_PASSWORD, // Dein Passwort
-  port: process.env.DB_PORT, // Standardport für PostgreSQL
-  ssl: {
-    rejectUnauthorized: false
-  }
+  user: process.env.DB_USER,
+  host: process.env.DB_HOST,
+  database: process.env.DB_NAME,
+  password: process.env.DB_PASSWORD,
+  port: process.env.DB_PORT,
+  ssl: { rejectUnauthorized: false },
 });
 
-const createTable = async () => {
+// Create the "users" table if it does not exist
+(async () => {
   const client = await pool.connect();
-  try {
-    const queryText = `
-            CREATE TABLE IF NOT EXISTS Users (id  SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    budget real NOT NULL,
-    e_mail VARCHAR(100) NOT NULL
-            );
-        `;
-    await client.query(queryText);
-    console.log("✅ Table 'users' exists / created!");
-  } catch (err) {
-    console.error("❌ Error creating table:", err);
-  } finally {
-    client.release();
-  }
-};
+  await client.query(`
+    CREATE TABLE IF NOT EXISTS users (
+      id SERIAL PRIMARY KEY,
+      name VARCHAR(50) NOT NULL,
+      password VARCHAR(255) NOT NULL,
+      budget REAL NOT NULL,
+      e_mail VARCHAR(100) NOT NULL
+    );
+  `);
+  client.release();
+  console.log("✅ Table 'users' verified/created");
+})();
 
-createTable();
+// ---------- Routes ----------
 
-// Allow requests from anywhere (or restrict to your frontend domain)
-app.use(cors({
-  origin: "*",  // <-- for testing; restrict later
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
+// Health check
+app.get("/", (req, res) => res.send("✅ Server is running"));
 
-//app.use(cors());
-
-app.use(express.json()); // Ermöglicht Express Json aus einem Body auszulesen
-app.use(express.static("public"));
-
-app.use(session({
-  secret: '123Senda?456',
-  resave: false,
-  saveUninitialized: false
-}));
-
-const checkAuth = (req, res, next) => {
-  if (!req.session.userInfo) {
-    req.isAuthenticated = false;
-  } else {
-    req.isAuthenticated = true;
-  }
-  next();
-};
-
-app.get('/', checkAuth, (req, res) => {
-  res.render('home', {
-    isAuthenticated: req.isAuthenticated,
-    userInfo: req.session.userInfo
-  });
-});
-
+// Login with Cognito
 app.post("/login", async (req, res) => {
   const { e_mail, password } = req.body;
-  try {
-    const result = await pool.query(
-      "SELECT * FROM users WHERE e_mail = $1",
-      [e_mail]
-    );
 
-    if (result.rows.length === 0) {
-      return res.status(401).json({ error: "Utilisateur non trouvé" });
+  const params = {
+    AuthFlow: 'USER_PASSWORD_AUTH',
+    ClientId: process.env.CLIENT_ID,
+    AuthParameters: {
+      USERNAME: e_mail,
+      PASSWORD: password
     }
+  };
 
-    const user = result.rows[0];
+  try {
+    const response = await cognito.initiateAuth(params).promise();
+    const { IdToken, AccessToken, RefreshToken } = response.AuthenticationResult;
 
-    // Vérifie le mot de passe hashé
-    const validPassword = await bcrypt.compare(password, user.password);
-    if (!validPassword) {
-      return res.status(401).json({ error: "Mot de passe incorrect" });
-    }
-
-    // Crée un token JWT pour l’app React
-    const token = jwt.sign(
-      { userId: user.id, email: user.e_mail },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
-
-    res.json({ token, user });
+    res.json({
+      message: "Connexion réussie",
+      tokens: { idToken: IdToken, accessToken: AccessToken, refreshToken: RefreshToken }
+    });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erreur serveur" });
+    console.error("Erreur Cognito login:", err);
+    res.status(401).json({ error: "Email ou mot de passe incorrect" });
   }
 });
-
-
-function getPathFromURL(urlString) {
-  try {
-    const url = new URL(urlString);
-    return url.pathname;
-  } catch (error) {
-    console.error('Invalid URL:', error);
-    return null;
-  }
-}
-app.get(getPathFromURL('http://localhost:3000/callback'), async (req, res) => {
-  try {
-    const params = client.callbackParams(req);
-    const tokenSet = await client.callback(
-      'http://localhost:5005/callback',
-      params,
-      {
-        nonce: req.session.nonce,
-        state: req.session.state
-      }
-    );
-
-    const userInfo = await client.userinfo(tokenSet.access_token);
-    req.session.userInfo = userInfo;
-
-    res.redirect('/');
-  } catch (err) {
-    console.error('Callback error:', err);
-    res.redirect('/');
-  }
-});
-
-// Logout route
-//app.get('/logout', (req, res) => {
-//  req.session.destroy();
-// const logoutUrl = `https://eu-central-1e4pot9dqq.auth.eu-central-1.amazoncognito.com/logout?client_id=6tat4u7lrgtmuisu8ctf9t1nhv&logout_uri=http://localhost:3000/login`;
-// res.redirect(logoutUrl);
-//});
-
-async function initializeClient() {
-  const issuer = await Issuer.discover('https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_e4POt9DqQ');
-  client = new issuer.Client({
-    client_id: '6tat4u7lrgtmuisu8ctf9t1nhv',
-    client_secret: CLIENT_SECRET,
-    redirect_uris: ['http://localhost:5005/callback'],
-    response_types: ['code']
-  });
-  console.log('Cognito client initialized');
-};
-initializeClient().catch(console.error);
-
-app.get('/callback', async (req, res) => {
-  try {
-    const params = client.callbackParams(req);
-    const tokenSet = await client.callback(
-      'http://localhost:5005/callback',
-      params,
-      {
-        nonce: req.session.nonce,
-        state: req.session.state,
-      }
-    );
-
-    const userInfo = await client.userinfo(tokenSet.access_token);
-    req.session.userInfo = userInfo;
-
-    console.log('User connected:', userInfo);
-
-    res.redirect('http://localhost:3000'); // redirige ton front React
-  } catch (err) {
-    console.error('Callback error:', err);
-    res.redirect('/');
-  }
-});
-
 
 app.get("/expenses/:user_id", verifyCognitoToken, async (req, res) => {
   const { user_id } = req.params;
@@ -1775,8 +1612,6 @@ app.get("/download-expenses/:user_id", verifyCognitoToken, async (req, res) => {
 });
 
 
-initializeClient().then(() => {
-  app.listen(PORT, () => {
-    console.log(`Server läuft: http://localhost:${PORT}`);
-  });
-}).catch(console.error);
+app.listen(PORT, () => {
+  console.log(`✅ Server running at http://localhost:${PORT}`);
+});
