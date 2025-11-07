@@ -2,35 +2,38 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const { Pool } = require("pg");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { refreshToken } = require("./tokenController");
+//const bcrypt = require("bcryptjs");
+//const jwt = require("jsonwebtoken");
+//const { refreshToken } = require("./tokenController");
 const PDFDocument = require("pdfkit");
+const { authenticateToken } = require("./cognitoMiddleware");
 
 const app = express();
 const PORT = 5005;
 //const PORT = process.env.PORT || 5005;
 
 //middleware
-function authenticateToken(req, res, next) {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+// function authenticateToken(req, res, next) {
+//   const authHeader = req.headers["authorization"];
+//   const token = authHeader && authHeader.split(" ")[1];
 
-  if (!token) {
-    return res.status(401).json({ error: "Missing token" });
-  }
+//   if (!token) {
+//     return res.status(401).json({ error: "Missing token" });
+//   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ error: "Invalid token" });
-    }
+//   jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+//     if (err) {
+//       return res.status(403).json({ error: "Invalid token" });
+//     }
 
-    req.user = user;
-    next();
-  });
-}
+//     req.user = user;
+//     next();
+//   });
+// }
 
-app.post("/refresh-token", refreshToken);
+
+
+//app.post("/refresh-token", refreshToken);
 
 const pool = new Pool({
   user: process.env.DB_USER, // Dein PostgreSQL-Benutzername

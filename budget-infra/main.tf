@@ -191,6 +191,25 @@ resource "aws_db_subnet_group" "subnet_group" {
 }
 
 
+
+
+
+#cognito
+resource "aws_cognito_user_pool_client" "budget_app_client" {
+  name         = "${local.safe_branch_name}-client"
+  user_pool_id = aws_cognito_user_pool.budget_app_pool.id
+
+  generate_secret = false
+
+  explicit_auth_flows = [
+    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH"
+  ]
+
+  prevent_user_existence_errors = "ENABLED"
+  refresh_token_validity        = 30
+}
+
 # Outputs
 
 output "public_ip" {
