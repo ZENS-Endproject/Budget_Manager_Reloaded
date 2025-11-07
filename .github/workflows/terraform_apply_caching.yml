@@ -13,7 +13,7 @@ jobs:
         #contents: read
         #packages: write   #  Required to push to GHCR
         #
-        id-token: write   # (optional, for OpenIDConnect OIDC deployments with SSO + JWT)
+        #id-token: write   # (optional, for OpenIDConnect OIDC deployments with SSO + JWT)
 
         steps:
       #  Checkout your repository
