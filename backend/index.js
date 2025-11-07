@@ -49,24 +49,28 @@ const pool = new Pool({
   database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
-  ssl: { rejectUnauthorized: false },
+  ssl: false
 });
-
 // Create the "users" table if it does not exist
 (async () => {
-  const client = await pool.connect();
-  await client.query(`
-    CREATE TABLE IF NOT EXISTS users (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(50) NOT NULL,
-      password VARCHAR(255) NOT NULL,
-      budget REAL NOT NULL,
-      e_mail VARCHAR(100) NOT NULL
-    );
-  `);
-  client.release();
-  console.log("✅ Table 'users' verified/created");
+  try {
+    const client = await pool.connect();
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS users (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(50) NOT NULL,
+        password VARCHAR(255) NOT NULL,
+        budget REAL NOT NULL,
+        e_mail VARCHAR(100) NOT NULL
+      );
+    `);
+    client.release();
+    console.log("✅ Table 'users' verified/created");
+  } catch (err) {
+    console.error("❌ Erreur lors de la création de la table 'users':", err);
+  }
 })();
+
 
 // ---------- Routes ----------
 
@@ -75,6 +79,7 @@ app.get("/", (req, res) => res.send("✅ Server is running"));
 
 // Login with Cognito
 app.post("/login", async (req, res) => {
+  console.log("Body reçu:", req.body);
   const { e_mail, password } = req.body;
 
   const params = {
@@ -86,8 +91,11 @@ app.post("/login", async (req, res) => {
     }
   };
 
+  console.log("Params Cognito:", params);
+
   try {
     const response = await cognito.initiateAuth(params).promise();
+    console.log("Réponse Cognito:", response);
     const { IdToken, AccessToken, RefreshToken } = response.AuthenticationResult;
 
     res.json({
@@ -99,6 +107,12 @@ app.post("/login", async (req, res) => {
     res.status(401).json({ error: "Email ou mot de passe incorrect" });
   }
 });
+
+app.get("/test", (req, res) => {
+  console.log("GET /test reçu !");
+  res.json({ message: "Test OK" });
+});
+
 
 app.get("/expenses/:user_id", verifyCognitoToken, async (req, res) => {
   const { user_id } = req.params;
@@ -1612,6 +1626,7 @@ app.get("/download-expenses/:user_id", verifyCognitoToken, async (req, res) => {
 });
 
 
-app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
+app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Server running at http://0.0.0.0:${PORT}`);
 });
+
