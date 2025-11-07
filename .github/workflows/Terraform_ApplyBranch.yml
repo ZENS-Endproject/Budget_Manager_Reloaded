@@ -2,8 +2,7 @@ name: Terraform Apply per Branch
 
 on:
   push:
-    branches:
-      - [_main]
+    branches: [ _main ]
   workflow_dispatch:
 
 jobs:
