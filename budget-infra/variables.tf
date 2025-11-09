@@ -25,4 +25,5 @@ variable "db_password" {
 variable "branch_name" {
   description = "Name of the current Git branch (used as prefix or postfix for resources)"
   type        = string
+  default     = "branch07-11-2025"
 }
