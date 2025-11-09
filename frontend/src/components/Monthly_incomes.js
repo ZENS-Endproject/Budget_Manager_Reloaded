@@ -162,35 +162,56 @@ function MonthlyIncomes() {
             <Table className="incomes-table">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">Name</TableHead>
-                  <TableHead>
-                    <span className="text-right w-full block">Price</span>
+                  <TableHead className="w-[100px]">
+                    <Text variant="bodyBlue">Name</Text>
                   </TableHead>
-                  <TableHead>Start Date</TableHead>
-                  <TableHead>End Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>
+                    <Text
+                      variant="bodyBlue"
+                      className="text-right w-full block"
+                    >
+                      Price
+                    </Text>
+                  </TableHead>
+                  <TableHead>
+                    <Text variant="bodyBlue">Start Date</Text>
+                  </TableHead>
+                  <TableHead>
+                    <Text variant="bodyBlue">End Date</Text>
+                  </TableHead>
+                  <TableHead>
+                    <Text variant="bodyBlue">Actions</Text>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {income.map((income) => (
                   <TableRow key={income.id}>
-                    <TableCell className="font-medium">{income.name}</TableCell>
+                    <TableCell>
+                      <Text variant="bodyBlack">{income.name}</Text>
+                    </TableCell>
                     <TableCell>
                       <span className="text-right w-full block">
-                        {parseFloat(income.amount).toFixed(2)} €
+                        <Text variant="bodyBlack">
+                          {parseFloat(income.amount).toFixed(2)} €
+                        </Text>
                       </span>
                     </TableCell>
                     <TableCell>
-                      {income.date_start
-                        ? new Date(income.date_start).toLocaleDateString()
-                        : "No start date"}
+                      <Text variant="bodyBlack">
+                        {income.date_start
+                          ? new Date(income.date_start).toLocaleDateString()
+                          : "No start date"}
+                      </Text>
                     </TableCell>
                     <TableCell>
-                      {income.date_end
-                        ? new Date(income.date_end).toLocaleDateString()
-                        : "Ongoing"}
+                      <Text variant="bodyBlack">
+                        {income.date_end
+                          ? new Date(income.date_end).toLocaleDateString()
+                          : "Ongoing"}
+                      </Text>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell>
                       <Button
                         onClick={() =>
                           navigate(
@@ -229,7 +250,6 @@ function MonthlyIncomes() {
                         </Text>
                       </span>
                     </TableCell>
-
                     <TableCell />
                     <TableCell />
                     <TableCell />

@@ -159,34 +159,51 @@ function Income() {
             <Table className="incomes-table">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[100px]">Name</TableHead>
-                  <TableHead>
-                    <span className="text-right w-full block">Price</span>
+                  <TableHead className="w-[100px]">
+                    <Text variant="bodyBlue">Name</Text>
                   </TableHead>
-                  <TableHead>Date</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                  <TableHead>
+                    <Text
+                      variant="bodyBlue"
+                      className="text-right w-full block"
+                    >
+                      Price
+                    </Text>
+                  </TableHead>
+                  <TableHead>
+                    <Text variant="bodyBlue">Date</Text>
+                  </TableHead>
+                  <TableHead>
+                    <Text variant="bodyBlue">Actions</Text>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {income.map((income) => (
                   <TableRow key={income.id}>
-                    <TableCell className="font-medium">{income.name}</TableCell>
+                    <TableCell>
+                      <Text variant="bodyBlack">{income.name}</Text>
+                    </TableCell>
                     <TableCell>
                       <span className="text-right w-full block">
-                        {parseFloat(income.amount).toFixed(2)} €
+                        <Text variant="bodyBlack">
+                          {parseFloat(income.amount).toFixed(2)} €
+                        </Text>
                       </span>
                     </TableCell>
                     <TableCell>
-                      {income.date
-                        ? (() => {
-                            const d = new Date(income.date);
-                            return `${d.getDate()}.${
-                              d.getMonth() + 1
-                            }.${d.getFullYear()}`;
-                          })()
-                        : "No date"}
+                      <Text variant="bodyBlack">
+                        {income.date
+                          ? (() => {
+                              const d = new Date(income.date);
+                              return `${d.getDate()}.${
+                                d.getMonth() + 1
+                              }.${d.getFullYear()}`;
+                            })()
+                          : "No date"}
+                      </Text>
                     </TableCell>
-                    <TableCell className="text-right">
+                    <TableCell>
                       <Button
                         onClick={() =>
                           navigate(

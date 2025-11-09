@@ -97,9 +97,11 @@ const InExBarChart = () => {
             axisLine={false}
             tickFormatter={(value) => value.slice(0, 3)}
             tick={{
-              fill: "black",
-              fontSize: 12,
-              fontFamily: "Voces, sans-serif",
+              style: {
+                fill: "#000",
+                fontSize: "12px",
+                fontFamily: "Voces, sans-serif",
+              },
             }}
           />
           <ChartTooltip content={<ChartTooltipContent />} />
