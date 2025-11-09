@@ -8,6 +8,7 @@ const { Pool } = require("pg");
 const PDFDocument = require("pdfkit");
 const { authenticateToken } = require("./cognitoMiddleware");
 
+
 const app = express();
 const PORT = 5005;
 //const PORT = process.env.PORT || 5005;

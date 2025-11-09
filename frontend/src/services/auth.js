@@ -4,11 +4,11 @@ import { Auth } from "aws-amplify";
 // Configurer Cognito
 Auth.configure({
     region: "eu-central-1",
-    userPoolId: "<COGNITO_USER_POOL_ID>",           // Remplace par ton ID Cognito
-    userPoolWebClientId: "<COGNITO_USER_POOL_CLIENT_ID>", // Remplace par ton Client ID
+    userPoolId: "eu-central-1_e4POt9DqQ",
+    userPoolWebClientId: "163gnc5eh09v3ukktfatlfbr9c", // Remplace par ton Client ID
 });
 
-// Fonction de login
+// Login avec email + password
 export async function login(email, password) {
     try {
         const user = await Auth.signIn(email, password);
@@ -16,4 +16,10 @@ export async function login(email, password) {
     } catch (err) {
         throw err;
     }
+}
+
+// Récupérer le JWT ID Token
+export async function getJwtToken() {
+    const session = await Auth.currentSession();
+    return session.getIdToken().getJwtToken();
 }
