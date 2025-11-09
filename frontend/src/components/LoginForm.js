@@ -1,21 +1,19 @@
-const React = require("react");
-const { useState } = require("react");
-const { cn } = require("../lib/utils");
-const { Button } = require("./ui/button");
-const {
+import React, { useState } from "react";
+import { cn } from "../lib/utils";
+import { Button } from "./ui/button";
+import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} = require("./ui/card");
-const { Label } = require("./ui/label");
-const { Input } = require("./ui/input");
-const { Link, useNavigate } = require("react-router-dom");
+} from "./ui/card";
+import { Label } from "./ui/label";
+import { Input } from "./ui/input";
+import { Link, useNavigate } from "react-router-dom";
+import { login } from "../services/auth"; // <- Cognito login
 
-const { login } = require("../services/auth"); // <- Amplify login
-
-function LoginForm({ className, ...props }) {
+export function LoginForm({ className, ...props }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
@@ -29,16 +27,10 @@ function LoginForm({ className, ...props }) {
 
     try {
       const user = await login(email, password);
-
-      // Récupérer le token JWT ID
       const token = user.signInUserSession.idToken.jwtToken;
-
-      // Stocker token et email localement
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify({ email: user.username }));
-
       setSuccess("Login successful!");
-      console.log("Logged in user:", user);
       navigate("/expenses");
     } catch (err) {
       console.error("Login error:", err);
@@ -105,5 +97,3 @@ function LoginForm({ className, ...props }) {
     </div>
   );
 }
-
-module.exports = { LoginForm };
