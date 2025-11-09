@@ -1,5 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
+import Text from "../components/Text";
 
 /**
  * Farbkonzept:
@@ -11,10 +12,8 @@ import { NavLink } from "react-router-dom";
 export default function Sidebar() {
   const itemBase =
     "block rounded-2xl px-6 py-3 text-[20px] leading-tight transition-colors duration-200";
-  const active =
-    "bg-[#E8EFEF] text-[#0A4A56] font-semibold shadow-sm";
-  const inactive =
-    "text-[#0A4A56] hover:bg-[#0489A91A]";
+  const active = "bg-[#E8EFEF] text-[#0A4A56] font-semibold shadow-sm";
+  const inactive = "text-[#0A4A56] hover:bg-[#0489A91A]";
 
   return (
     <aside
@@ -34,7 +33,7 @@ export default function Sidebar() {
               `${itemBase} ${isActive ? active : inactive}`
             }
           >
-            Statistics
+            <Text variant="menuBlue">Statistics</Text>
           </NavLink>
 
           <NavLink
@@ -43,7 +42,7 @@ export default function Sidebar() {
               `${itemBase} ${isActive ? active : inactive}`
             }
           >
-            Expenses
+            <Text variant="menuBlue">Expenses</Text>
           </NavLink>
 
           <NavLink
@@ -52,7 +51,7 @@ export default function Sidebar() {
               `${itemBase} ${isActive ? active : inactive}`
             }
           >
-            Income
+            <Text variant="menuBlue">Income</Text>
           </NavLink>
         </nav>
 
@@ -62,13 +61,11 @@ export default function Sidebar() {
             to="/about"
             className={({ isActive }) =>
               `${itemBase} ${
-                isActive
-                  ? active
-                  : "text-[#0A4A56]/90 hover:bg-[#0489A91A]"
+                isActive ? active : "text-[#0A4A56]/90 hover:bg-[#0489A91A]"
               }`
             }
           >
-            About us
+            <Text variant="menuBlue">About us</Text>
           </NavLink>
         </div>
       </div>

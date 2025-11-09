@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AddIncomeForm from "./AddIncome";
+import AddIncomeForm from "./AddIncomeMonthly";
 import {
   Table,
   TableBody,
@@ -113,121 +113,131 @@ function MonthlyIncomes() {
 
   return (
     <>
+      <Text variant="subtitleBlue">Regular income {selectedMonthYear}</Text>
       <AddIncomeForm />
-      <Text variant="subtitleBlue" className="text-center my-6">
-        Regular Incomes {selectedMonthYear}
-      </Text>
-
-      <div className="text-center mt-10">
-        <Button
-          onClick={() => setShowMonthFilter(!showMonthFilter)}
-          className="mb-4"
-        >
+      <Button
+        onClick={() => setShowMonthFilter(!showMonthFilter)}
+        className="button mb-2"
+      >
+        <Text variant="bodyBlack">
           {showMonthFilter ? "Hide filter" : "Filter by Month"}
-        </Button>
+        </Text>
+      </Button>
 
-        {showMonthFilter && (
-          <div className="max-w-sm mx-auto mt-4">
-            <FormItem>
-              <FormLabel>Select Month</FormLabel>
-              <FormControl>
-                <Input
-                  type="month"
-                  value={selectedMonthYear}
-                  onChange={(e) => {
-                    setSelectedMonthYear(e.target.value);
-                    fetchMonthlyIncomes(e.target.value);
-                  }}
-                />
-              </FormControl>
-            </FormItem>
-            <br />
-            <Button
-              onClick={() => {
-                setSelectedMonthYear("");
-                fetchMonthlyIncomes();
-                setShowMonthFilter(false);
-              }}
-            >
-              Reset Filter
-            </Button>
-          </div>
-        )}
-      </div>
+      {showMonthFilter && (
+        <div className="max-w-sm mx-auto">
+          <FormItem>
+            <FormLabel>Select Month</FormLabel>
+            <FormControl>
+              <Input
+                type="month"
+                value={selectedMonthYear}
+                onChange={(e) => {
+                  setSelectedMonthYear(e.target.value);
+                  fetchMonthlyIncomes(e.target.value);
+                }}
+              />
+            </FormControl>
+          </FormItem>
+
+          <Button
+            onClick={() => {
+              setSelectedMonthYear("");
+              fetchMonthlyIncomes();
+              setShowMonthFilter(false);
+            }}
+            className="button my-2"
+          >
+            <Text variant="bodyBlack">Reset Filter</Text>
+          </Button>
+        </div>
+      )}
 
       {loading && <p className="text-center">Loading incomes...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
       {!loading && !error && (
-        <div className="max-w-4xl mx-auto">
-          <Table className="incomes-table">
-            <TableCaption></TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">Name</TableHead>
-                <TableHead>Price (€)</TableHead>
-                <TableHead>Start Date</TableHead>
-                <TableHead>End Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {income.map((income) => (
-                <TableRow key={income.id}>
-                  <TableCell className="font-medium">{income.name}</TableCell>
-                  <TableCell>{parseFloat(income.amount).toFixed(2)}</TableCell>
-                  <TableCell>
-                    {income.date_start
-                      ? new Date(income.date_start).toLocaleDateString()
-                      : "No start date"}
-                  </TableCell>
-                  <TableCell>
-                    {income.date_end
-                      ? new Date(income.date_end).toLocaleDateString()
-                      : "Ongoing"}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      onClick={() =>
-                        navigate(
-                          `/edit-monthly-income/${income.userId}/${income.id}`,
-                          {
-                            state: { income },
-                          }
-                        )
-                      }
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      onClick={() => handleDelete(income.id)}
-                      className="text-red-500 underline"
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
+        <div className="max-w-5xl mx-auto">
+          <div className="table-wrapper">
+            <Table className="incomes-table">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">Name</TableHead>
+                  <TableHead>
+                    <span className="text-right w-full block">Price</span>
+                  </TableHead>
+                  <TableHead>Start Date</TableHead>
+                  <TableHead>End Date</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              ))}
-              {selectedMonthYear === new Date().toISOString().slice(0, 7) && (
-                <TableRow
-                  style={{
-                    backgroundColor: "#7FDBFF",
-                    fontWeight: "bold",
-                    color: "#333",
-                  }}
-                >
-                  <TableCell className="font-medium">
-                    Total Monthly Incomes for this month {selectedMonthYear}
-                  </TableCell>
-                  <TableCell>{parseFloat(monthlySum).toFixed(2)} €</TableCell>
+              </TableHeader>
+              <TableBody>
+                {income.map((income) => (
+                  <TableRow key={income.id}>
+                    <TableCell className="font-medium">{income.name}</TableCell>
+                    <TableCell>
+                      <span className="text-right w-full block">
+                        {parseFloat(income.amount).toFixed(2)} €
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      {income.date_start
+                        ? new Date(income.date_start).toLocaleDateString()
+                        : "No start date"}
+                    </TableCell>
+                    <TableCell>
+                      {income.date_end
+                        ? new Date(income.date_end).toLocaleDateString()
+                        : "Ongoing"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        onClick={() =>
+                          navigate(
+                            `/edit-monthly-income/${income.userId}/${income.id}`,
+                            {
+                              state: { income },
+                            }
+                          )
+                        }
+                        className="button"
+                      >
+                        <Text variant="bodyBlack">Edit</Text>
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(income.id)}
+                        className="button"
+                      >
+                        <Text variant="bodyBlack">Delete</Text>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {selectedMonthYear === new Date().toISOString().slice(0, 7) && (
+                  <TableRow>
+                    <TableCell>
+                      <Text variant="bodyBlue">
+                        <strong>
+                          Total regular income for {selectedMonthYear}
+                        </strong>
+                      </Text>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span className="text-right w-full block">
+                        <Text variant="bodyBlue">
+                          <strong>{parseFloat(monthlySum).toFixed(2)} €</strong>
+                        </Text>
+                      </span>
+                    </TableCell>
 
-                  <TableCell />
-                  <TableCell />
-                  <TableCell />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+                    <TableCell />
+                    <TableCell />
+                    <TableCell />
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       )}
     </>

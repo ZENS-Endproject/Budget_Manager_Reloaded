@@ -30,7 +30,11 @@ export default function Header() {
           <g clipPath="url(#clipPathHeader)">
             <g transform="translate(1922.402 376.183) rotate(180)">
               <g transform="translate(-0.001 156.821)">
-                <path d="M1066.64,0" transform="translate(855.763 370.031)" fill="#fff" />
+                <path
+                  d="M1066.64,0"
+                  transform="translate(855.763 370.031)"
+                  fill="#fff"
+                />
                 <path
                   d="M0-497.29s-1.562,11.965,158.719,17.379,269.016-14.533,482.4,4.276c213.625,18.808,426.533,60.906,640.158,52.5,213.389-8.4,301.65-32.082,453.229-56.778S1922.4-508.266,1922.4-508.266V-258.9H110.882C102.621-258.9,0-258.821,0-259V-497.29"
                   transform="translate(0.001 508.266)"
@@ -52,11 +56,27 @@ export default function Header() {
         </svg>
       </div>
       <div className="relative z-10 h-full">
-        <div className="mx-auto flex h-full max-w-6xl items-center justify-start gap-6 px-6">
-          <img src={logo}  alt="Logo"     className="w-14 h-14 hover:scale-105 transition" />
-          <img src={lang}  alt="Language" className="w-14 h-14 hover:scale-105 transition" />
-          <img src={moon}  alt="Darkmode" className="w-14 h-14 hover:scale-105 transition" />
-          <img src={power} alt="Power"    className="w-14 h-14 hover:scale-105 transition" />
+        <div className="mx-auto flex h-full max-w-8xl items-center justify-start gap-6 px-6">
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-14 h-14 hover:scale-105 transition"
+          />
+          <img
+            src={lang}
+            alt="Language"
+            className="w-14 h-14 hover:scale-105 transition"
+          />
+          <img
+            src={moon}
+            alt="Darkmode"
+            className="w-14 h-14 hover:scale-105 transition"
+          />
+          <img
+            src={power}
+            alt="Power"
+            className="w-14 h-14 hover:scale-105 transition"
+          />
         </div>
       </div>
     </header>

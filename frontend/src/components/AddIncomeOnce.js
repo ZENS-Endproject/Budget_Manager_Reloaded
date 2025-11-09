@@ -3,24 +3,22 @@ import { useForm } from "react-hook-form";
 
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
-import { FormItem, FormLabel, FormControl } from "./ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "./ui/form";
 import { Select, SelectItem } from "./ui/select";
 
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
 
-const AddExpenseForm = () => {
+const AddIncomeForm = () => {
   const [showForm, setShowForm] = useState(false);
-  const [type, setType] = useState("once");
+  // const [type, setType] = useState("once");
 
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       name: "",
       amount: "",
-      category_id: "",
-      date: "",
-      start_date: "",
-      end_date: "",
+      // date: "",
+      date_start: "",
     },
   });
 
@@ -30,37 +28,36 @@ const AddExpenseForm = () => {
 
     const payload = {
       user_id: userId,
-      ...values,
-      category_id: parseInt(values.category_id),
+      name: values.name,
       amount: parseFloat(values.amount),
+      date: values.date,
     };
 
-    if (type === "monthly") {
-      payload.date_start = values.date_start + "-01"; // hier die Monatskorrektur
-      delete payload.date;
-    } else {
-      delete payload.date_start;
-    }
+    // if (type === "monthly") {
+    //   delete payload.date;
+    //   payload.date_start = values.date_start + "-01";
+    // } else {
+    //   delete payload.date_start;
+    // }
 
-    const url =
-      type === "monthly"
-        ? `${API_URL}/monthly_expenses`
-        : `${API_URL}/expenses`;
+    // const url =
+    //   type === "monthly" ? `${API_URL}/monthly_incomes` : `${API_URL}/incomes`;
 
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(url, {
+      const res = await fetch(`${API_URL}/incomes`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+
         body: JSON.stringify(payload),
       });
 
       if (res.ok) {
-        alert("Saved!");
+        alert("Saved");
         reset();
         setShowForm(false);
         window.location.reload();
@@ -70,38 +67,34 @@ const AddExpenseForm = () => {
       }
     } catch (err) {
       console.error("Error:", err);
-      alert("Server Error!");
+      alert("Server error!");
     }
   };
 
   return (
-    <div className="text-center mt-10">
+    <div className="my-2">
       <Button onClick={() => setShowForm(!showForm)} className="button">
         <Text variant="bodyBlack">
-          {" "}
-          {showForm ? "Close form" : "Insert new Expense"}
-        </Text>
+          {showForm ? "Close form" : "Add new one-time income"}
+        </Text>{" "}
       </Button>
       {showForm && (
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="max-w-sm mx-auto space-y-4"
-        >
-          <FormItem>
+        <form onSubmit={handleSubmit(onSubmit)} className="max-w-sm mx-auto">
+          {/* <FormItem>
             <FormLabel>Type</FormLabel>
             <FormControl>
               <Select value={type} onChange={(e) => setType(e.target.value)}>
-                <SelectItem value="once">once</SelectItem>
-                <SelectItem value="monthly">monthly</SelectItem>
+                <SelectItem value="once">Once</SelectItem>
+                <SelectItem value="monthly">Monthly</SelectItem>
               </Select>
             </FormControl>
-          </FormItem>
+          </FormItem> */}
 
           <FormItem>
             <FormLabel>Name</FormLabel>
             <FormControl>
               <Input
-                placeholder="Expense Name"
+                className="font-voces text-xs text-black"
                 {...register("name")}
                 required
               />
@@ -121,40 +114,24 @@ const AddExpenseForm = () => {
           </FormItem>
 
           <FormItem>
-            <FormLabel>Category</FormLabel>
+            <FormLabel>Date</FormLabel>
             <FormControl>
-              <Select {...register("category_id")} required>
-                <SelectItem value="">-- choose category --</SelectItem>
-                <SelectItem value="1">Shopping</SelectItem>
-                <SelectItem value="2">Entertainment</SelectItem>
-                <SelectItem value="3">Transport</SelectItem>
-                <SelectItem value="4">Rent & Energy</SelectItem>
-                <SelectItem value="5">Other</SelectItem>
-              </Select>
+              <Input type="date" {...register("date")} required />
             </FormControl>
           </FormItem>
 
-          {type === "once" && (
-            <FormItem>
-              <FormLabel>Date</FormLabel>
-              <FormControl>
-                <Input type="date" {...register("date")} required />
-              </FormControl>
-            </FormItem>
-          )}
-
-          {type === "monthly" && (
+          {/* {type === "monthly" && (
             <>
               <FormItem>
-                <FormLabel>Start date</FormLabel>
+                <FormLabel>Startmonat</FormLabel>
                 <FormControl>
                   <Input type="month" {...register("date_start")} required />
                 </FormControl>
               </FormItem>
             </>
-          )}
+          )} */}
 
-          <Button type="submit" className="button">
+          <Button type="submit" className="button mt-2">
             <Text variant="bodyBlack">Save</Text>
           </Button>
         </form>
@@ -163,4 +140,4 @@ const AddExpenseForm = () => {
   );
 };
 
-export default AddExpenseForm;
+export default AddIncomeForm;
