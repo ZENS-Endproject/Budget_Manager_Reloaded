@@ -1,12 +1,13 @@
 // services/auth.js
-import * as Auth from "@aws-amplify/auth";
+import { Amplify, Auth } from "aws-amplify";
 
-
-// Configurer Cognito
-Auth.configure({
-    region: "eu-central-1",
-    userPoolId: "eu-central-1_e4POt9DqQ",
-    userPoolWebClientId: "163gnc5eh09v3ukktfatlfbr9c", // Remplace par ton Client ID
+// Configurer Amplify (et pas Auth directement)
+Amplify.configure({
+    Auth: {
+        region: "eu-central-1",
+        userPoolId: "eu-central-1_e4POt9DqQ",
+        userPoolWebClientId: "163gnc5eh09v3ukktfatlfbr9c",
+    },
 });
 
 // Login avec email + password
