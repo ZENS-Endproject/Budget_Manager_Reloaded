@@ -11,7 +11,8 @@ import {
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Link, useNavigate } from "react-router-dom";
-import { login } from "../services/auth"; // <- Cognito login
+import { login } from "../services/auth";
+// <- Cognito login
 
 export function LoginForm({ className, ...props }) {
   const [email, setEmail] = useState("");
