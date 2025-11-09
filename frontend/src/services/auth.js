@@ -1,5 +1,6 @@
 // services/auth.js
-import Auth from "@aws-amplify/auth";
+import * as Auth from "@aws-amplify/auth";
+
 
 // Configurer Cognito
 Auth.configure({
