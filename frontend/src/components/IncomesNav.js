@@ -46,7 +46,8 @@ function IncomesNav() {
   }, [userId]);
   return (
     <>
-      <div
+      <div className="max-w-6xl mx-auto px-4 mt-10 grid grid-cols-1 md:grid-cols-2 gap-2">
+        {/* <div
         className="expenses-nav"
         style={{
           padding: "20px",
@@ -64,10 +65,36 @@ function IncomesNav() {
             <p>Total Income: {totalIncome.toFixed(2)} €</p>
           </>
         )}
-        {message && <p style={{ color: "red" }}>{message}</p>}
+        {message &
+        & <p style={{ color: "red" }}>{message}</p>}
+      </div> */}
+        <div
+          className="md:col-span-2 bg-white p-6 rounded-xl shadow"
+          style={{
+            padding: "40px",
+            backgroundColor: "#ffffff",
+            //marginBottom: "20px",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}
+        >
+          <Monthly_incomes user_id={userId} />
+        </div>
+        <div
+          className="md:col-span-2 bg-white p-6 rounded-xl shadow"
+          style={{
+            padding: "40px",
+            backgroundColor: "#ffffff",
+            //marginBottom: "20px",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}
+        >
+          <Income user_id={userId} />{" "}
+        </div>
       </div>
-      <Monthly_incomes user_id={userId} />
-      <Income user_id={userId} />
     </>
   );
 }
