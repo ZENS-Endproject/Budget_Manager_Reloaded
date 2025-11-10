@@ -1,30 +1,40 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Navbar from "./Navbar";
 import Monthly_expenses from "./Monthly_expenses";
 import Expenses from "./Expenses";
 import AddExpenseForm from "./AddExpense";
-
 import { API_URL } from "../lib/utils";
 import { Button } from "./ui/button";
 import Text from "./Text";
 
 function ExpensesNav() {
+  const navigate = useNavigate();
+
+  // Récupération sécurisée du token et de l'utilisateur
+  const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
-  const userId = user?.id;
+  const userId = user?.sub || user?.id; // Cognito utilise "sub" comme ID unique
 
   const [totalExpenses, setTotalExpenses] = useState(null);
   const [totalIncome, setTotalIncome] = useState(null);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [balance, setBalance] = useState(null);
-  // const [debitPerMonth, setDebitPerMonth] = useState(null);
+
+  // Redirection si pas de token ou user
+  useEffect(() => {
+    if (!token || !userId) {
+      navigate("/login");
+    }
+  }, [token, userId, navigate]);
 
   const fetchBalance = async () => {
     try {
       const response = await fetch(`${API_URL}/total_balance/${userId}`, {
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -38,7 +48,6 @@ function ExpensesNav() {
       setTotalExpenses(data.totalExpenses);
       setTotalIncome(data.totalIncome);
       setBalance(data.balance);
-      //setDebitPerMonth(data.debitPerMonth);
       setMessage(data.message);
       setError("");
     } catch (err) {
@@ -46,17 +55,16 @@ function ExpensesNav() {
       setError("Could not load balance data.");
     }
   };
+
   const handleDownloadPDF = async () => {
     try {
       const response = await fetch(`${API_URL}/download-expenses/${userId}`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
-        throw new Error("Error download PDF.");
-      }
+      if (!response.ok) throw new Error("Error downloading PDF.");
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);
@@ -68,18 +76,18 @@ function ExpensesNav() {
       link.remove();
     } catch (err) {
       console.error("Error PDF:", err);
-      alert("Error download.");
+      alert("Error downloading PDF.");
     }
   };
 
   useEffect(() => {
     if (userId) fetchBalance();
   }, [userId]);
+
   const debitPerMonth = balance < 0 ? Math.abs(balance) / 4 : 0;
 
   return (
     <>
-
       <div
         className="expenses-nav"
         style={{
@@ -91,12 +99,15 @@ function ExpensesNav() {
           boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
         }}
       >
-        <Button onClick={handleDownloadPDF}>Download (PDF)</Button> <br />{" "}
+        <Button onClick={handleDownloadPDF}>Download (PDF)</Button>
+        <br />
         <br />
         <Text variant="subtitleBlue" className="my-6">
           Monthly Overview
         </Text>
+
         {error && <p style={{ color: "red" }}>{error}</p>}
+
         {totalExpenses !== null && totalIncome !== null && (
           <>
             <p>
@@ -108,7 +119,6 @@ function ExpensesNav() {
             <p>
               <strong>Total Income:</strong>{" "}
               <span style={{ color: "green", fontWeight: "bold" }}>
-                {" "}
                 {totalIncome.toFixed(2)} €
               </span>
             </p>
@@ -123,6 +133,7 @@ function ExpensesNav() {
                 {balance.toFixed(2)} €
               </span>
             </p>
+
             {balance < 0 && debitPerMonth !== null && (
               <p style={{ color: "red", fontWeight: "bold" }}>
                 Your expenses exceed your income.{" "}
@@ -130,8 +141,7 @@ function ExpensesNav() {
                   To cover the debit, divide the amount over 4 months: Save{" "}
                 </span>
                 <strong style={{ color: "green" }}>
-                  {" "}
-                  {Math.abs(debitPerMonth).toFixed(2)} €
+                  {debitPerMonth.toFixed(2)} €
                 </strong>{" "}
                 per month.
               </p>
@@ -139,6 +149,7 @@ function ExpensesNav() {
           </>
         )}
       </div>
+
       <AddExpenseForm />
       <Monthly_expenses user_id={userId} />
       <Expenses user_id={userId} />

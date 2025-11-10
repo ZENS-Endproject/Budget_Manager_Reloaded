@@ -1,21 +1,21 @@
+// src/pages/LoginSuccess.jsx
 import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function LoginSuccess() {
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(location.search);
         const token = params.get("token");
-
         if (token) {
-            localStorage.setItem("token", token);
-            // Tu peux aussi stocker userInfo si tu l'envoies depuis backend
-            navigate("/expenses"); // redirige vers la page principale après login
+            localStorage.setItem("token", token); // sauvegarde du token
+            navigate("/expenses"); // redirection propre
         } else {
-            navigate("/login"); // pas de token → retour au login
+            navigate("/login");
         }
-    }, [navigate]);
+    }, [location, navigate]);
 
-    return <p>Loading...</p>;
+    return <div>Redirecting...</div>;
 }

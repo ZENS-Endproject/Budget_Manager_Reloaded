@@ -27,7 +27,7 @@ app.use(session({
 let client;
 async function initializeClient() {
   const issuer = await Issuer.discover(
-    `https://${process.env.COGNITO_DOMAIN}/.well-known/openid-configuration`
+    "https://cognito-idp.eu-central-1.amazonaws.com/eu-central-1_cXIzkaY1v"
   );
 
   client = new issuer.Client({
@@ -74,7 +74,7 @@ app.get("/callback", async (req, res) => {
     req.session.tokens = tokenSet;
 
     // send token + user React
-    const frontendUrl = `http://localhost:3000/login-success?token=${tokenSet.access_token}`;
+    const frontendUrl = `http://localhost:3000/expenses?token=${tokenSet.access_token}`;
     res.redirect(frontendUrl);
 
   } catch (err) {
@@ -109,6 +109,7 @@ function authenticateToken(req, res, next) {
     next();
   });
 }
+
 
 
 
@@ -566,41 +567,41 @@ app.put(
   }
 );
 
-app.post("/login", async (req, res) => {
-  const { e_mail, password } = req.body;
-  console.log("Request login:", e_mail, password);
+// app.post("/login", async (req, res) => {
+//   const { e_mail, password } = req.body;
+//   console.log("Request login:", e_mail, password);
 
-  try {
-    const result = await pool.query("SELECT * FROM users WHERE e_mail = $1", [
-      e_mail,
-    ]);
-    const user = result.rows[0];
+//   try {
+//     const result = await pool.query("SELECT * FROM users WHERE e_mail = $1", [
+//       e_mail,
+//     ]);
+//     const user = result.rows[0];
 
-    if (!user) {
-      return res.json({ error: "e_mail incorrect!" });
-    }
+//     if (!user) {
+//       return res.json({ error: "e_mail incorrect!" });
+//     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
-    if (!passwordMatch) {
-      return res.status(401).json({ error: "Passwort incorrect!" });
-    }
+//     const passwordMatch = await bcrypt.compare(password, user.password);
+//     if (!passwordMatch) {
+//       return res.status(401).json({ error: "Passwort incorrect!" });
+//     }
 
-    const token = jwt.sign(
-      { userId: user.id, e_mail: user.e_mail },
-      process.env.JWT_SECRET || "default_secret",
-      { expiresIn: "1d" }
-    );
+//     const token = jwt.sign(
+//       { userId: user.id, e_mail: user.e_mail },
+//       process.env.JWT_SECRET || "default_secret",
+//       { expiresIn: "1d" }
+//     );
 
-    res.json({
-      message: "Connexion OK",
-      user: { id: user.id, e_mail: user.e_mail },
-      token,
-    });
-  } catch (error) {
-    console.error("Error login:", error);
-    res.status(500).json({ error: "Error server" });
-  }
-});
+//     res.json({
+//       message: "Connexion OK",
+//       user: { id: user.id, e_mail: user.e_mail },
+//       token,
+//     });
+//   } catch (error) {
+//     console.error("Error login:", error);
+//     res.status(500).json({ error: "Error server" });
+//   }
+// });
 
 app.put("/income/:id_user/:id", authenticateToken, async (req, res) => {
   try {
