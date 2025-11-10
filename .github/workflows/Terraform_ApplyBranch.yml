@@ -97,13 +97,17 @@ jobs:
 
           # Copy project files to EC2
           scp -i ~/.ssh/myPrivateKey -r /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded ubuntu@$ip:/home/ubuntu
+          # Install psql client if missing
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+            sudo apt update && sudo apt install -y postgresql-client
+          "
 
+          # Apply SQL schema
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+            PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h '$HOST' -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
+          "
           # Create .env.local files and start containers
           ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-           
-
-        
-
           # Create frontend environment file
           echo "DB_HOST=$HOST" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
           # echo "REACT_APP_API_URL=http://$ip:5005"  > "/home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local"
@@ -117,19 +121,21 @@ jobs:
           docker compose up -d --build
           "
 
-      # Initialize PostgreSQL database schema
-      - name: Initialize DB schema
-        run: |
-          ip=$(terraform -chdir=budget-infra output -raw public_ip)
-          ENDPOINT=$(terraform -chdir=budget-infra output -raw rds_endpoint)
-          HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
+#      # Initialize PostgreSQL database schema
+#      - name: Initialize DB schema
+#        run: |
+#          ip=$(terraform -chdir=budget-infra output -raw public_ip)
+#          ENDPOINT=$(terraform -chdir=budget-infra output -raw rds_endpoint)
+#          HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
+#
+#          # Install psql client if missing
+#          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+#            sudo apt update && sudo apt install -y postgresql-client
+#          "
+#
+#          # Apply SQL schema
+#          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+#            PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h '$HOST' -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
+#          "
 
-          # Install psql client if missing
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-            sudo apt update && sudo apt install -y postgresql-client
-          "
-
-          # Apply SQL schema
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-            PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h '$HOST' -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
-          "
+          
