@@ -33,10 +33,10 @@ root.render(
             <Route path="/login" element={<Login />} />
             <Route path="/login-success" element={<LoginSuccess />} />
             <Route path="/signup" element={<Signup />} />
+
             {/* App mit neuem Layout */}
             <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/" element={<App />} />
-              <Route path="/expenses" element={<ExpensesNav />} />
               <Route path="/incomes" element={<IncomesNav />} />
               <Route path="/about" element={<About />} />
               <Route path="/edit-income/:userId/:expenseId" element={<EditIncome />} />
@@ -50,7 +50,10 @@ root.render(
                 element={<EditMonthExpense />}
               />
             </Route>
+
+            <Route path="/expenses" element={<ExpensesNav />} />
           </Routes>
+
         </Router>;
       </ThemeProvider>
     </React.StrictMode>

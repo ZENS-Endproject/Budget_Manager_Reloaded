@@ -21,7 +21,11 @@ app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, secure: false, sameSite: 'lax' },
+  cookie: {
+    httpOnly: true,
+    secure: false,       // true uniquement en HTTPS (localhost = false)
+    sameSite: 'lax',     // 'none' si tu utilises HTTPS cross-site
+  },
 }));
 
 // OIDC Cognito
@@ -73,15 +77,19 @@ app.get("/callback", async (req, res) => {
       { state: req.session.state, nonce: req.session.nonce }
     );
 
+    console.log("tokenSet:", tokenSet);
     const userInfo = await client.userinfo(tokenSet.access_token);
+    console.log("userInfo:", userInfo);
 
     //registration session
     req.session.userInfo = userInfo;
     req.session.tokens = tokenSet;
 
     // send token + user React
-    const frontendUrl = `http://localhost:3000/expenses?token=${tokenSet.access_token}&user_id=${userInfo.sub}`;
+    const frontendUrl = `http://localhost:3000/login-success?token=${encodeURIComponent(tokenSet.access_token)}&user_id=${userInfo.sub}`;
     res.redirect(frontendUrl);
+
+
 
   } catch (err) {
     console.error("Callback error:", err);
@@ -1630,6 +1638,7 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 
 app.listen(PORT, () => {

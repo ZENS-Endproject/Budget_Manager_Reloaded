@@ -11,7 +11,7 @@ export default function LoginSuccess() {
         const token = params.get("token");
         if (token) {
             localStorage.setItem("token", token); // sauvegarde du token
-            navigate("/expenses"); // redirection propre
+            navigate("/expenses");
         } else {
             navigate("/login");
         }
