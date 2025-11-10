@@ -1,20 +1,101 @@
-const express = require("express");
-const cors = require("cors");
 require("dotenv").config();
-const { Pool } = require("pg");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const { refreshToken } = require("./tokenController");
-const PDFDocument = require("pdfkit");
+const express = require("express");
+const session = require("express-session");
+const cors = require("cors");
+const { Issuer, generators } = require("openid-client");
 
 const app = express();
-const PORT = 5005;
-//const PORT = process.env.PORT || 5005;
+const PORT = process.env.PORT || 5005;
 
-//middleware
+// CORS React
+app.use(cors({
+  origin: "http://localhost:3000",
+  credentials: true,
+}));
+
+app.use(express.json());
+
+// Session 
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: { httpOnly: true, secure: false, sameSite: 'lax' },
+}));
+
+// OIDC Cognito
+let client;
+async function initializeClient() {
+  const issuer = await Issuer.discover(
+    `https://${process.env.COGNITO_DOMAIN}/.well-known/openid-configuration`
+  );
+
+  client = new issuer.Client({
+    client_id: process.env.COGNITO_CLIENT_ID,
+    client_secret: process.env.COGNITO_CLIENT_SECRET,
+    redirect_uris: ["http://localhost:5005/callback"],
+    response_types: ["code"],
+  });
+
+  console.log("Cognito OIDC client ready");
+}
+initializeClient().catch(console.error);
+
+// Login
+app.get("/login", (req, res) => {
+  const state = generators.state();
+  const nonce = generators.nonce();
+  req.session.state = state;
+  req.session.nonce = nonce;
+
+  const authUrl = client.authorizationUrl({
+    scope: "openid email profile",
+    state,
+    nonce,
+  });
+
+  res.redirect(authUrl);
+});
+
+// Callback
+app.get("/callback", async (req, res) => {
+  try {
+    const params = client.callbackParams(req);
+    const tokenSet = await client.callback(
+      "http://localhost:5005/callback",
+      params,
+      { state: req.session.state, nonce: req.session.nonce }
+    );
+
+    const userInfo = await client.userinfo(tokenSet.access_token);
+
+    //registration session
+    req.session.userInfo = userInfo;
+    req.session.tokens = tokenSet;
+
+    // send token + user React
+    const frontendUrl = `http://localhost:3000/login-success?token=${tokenSet.access_token}`;
+    res.redirect(frontendUrl);
+
+  } catch (err) {
+    console.error("Callback error:", err);
+    res.redirect("http://localhost:3000/login?error=callback_failed");
+  }
+});
+
+// Session check for React
+app.get("/session-check", (req, res) => {
+  if (req.session.userInfo) {
+    return res.json({ loggedIn: true, user: req.session.userInfo });
+  } else {
+    return res.json({ loggedIn: false });
+  }
+});
+
+
 function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const token = authHeader && authHeader.split(" ")[1]; // "Bearer <token>"
 
   if (!token) {
     return res.status(401).json({ error: "Missing token" });
@@ -24,58 +105,13 @@ function authenticateToken(req, res, next) {
     if (err) {
       return res.status(403).json({ error: "Invalid token" });
     }
-
     req.user = user;
     next();
   });
 }
 
-app.post("/refresh-token", refreshToken);
 
-const pool = new Pool({
-  user: process.env.DB_USER, // Dein PostgreSQL-Benutzername
-  host: process.env.DB_HOST, // z. B. 'localhost'
-  database: process.env.DB_NAME, // Name deiner Datenbank
-  password: process.env.DB_PASSWORD, // Dein Passwort
-  port: process.env.DB_PORT, // Standardport für PostgreSQL
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
 
-const createTable = async () => {
-  const client = await pool.connect();
-  try {
-    const queryText = `
-            CREATE TABLE IF NOT EXISTS Users (id  SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    budget real NOT NULL,
-    e_mail VARCHAR(100) NOT NULL
-            );
-        `;
-    await client.query(queryText);
-    console.log("✅ Table 'users' exists / created!");
-  } catch (err) {
-    console.error("❌ Error creating table:", err);
-  } finally {
-    client.release();
-  }
-};
-
-createTable();
-
-// Allow requests from anywhere (or restrict to your frontend domain)
-app.use(cors({
-  origin: "*",  // <-- for testing; restrict later
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
-}));
-
-//app.use(cors());
-
-app.use(express.json()); // Ermöglicht Express Json aus einem Body auszulesen
-app.use(express.static("public"));
 
 app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
   const { user_id } = req.params;

@@ -18,7 +18,9 @@ import EditMonthExpense from "./pages/EditMonthExpense";
 import EditMonthlyIncome from "./pages/EditMonthlyIncome";
 import { ThemeProvider } from "next-themes";
 import Signup from "./pages/Signup";
+import LoginSuccess from "./pages/LoginSuccess";
 import AppLayout from "./layout/AppLayout";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
@@ -26,12 +28,13 @@ root.render(
     <React.StrictMode>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <Router>
-  <Routes>
-    {/* Public */}
-    <Route path="/login" element={<Login />} />
-    <Route path="/signup" element={<Signup />} />
-    {/* App mit neuem Layout */}
-            <Route element={<AppLayout />}>
+          <Routes>
+            {/* Public */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/login-success" element={<LoginSuccess />} />
+            <Route path="/signup" element={<Signup />} />
+            {/* App mit neuem Layout */}
+            <Route element={<ProtectedRoute><AppLayout /></ProtectedRoute>}>
               <Route path="/" element={<App />} />
               <Route path="/expenses" element={<ExpensesNav />} />
               <Route path="/incomes" element={<IncomesNav />} />
