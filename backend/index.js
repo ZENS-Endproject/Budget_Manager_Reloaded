@@ -4,17 +4,19 @@ const session = require("express-session");
 const cors = require("cors");
 const { Issuer, generators } = require("openid-client");
 const jwt = require("jsonwebtoken");
+const FRONTEND_URL = process.env.FRONTEND_URL;
 
 const app = express();
 const PORT = process.env.PORT || 5005;
 
 // CORS React
 app.use(cors({
-  origin: "http://localhost:3000",
+  origin: process.env.FRONTEND_URL,
   credentials: true,
 }));
 
 app.use(express.json());
+
 
 // Session 
 app.use(session({
@@ -38,7 +40,7 @@ async function initializeClient() {
   client = new issuer.Client({
     client_id: process.env.COGNITO_CLIENT_ID,
     client_secret: process.env.COGNITO_CLIENT_SECRET,
-    redirect_uris: ["http://localhost:5005/callback"],
+    redirect_uris: [process.env.BACKEND_URL + "/callback"],
     response_types: ["code"],
   });
 
@@ -86,7 +88,7 @@ app.get("/callback", async (req, res) => {
     req.session.tokens = tokenSet;
 
     // send token + user React
-    const frontendUrl = `http://localhost:3000/login-success?token=${encodeURIComponent(tokenSet.access_token)}&user_id=${userInfo.sub}`;
+    const frontendUrl = `${FRONTEND_URL}/login-success?token=${encodeURIComponent(tokenSet.access_token)}&user_id=${userInfo.sub}`;
     res.redirect(frontendUrl);
 
 

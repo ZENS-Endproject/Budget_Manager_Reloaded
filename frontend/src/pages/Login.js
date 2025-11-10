@@ -9,10 +9,11 @@ import {
   CardHeader,
   CardTitle,
 } from "../components/ui/card";
+import { API_URL } from "../lib/utils";
 
 export function LoginForm({ className, ...props }) {
   const handleCognitoLogin = () => {
-    window.location.href = "http://localhost:5005/login"; // backend Cognito login
+    window.location.href = `${API_URL}/login`; // backend Cognito login
   };
 
   return (
@@ -38,7 +39,7 @@ export function LoginForm({ className, ...props }) {
 
 export function LogoutButton() {
   const handleLogout = () => {
-    window.location.href = "http://localhost:5005/logout"; // backend logout
+    window.location.href = `${API_URL}/logout`; // backend logout
   };
 
   return (

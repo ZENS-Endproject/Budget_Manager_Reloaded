@@ -9,10 +9,13 @@ import {
   CardTitle,
 } from "./ui/card";
 
+import { API_URL } from "../lib/utils";
+
+
 export function LoginForm({ className, ...props }) {
   const handleCognitoLogin = () => {
     // Redirection vers le backend pour login Cognito
-    window.location.href = "http://localhost:5005/login";
+    window.location.href = `${API_URL}/login`;
   };
 
   return (
