@@ -3,6 +3,7 @@ const express = require("express");
 const session = require("express-session");
 const cors = require("cors");
 const { Issuer, generators } = require("openid-client");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 const PORT = process.env.PORT || 5005;
@@ -43,6 +44,10 @@ initializeClient().catch(console.error);
 
 // Login
 app.get("/login", (req, res) => {
+  if (!client) {
+    return res.status(503).send("OIDC client not ready. Try again later.");
+  }
+
   const state = generators.state();
   const nonce = generators.nonce();
   req.session.state = state;
@@ -56,6 +61,7 @@ app.get("/login", (req, res) => {
 
   res.redirect(authUrl);
 });
+
 
 // Callback
 app.get("/callback", async (req, res) => {
@@ -74,7 +80,7 @@ app.get("/callback", async (req, res) => {
     req.session.tokens = tokenSet;
 
     // send token + user React
-    const frontendUrl = `http://localhost:3000/expenses?token=${tokenSet.access_token}`;
+    const frontendUrl = `http://localhost:3000/expenses?token=${tokenSet.access_token}&user_id=${userInfo.sub}`;
     res.redirect(frontendUrl);
 
   } catch (err) {
