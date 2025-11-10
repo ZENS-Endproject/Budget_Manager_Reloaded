@@ -9,6 +9,7 @@ const PDFDocument = require("pdfkit");
 
 const app = express();
 const PORT = 5005;
+//const PORT = process.env.PORT || 5005;
 
 //middleware
 function authenticateToken(req, res, next) {
@@ -39,7 +40,7 @@ const pool = new Pool({
   port: process.env.DB_PORT, // Standardport für PostgreSQL
   ssl: {
     rejectUnauthorized: false
-  }	
+  }
 });
 
 const createTable = async () => {
@@ -1586,6 +1587,7 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server läuft: http://localhost:${PORT}`);

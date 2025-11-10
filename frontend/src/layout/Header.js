@@ -1,20 +1,32 @@
 import React from "react";
+import { useTheme } from "next-themes";
 
-// Icons (so gespeichert wie besprochen)
+// Icons
 import logo from "../assets/header/logo.png";
 import lang from "../assets/header/lang.png";
 import moon from "../assets/header/moon.png";
 import power from "../assets/header/power.png";
 
-export default function Header() {
-  const HEADER_HEIGHT = 120; // px
+export default function Header({ onToggleSidebar }) {
+  const { resolvedTheme, setTheme } = useTheme();
+  const toggleTheme = () => setTheme(resolvedTheme === "dark" ? "light" : "dark");
 
   return (
     <header
-      className="relative w-full"
-      style={{ height: HEADER_HEIGHT, backgroundColor: "#FEFEEF" }}
+      className="sticky top-0 z-50 w-full"
+      style={{ height: 120, backgroundColor: "#FEFEEF" }}
     >
-      {/* --- Hintergrund: Wellen-SVG --- */}
+      {/* Hamburger nur Mobile */}
+      <button
+        type="button"
+        className="hamburger md:hidden absolute left-6 top-[38px] z-50 p-2 rounded-lg bg-white/80 shadow hover:scale-105 transition"
+        onClick={onToggleSidebar}
+        aria-label="Open menu"
+      >
+        ☰
+      </button>
+
+      {/* Hintergrund-Welle (belassen) */}
       <div className="absolute inset-0 pointer-events-none select-none">
         <svg
           viewBox="0 0 1920 219"
@@ -55,28 +67,19 @@ export default function Header() {
           </g>
         </svg>
       </div>
-      <div className="relative z-10 h-full">
-        <div className="mx-auto flex h-full max-w-8xl items-center justify-start gap-6 px-6">
-          <img
-            src={logo}
-            alt="Logo"
-            className="w-14 h-14 hover:scale-105 transition"
-          />
-          <img
-            src={lang}
-            alt="Language"
-            className="w-14 h-14 hover:scale-105 transition"
-          />
+
+      {/* Inhalte */}
+      <div className="relative z-10 pl-16 h-full">
+        <div className="mx-auto flex h-full items-center justify-start gap-2 px-3">
+          <img src={logo} alt="Logo" className="w-14 h-14 hover:scale-105 transition logo-light" />
+          <img src={lang} alt="Language" className="w-14 h-14 hover:scale-105 transition" />
           <img
             src={moon}
-            alt="Darkmode"
-            className="w-14 h-14 hover:scale-105 transition"
+            alt="Toggle dark mode"
+            className="w-14 h-14 hover:scale-105 transition cursor-pointer"
+            onClick={toggleTheme}
           />
-          <img
-            src={power}
-            alt="Power"
-            className="w-14 h-14 hover:scale-105 transition"
-          />
+          <img src={power} alt="Power" className="w-14 h-14 hover:scale-105 transition" />
         </div>
       </div>
     </header>
