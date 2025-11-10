@@ -4,18 +4,30 @@ const session = require("express-session");
 const cors = require("cors");
 const { Issuer, generators } = require("openid-client");
 const jwt = require("jsonwebtoken");
-const FRONTEND_URL = process.env.FRONTEND_URL;
+const { Pool } = require("pg");
 
 const app = express();
 const PORT = process.env.PORT || 5005;
 
+const FRONTEND_URL = process.env.FRONTEND_URL; // http://<EC2_PUBLIC_IP>
+const BACKEND_URL = process.env.BACKEND_URL;
+const pool = new Pool({
+  host: process.env.DB_HOST,
+  port: 5432,
+  user: "postgres",
+  password: process.env.DB_PASSWORD,
+  database: "Budget",
+});
+
 // CORS React
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: FRONTEND_URL,
   credentials: true,
 }));
 
 app.use(express.json());
+
+
 
 
 // Session 
@@ -40,7 +52,7 @@ async function initializeClient() {
   client = new issuer.Client({
     client_id: process.env.COGNITO_CLIENT_ID,
     client_secret: process.env.COGNITO_CLIENT_SECRET,
-    redirect_uris: [process.env.BACKEND_URL + "/callback"],
+    redirect_uris: [BACKEND_URL + "/callback"],
     response_types: ["code"],
   });
 
@@ -56,8 +68,7 @@ app.get("/login", (req, res) => {
 
   const state = generators.state();
   const nonce = generators.nonce();
-  req.session.state = state;
-  req.session.nonce = nonce;
+
 
   const authUrl = client.authorizationUrl({
     scope: "openid email profile",
@@ -74,7 +85,7 @@ app.get("/callback", async (req, res) => {
   try {
     const params = client.callbackParams(req);
     const tokenSet = await client.callback(
-      "http://localhost:5005/callback",
+      BACKEND_URL + "/callback",
       params,
       { state: req.session.state, nonce: req.session.nonce }
     );
@@ -95,7 +106,7 @@ app.get("/callback", async (req, res) => {
 
   } catch (err) {
     console.error("Callback error:", err);
-    res.redirect("http://localhost:3000/login?error=callback_failed");
+    res.redirect(`${FRONTEND_URL}/login?error=callback_failed`);
   }
 });
 
@@ -1644,5 +1655,5 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
 
 
 app.listen(PORT, () => {
-  console.log(`Server läuft: http://localhost:${PORT}`);
+  console.log(`Server running at ${BACKEND_URL}`);
 });
