@@ -68,10 +68,11 @@ jobs:
       # Setup SSH key for EC2 access
       - name: Setup SSH key
         run: |
-          ip=$(terraform -chdir=budget-infra output -raw public_ip)
+          
           mkdir -p ~/.ssh
           echo "${{ secrets.AWS_EC2_KEY_PEM }}" > ~/.ssh/myPrivateKey
           chmod 400 ~/.ssh/myPrivateKey
+          ip=$(terraform -chdir=budget-infra output -raw public_ip)
           ssh-keyscan -H $ip >> ~/.ssh/known_hosts
 
       # Install Docker and Docker Compose V2 on EC2
