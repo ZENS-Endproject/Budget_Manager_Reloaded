@@ -12,16 +12,18 @@ const PORT = process.env.PORT || 5005;
 //const FRONTEND_URL = process.env.FRONTEND_URL; // http://<EC2_PUBLIC_IP>
 //const  process.env.BACKEND_URL = process.env.BACKEND_URL;
 const pool = new Pool({
+  user: process.env.DB_USER,
   host: process.env.DB_HOST,
-  port: 5432,
-  user: "postgres",
+  database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
-  database: "budget",
+  port: process.env.DB_PORT,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
-
 // CORS React
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: "*",
   credentials: true,
 }));
 
