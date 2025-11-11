@@ -1655,5 +1655,5 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
 
 
 app.listen(PORT, () => {
-  console.log(`Server running at ${process.env.BACKEND_URL}`);
+  console.log(`Server running at ${PORT}`);
 });
