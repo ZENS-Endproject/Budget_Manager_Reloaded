@@ -113,14 +113,14 @@ jobs:
             ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
 
             
-            NGROK_URL="https://unfeoffed-unmaterially-lurlene.ngrok-free.dev"
+            #NGROK_URL="https://unfeoffed-unmaterially-lurlene.ngrok-free.dev"
 
 
             # Create .env.local files and start containers
             
             # Create frontend environment file
             echo "DB_HOST=$HOST" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
-            echo "BACKEND_URL=$NGROK_URL" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
+            #echo "BACKEND_URL=$NGROK_URL" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
             echo "FRONTEND_URL=http://$ip" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
             # Create backend .env.local with frontend URL
      
