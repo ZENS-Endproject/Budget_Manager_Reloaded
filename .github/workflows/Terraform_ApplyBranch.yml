@@ -74,6 +74,8 @@ jobs:
           chmod 400 ~/.ssh/myPrivateKey
           ssh-keyscan -H $ip >> ~/.ssh/known_hosts
 
+
+
       # Install Docker and Docker Compose V2 on EC2
       - name: Install Docker & Docker Compose
         run: |
