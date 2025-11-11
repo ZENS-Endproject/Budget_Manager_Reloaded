@@ -5,9 +5,11 @@ const cors = require("cors");
 const { Issuer, generators } = require("openid-client");
 const jwt = require("jsonwebtoken");
 const { Pool } = require("pg");
+import session from "express-session";
 
 const app = express();
 const PORT = process.env.PORT || 5005;
+app.set("trust proxy", 1);
 
 //const FRONTEND_URL = process.env.FRONTEND_URL; // http://<EC2_PUBLIC_IP>
 //const  process.env.BACKEND_URL = process.env.BACKEND_URL;
@@ -59,12 +61,13 @@ app.use(express.static("public"));
 
 // Session 
 app.use(session({
-  secret: process.env.SESSION_SECRET,
+  secret: process.env.SESSION_SECRET || "super_secret_key",
   resave: false,
-  saveUninitialized: true,
+  saveUninitialized: false,
   cookie: {
-    secure: false,       // true uniquement en HTTPS (localhost = false)
-    sameSite: 'lax',     // 'none' si tu utilises HTTPS cross-site
+    secure: false,
+    sameSite: "lax",
+    httpOnly: true,
   },
 }));
 
@@ -96,7 +99,7 @@ app.get("/login", (req, res) => {
   const nonce = generators.nonce();
   req.session.state = state;
   req.session.nonce = nonce;
-
+  console.log(" Session créée:", req.session);
 
   const authUrl = client.authorizationUrl({
     scope: "openid email profile",
@@ -104,12 +107,17 @@ app.get("/login", (req, res) => {
     nonce,
   });
 
+  console.log("Session avant redirect:", req.session);
+
+
   res.redirect(authUrl);
 });
 
 
 // Callback
 app.get("/callback", async (req, res) => {
+  console.log("Session à la callback:", req.session);
+
   try {
     const params = client.callbackParams(req);
     const callbackUrl = `${process.env.BACKEND_URL}/callback`;
