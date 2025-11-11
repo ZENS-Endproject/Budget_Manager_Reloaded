@@ -49,9 +49,10 @@ const pool = new Pool({
 
 // CORS React
 app.use(cors({
-  origin: "*",
+  origin: process.env.FRONTEND_URL,
   credentials: true,
 }));
+
 
 app.use(express.json());
 app.use(express.static("public"));
@@ -61,12 +62,11 @@ app.use(express.static("public"));
 
 // Session 
 app.use(session({
-  secret: process.env.SESSION_SECRET || "super_secret_key",
-  resave: false,
+  secret: process.env.SESSION_SECRET,
   saveUninitialized: false,
   cookie: {
-    secure: false,
-    sameSite: "lax",
+    secure: true,
+    sameSite: "none",
     httpOnly: true,
   },
 }));
