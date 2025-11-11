@@ -23,27 +23,27 @@ const pool = new Pool({
 });
 
 
-const createTable = async () => {
-  const client = await pool.connect();
-  try {
-    const queryText = `
-            CREATE TABLE IF NOT EXISTS users (id  SERIAL PRIMARY KEY,
-    name VARCHAR(50) NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    budget real NOT NULL,
-    e_mail VARCHAR(100) NOT NULL
-            );
-        `;
-    await client.query(queryText);
-    console.log("✅ Table 'users' exists / created!");
-  } catch (err) {
-    console.error("❌ Error creating table:", err);
-  } finally {
-    client.release();
-  }
-};
+// const createTable = async () => {
+//   const client = await pool.connect();
+//   try {
+//     const queryText = `
+//             CREATE TABLE IF NOT EXISTS users (id  SERIAL PRIMARY KEY,
+//     name VARCHAR(50) NOT NULL,
+//     password VARCHAR(255) NOT NULL,
+//     budget real NOT NULL,
+//     e_mail VARCHAR(100) NOT NULL
+//             );
+//         `;
+//     await client.query(queryText);
+//     console.log("✅ Table 'users' exists / created!");
+//   } catch (err) {
+//     console.error("❌ Error creating table:", err);
+//   } finally {
+//     client.release();
+//   }
+// };
 
-createTable();
+// createTable();
 
 // CORS React
 app.use(cors({
