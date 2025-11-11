@@ -22,13 +22,7 @@ jobs:
           BRANCH_NAME=${GITHUB_REF##*/}
           SAFE_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
           echo "branch_name=$SAFE_BRANCH" >> $GITHUB_OUTPUT
-           "
-        # Generate Fake Data locally
-      #- name: run Faker.js to generate test data
-      # run: |
-       #  npm install  @faker-js/faker
-       #  node scripts/generateTestData.js
-          
+                   
       # Setup Terraform CLI
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
