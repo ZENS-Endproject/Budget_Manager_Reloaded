@@ -90,56 +90,63 @@ jobs:
             sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
 
             "
-      - name: Copy project files to EC2
+      - name: Deploy App and SQL schema
         run: |
-          ip=$(terraform -chdir=budget-infra output -raw public_ip)
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "mkdir -p ~/Budget_Manager_Reloaded"
-          scp -i ~/.ssh/myPrivateKey -r /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/* ubuntu@$ip:~/Budget_Manager_Reloaded/
-
-
-      - name: Apply SQL schema
-        run: |
-          ip=$(terraform -chdir=budget-infra output -raw public_ip)
+          IP=$(terraform -chdir=budget-infra output -raw public_ip)
           ENDPOINT=$(terraform -chdir=budget-infra output -raw rds_endpoint)
           HOST=$(echo "$ENDPOINT" | cut -d':' -f1)
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-            PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h '$HOST' -p 5432 -U postgres -f ~/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
+
+          # Copy project files
+          scp -i ~/.ssh/myPrivateKey -r /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded ubuntu@$IP:/home/ubuntu
+
+          # Install psql client
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$IP "
+            sudo apt update && sudo apt install -y postgresql-client
+            PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h '$HOST' -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
           "
 
-
-      - name: Launch ngrok on EC2
+      # Install and launch ngrok
+      - name: Install and launch ngrok
         run: |
-          ip=$(terraform -chdir=budget-infra output -raw public_ip)
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-            cd ~/Budget_Manager_Reloaded
+          IP=$(terraform -chdir=budget-infra output -raw public_ip)
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$IP "
+            sudo apt update
+            sudo apt install -y unzip curl jq
+
+            mkdir -p ~/ngrok && cd ~/ngrok
             curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip
             unzip -o ngrok.zip
             chmod +x ngrok
+
             ./ngrok config add-authtoken ${{ secrets.NGROK_AUTHTOKEN }}
+
             nohup ./ngrok http 5005 > ngrok.log 2>&1 &
+
             for i in {1..10}; do
               NGROK_URL=\$(curl -s http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
               [ -n \"\$NGROK_URL\" ] && break
               sleep 2
             done
-            echo NGROK_URL=\$NGROK_URL > ngrok_url.txt
+
+            echo NGROK_URL=\$NGROK_URL > ~/ngrok/ngrok_url.txt
           "
 
-  
+      # Update backend .env.local with ngrok URL
       - name: Update backend environment
         run: |
-          ip=$(terraform -chdir=budget-infra output -raw public_ip)
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-            NGROK_URL=\$(cat ~/Budget_Manager_Reloaded/ngrok_url.txt | cut -d '=' -f2)
-            echo \"BACKEND_URL=\$NGROK_URL\" > ~/Budget_Manager_Reloaded/backend/.env.local
-            echo \"FRONTEND_URL=http://$ip\" >> ~/Budget_Manager_Reloaded/backend/.env.local
+          IP=$(terraform -chdir=budget-infra output -raw public_ip)
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$IP "
+            NGROK_URL=\$(cat ~/ngrok/ngrok_url.txt | cut -d '=' -f2)
+            cd ~/Budget_Manager_Reloaded/backend
+            echo \"BACKEND_URL=\$NGROK_URL\" >> .env.local
+            echo \"FRONTEND_URL=http://$IP\" >> .env.local
           "
 
-
-      - name: Deploy App on EC2
+      # Deploy backend & frontend with Docker Compose
+      - name: Launch Docker containers
         run: |
-          ip=$(terraform -chdir=budget-infra output -raw public_ip)
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+          IP=$(terraform -chdir=budget-infra output -raw public_ip)
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$IP "
             cd ~/Budget_Manager_Reloaded
             docker compose down -v || true
             docker compose up -d --build
