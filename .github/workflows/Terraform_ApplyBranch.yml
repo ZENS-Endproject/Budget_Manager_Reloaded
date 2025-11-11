@@ -3,7 +3,7 @@ name: Terraform Apply per Branch
 on:
   push:
     branches:
-      - '*'
+      [ _main]
   workflow_dispatch:
 
 jobs:
@@ -22,7 +22,13 @@ jobs:
           BRANCH_NAME=${GITHUB_REF##*/}
           SAFE_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
           echo "branch_name=$SAFE_BRANCH" >> $GITHUB_OUTPUT
-
+           "
+        # Generate Fake Data locally
+      - name: run Faker.js to generate test data
+        run: |
+         npm install  @faker-js/faker
+         node scripts/generateTestData.js
+          
       # Setup Terraform CLI
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -74,6 +80,12 @@ jobs:
           chmod 400 ~/.ssh/myPrivateKey
           ssh-keyscan -H $ip >> ~/.ssh/known_hosts
 
+      # Send Test Data to populate API/DB running on EC2
+      - name: Seed EC2 backend with Faker.js data
+        run: |
+          npm install  @faker-js/faker
+          node scripts/generateTestData.js
+
       # Install Docker and Docker Compose V2 on EC2
       - name: Install Docker & Docker Compose
         run: |
@@ -119,7 +131,8 @@ jobs:
             # docker compose build --no-cache
           
           docker compose up -d --build
-          "
+     
+
 
 #      # Initialize PostgreSQL database schema
 #      - name: Initialize DB schema
