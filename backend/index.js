@@ -18,7 +18,7 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
   ssl: {
-    rejectUnauthorized: false
+    rejectUnauthorized: true
   }
 });
 
@@ -27,7 +27,7 @@ const createTable = async () => {
   const client = await pool.connect();
   try {
     const queryText = `
-            CREATE TABLE IF NOT EXISTS Users (id  SERIAL PRIMARY KEY,
+            CREATE TABLE IF NOT EXISTS users (id  SERIAL PRIMARY KEY,
     name VARCHAR(50) NOT NULL,
     password VARCHAR(255) NOT NULL,
     budget real NOT NULL,
