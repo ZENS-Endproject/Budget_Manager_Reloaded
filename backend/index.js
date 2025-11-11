@@ -113,11 +113,12 @@ app.get("/login", (req, res) => {
 app.get("/callback", async (req, res) => {
   try {
     const params = client.callbackParams(req);
-    const tokenSet = await client.callback(
-      process.env.BACKEND_URL + "/callback",
-      params,
-      { state: req.state, nonce: req.nonce }
-    );
+    const callbackUrl = `${process.env.BACKEND_URL}/callback`;
+    const tokenSet = await client.callback(callbackUrl, params, {
+      state: req.session.state,
+      nonce: req.session.nonce
+    });
+
 
     console.log("tokenSet:", tokenSet);
     const userInfo = await client.userinfo(tokenSet.access_token);

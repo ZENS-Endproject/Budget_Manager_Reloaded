@@ -111,7 +111,7 @@ jobs:
           ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
             sudo snap install ngrok || true
             ngrok config add-authtoken ${{ secrets.NGROK_AUTH_TOKEN }}
-
+            nohup ngrok http 5005 --log=stdout > ngrok.log 2>&1 & sleep 10
             
             #NGROK_URL="https://unfeoffed-unmaterially-lurlene.ngrok-free.dev"
 
