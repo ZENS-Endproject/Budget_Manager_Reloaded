@@ -88,32 +88,35 @@ jobs:
             sudo chmod +x /usr/local/lib/docker/cli-plugins/docker-compose
           "
 
-      -  name: Launch ngrok on EC2
-         run: |
-                ip=$(terraform -chdir=budget-infra output -raw public_ip)
-                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-                  cd ~/Budget_Manager_Reloaded
-                  curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip
-                  unzip -o ngrok.zip
-                  chmod +x ngrok
-                  nohup ./ngrok http 5005 > ngrok.log 2>&1 &
-                  sleep 5
-                  NGROK_URL=\$(curl -s http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
-                  echo NGROK_URL=\$NGROK_URL > ngrok_url.txt
-                "
+      - name: Launch ngrok on EC2
+        run: |
+          ip=$(terraform -chdir=budget-infra output -raw public_ip)
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+            cd ~/Budget_Manager_Reloaded
+            curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip
+            unzip -o ngrok.zip
+            chmod +x ngrok
+            nohup ./ngrok http 5005 > ngrok.log 2>&1 &
+            # wait for ngrok to expose the tunnel
+            for i in {1..10}; do
+              NGROK_URL=\$(curl -s http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+              [ -n \"\$NGROK_URL\" ] && break
+              sleep 2
+            done
+            echo NGROK_URL=\$NGROK_URL > ngrok_url.txt
+          "
 
-            # 11️⃣ Update backend .env.local with ngrok URL
+      # 1️⃣1️⃣ Update backend environment with ngrok URL
       - name: Update backend environment
         run: |
-                ip=$(terraform -chdir=budget-infra output -raw public_ip)
-                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-                  cd ~/Budget_Manager_Reloaded/backend
-                  NGROK_URL=\$(cat ../ngrok_url.txt | cut -d '=' -f2)
-                  echo \"BACKEND_URL=\$NGROK_URL\" > .env.local
-                  echo \"FRONTEND_URL=http://$ip\" >> .env.local
-                "
-
-            # 12️⃣ Deploy backend & frontend
+          ip=$(terraform -chdir=budget-infra output -raw public_ip)
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+            cd ~/Budget_Manager_Reloaded/backend
+            NGROK_URL=\$(cat ../ngrok_url.txt | cut -d '=' -f2)
+            echo \"BACKEND_URL=\$NGROK_URL\" > .env.local
+            echo \"FRONTEND_URL=http://$ip\" >> .env.local
+          "
+        
       - name: Deploy App on EC2
         run: |
                 ip=$(terraform -chdir=budget-infra output -raw public_ip)
