@@ -61,9 +61,8 @@ app.use(express.static("public"));
 app.use(session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false,
+  saveUninitialized: true,
   cookie: {
-    httpOnly: true,
     secure: false,       // true uniquement en HTTPS (localhost = false)
     sameSite: 'lax',     // 'none' si tu utilises HTTPS cross-site
   },
