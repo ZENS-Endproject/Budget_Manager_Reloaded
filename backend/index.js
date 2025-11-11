@@ -9,14 +9,14 @@ const { Pool } = require("pg");
 const app = express();
 const PORT = process.env.PORT || 5005;
 
-//const FRONTEND_URL = process.env.process.env.FRONTEND_URL; // http://<EC2_PUBLIC_IP>
+//const FRONTEND_URL = process.env.FRONTEND_URL; // http://<EC2_PUBLIC_IP>
 //const  process.env.BACKEND_URL = process.env.BACKEND_URL;
 const pool = new Pool({
   host: process.env.DB_HOST,
   port: 5432,
   user: "postgres",
   password: process.env.DB_PASSWORD,
-  database: "Budget",
+  database: "budget",
 });
 
 // CORS React
@@ -68,6 +68,8 @@ app.get("/login", (req, res) => {
 
   const state = generators.state();
   const nonce = generators.nonce();
+  req.session.state = state;
+  req.session.nonce = nonce;
 
 
   const authUrl = client.authorizationUrl({
@@ -87,7 +89,7 @@ app.get("/callback", async (req, res) => {
     const tokenSet = await client.callback(
       process.env.BACKEND_URL + "/callback",
       params,
-      { state: req.state, nonce: req.nonce }
+      { state: req.session.state, nonce: req.session.nonce }
     );
 
     console.log("tokenSet:", tokenSet);
