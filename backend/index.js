@@ -18,7 +18,7 @@ const pool = new Pool({
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
   ssl: {
-    rejectUnauthorized: true
+    rejectUnauthorized: false
   }
 });
 
@@ -116,7 +116,7 @@ app.get("/callback", async (req, res) => {
     const tokenSet = await client.callback(
       process.env.BACKEND_URL + "/callback",
       params,
-      { state: req.session.state, nonce: req.session.nonce }
+      { state: req.state, nonce: req.nonce }
     );
 
     console.log("tokenSet:", tokenSet);
