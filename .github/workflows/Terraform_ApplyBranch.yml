@@ -116,7 +116,8 @@ jobs:
             nohup ngrok http 5005 --log=stdout > ngrok.log 2>&1 & sleep 10
 
             # Get ngrok public URL
-            NGROK_URL=$(ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "curl -s localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url'")
+            NGROK_URL=$(curl -s localhost:4040/api/tunnels | jq -r '.tunnels[0].public_url')
+
 
             # Create .env.local files and start containers
             ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
