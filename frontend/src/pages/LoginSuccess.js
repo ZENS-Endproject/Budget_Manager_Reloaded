@@ -10,7 +10,7 @@ export default function LoginSuccess() {
         const params = new URLSearchParams(location.search);
         const token = params.get("token");
         if (token) {
-            localStorage.setItem("token", token); // sauvegarde du token
+            localStorage.setItem("token", token); // backup token
             navigate("/expenses");
         } else {
             navigate("/login");

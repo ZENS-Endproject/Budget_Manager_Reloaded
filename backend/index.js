@@ -10,7 +10,7 @@ const app = express();
 const PORT = process.env.PORT || 5005;
 
 const FRONTEND_URL = process.env.FRONTEND_URL; // http://<EC2_PUBLIC_IP>
-const BACKEND_URL = process.env.BACKEND_URL;
+//const  process.env.BACKEND_URL = process.env.BACKEND_URL;
 const pool = new Pool({
   host: process.env.DB_HOST,
   port: 5432,
@@ -52,7 +52,7 @@ async function initializeClient() {
   client = new issuer.Client({
     client_id: process.env.COGNITO_CLIENT_ID,
     client_secret: process.env.COGNITO_CLIENT_SECRET,
-    redirect_uris: [BACKEND_URL + "/callback"],
+    redirect_uris: [process.env.BACKEND_URL + "/callback"],
     response_types: ["code"],
   });
 
@@ -85,9 +85,9 @@ app.get("/callback", async (req, res) => {
   try {
     const params = client.callbackParams(req);
     const tokenSet = await client.callback(
-      BACKEND_URL + "/callback",
+      process.env.BACKEND_URL + "/callback",
       params,
-      { state: req.session.state, nonce: req.session.nonce }
+      { state: req.state, nonce: req.nonce }
     );
 
     console.log("tokenSet:", tokenSet);
@@ -99,7 +99,7 @@ app.get("/callback", async (req, res) => {
     req.session.tokens = tokenSet;
 
     // send token + user React
-    const frontendUrl = `${FRONTEND_URL}/login-success?token=${encodeURIComponent(tokenSet.access_token)}&user_id=${userInfo.sub}`;
+    const frontendUrl = `${FRONTEND_URL}/login-success?token=${encodeURIComponent(tokenSet.access_token)}`;
     res.redirect(frontendUrl);
 
 
@@ -1655,5 +1655,5 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
 
 
 app.listen(PORT, () => {
-  console.log(`Server running at ${BACKEND_URL}`);
+  console.log(`Server running at ${process.env.BACKEND_URL}`);
 });

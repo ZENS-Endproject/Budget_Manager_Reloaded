@@ -114,7 +114,7 @@ jobs:
      
           
           echo "FRONTEND_URL=http://$ip" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
-           echo "BACKEND_URL=http://$ip:5005" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
+           #echo "BACKEND_URL=http://$ip:5005" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
           # echo "REACT_APP_API_URL=http://$ip:5005"  > "/home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local"
           export REACT_APP_API_URL=http://$ip:5005
           cd ~/Budget_Manager_Reloaded
