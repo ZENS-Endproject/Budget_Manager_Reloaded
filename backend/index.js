@@ -9,7 +9,7 @@ const { Pool } = require("pg");
 const app = express();
 const PORT = process.env.PORT || 5005;
 
-const FRONTEND_URL = process.env.FRONTEND_URL; // http://<EC2_PUBLIC_IP>
+//const FRONTEND_URL = process.env.process.env.FRONTEND_URL; // http://<EC2_PUBLIC_IP>
 //const  process.env.BACKEND_URL = process.env.BACKEND_URL;
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -21,7 +21,7 @@ const pool = new Pool({
 
 // CORS React
 app.use(cors({
-  origin: FRONTEND_URL,
+  origin: process.env.FRONTEND_URL,
   credentials: true,
 }));
 
@@ -99,14 +99,14 @@ app.get("/callback", async (req, res) => {
     req.session.tokens = tokenSet;
 
     // send token + user React
-    const frontendUrl = `${FRONTEND_URL}/login-success?token=${encodeURIComponent(tokenSet.access_token)}`;
+    const frontendUrl = `${process.env.FRONTEND_URL}/login-success?token=${encodeURIComponent(tokenSet.access_token)}`;
     res.redirect(frontendUrl);
 
 
 
   } catch (err) {
     console.error("Callback error:", err);
-    res.redirect(`${FRONTEND_URL}/login?error=callback_failed`);
+    res.redirect(`${process.env.FRONTEND_URL}/login?error=callback_failed`);
   }
 });
 
