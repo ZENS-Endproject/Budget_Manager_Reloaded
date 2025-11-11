@@ -120,7 +120,7 @@ jobs:
 
 
             # Create .env.local files and start containers
-            ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+            
             # Create frontend environment file
             echo "DB_HOST=$HOST" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
             echo 'BACKEND_URL='\$NGROK_URL >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
