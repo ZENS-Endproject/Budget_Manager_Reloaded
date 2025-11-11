@@ -1,4 +1,4 @@
-name: Terraform Apply per Branch
+name: Test
 
 on:
   push:

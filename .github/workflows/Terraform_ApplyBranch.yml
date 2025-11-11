@@ -93,20 +93,29 @@ jobs:
           ip=$(terraform -chdir=budget-infra output -raw public_ip)
           ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
             cd ~/Budget_Manager_Reloaded
+
+            # Installer ngrok
             curl -s https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip -o ngrok.zip
             unzip -o ngrok.zip
             chmod +x ngrok
+
+            # Ajouter l'authtoken ngrok
+            ./ngrok config add-authtoken ${{ secrets.NGROK_AUTHTOKEN }}
+
+            # Lancer le tunnel en arrière-plan
             nohup ./ngrok http 5005 > ngrok.log 2>&1 &
-            # wait for ngrok to expose the tunnel
+
+            # Attendre que le tunnel soit actif et récupérer l'URL publique
             for i in {1..10}; do
               NGROK_URL=\$(curl -s http://127.0.0.1:4040/api/tunnels | jq -r '.tunnels[0].public_url')
               [ -n \"\$NGROK_URL\" ] && break
               sleep 2
             done
+
             echo NGROK_URL=\$NGROK_URL > ngrok_url.txt
           "
 
-      # 1️⃣1️⃣ Update backend environment with ngrok URL
+      # 11️⃣ Mettre à jour .env.local du backend avec l'URL ngrok
       - name: Update backend environment
         run: |
           ip=$(terraform -chdir=budget-infra output -raw public_ip)
@@ -116,14 +125,12 @@ jobs:
             echo \"BACKEND_URL=\$NGROK_URL\" > .env.local
             echo \"FRONTEND_URL=http://$ip\" >> .env.local
           "
-        
+
       - name: Deploy App on EC2
         run: |
-                ip=$(terraform -chdir=budget-infra output -raw public_ip)
-                ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-                  cd ~/Budget_Manager_Reloaded
-                  docker compose down -v || true
-                  docker compose up -d --build
-                "
-
-          
+          ip=$(terraform -chdir=budget-infra output -raw public_ip)
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+            cd ~/Budget_Manager_Reloaded
+            docker compose down -v || true
+            docker compose up -d --build
+          "
