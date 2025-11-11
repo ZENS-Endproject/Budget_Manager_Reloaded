@@ -125,7 +125,7 @@ jobs:
         run: |
           ip=$(terraform -chdir=budget-infra output -raw public_ip)
           ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-          docker exec backend node sh -c "cd /app && node TestDataGenerator_V2.js"
+          docker exec backend sh -c "cd /app && node TestDataGenerator_V2.js"
           "
 
      
