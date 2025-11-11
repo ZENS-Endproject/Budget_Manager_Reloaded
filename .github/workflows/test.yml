@@ -1,11 +1,12 @@
 name: Test
 
 on:
-  push:
-    branches:
-      - '*'
   workflow_dispatch:
-
+    inputs:
+      environment:
+        description: "Choose environment"
+        required: true
+        default: "staging"
 jobs:
   terraform-apply:
     runs-on: ubuntu-latest
