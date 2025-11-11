@@ -122,13 +122,14 @@ jobs:
           ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
             cd ~/Budget_Manager_Reloaded/backend
             NGROK_URL=\$(cat ../ngrok_url.txt | cut -d '=' -f2)
-            echo \"BACKEND_URL=\$NGROK_URL\" > .env.local
+            echo \"BACKEND_URL=\$NGROK_URL\" >> .env.local
             echo \"FRONTEND_URL=http://$ip\" >> .env.local
           "
 
       - name: Deploy App on EC2
         run: |
           ip=$(terraform -chdir=budget-infra output -raw public_ip)
+          export REACT_APP_API_URL=http://$ip:5005
           ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
             cd ~/Budget_Manager_Reloaded
             docker compose down -v || true

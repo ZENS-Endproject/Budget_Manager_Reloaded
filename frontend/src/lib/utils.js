@@ -5,7 +5,7 @@ export function cn(...inputs) {
   return twMerge(clsx(inputs));
 }
 
-//export const API_URL = process.env.REACT_APP_API_URL;
-export const API_URL = "https://unfeoffed-unmaterially-lurlene.ngrok-free.dev";
+export const API_URL = process.env.REACT_APP_API_URL;
+//export const API_URL = "https://unfeoffed-unmaterially-lurlene.ngrok-free.dev";
 
 console.log(`${API_URL}`);
