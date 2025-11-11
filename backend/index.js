@@ -5,7 +5,7 @@ const cors = require("cors");
 const { Issuer, generators } = require("openid-client");
 const jwt = require("jsonwebtoken");
 const { Pool } = require("pg");
-import session from "express-session";
+
 
 const app = express();
 const PORT = process.env.PORT || 5005;
@@ -63,6 +63,7 @@ app.use(express.static("public"));
 // Session 
 app.use(session({
   secret: process.env.SESSION_SECRET,
+  resave: false,
   saveUninitialized: false,
   cookie: {
     secure: true,
@@ -175,7 +176,9 @@ function authenticateToken(req, res, next) {
 }
 
 
-
+app.get("/logout", (req, res) => {
+  req.session.destroy(() => res.redirect(process.env.FRONTEND_URL));
+});
 
 
 app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
@@ -1691,6 +1694,7 @@ app.get("/download-expenses/:user_id", authenticateToken, async (req, res) => {
 
 
 
-app.listen(PORT, () => {
+
+app.listen(PORT, "0.0.0.0", () => {
   console.log(`Server running at ${PORT}`);
 });
