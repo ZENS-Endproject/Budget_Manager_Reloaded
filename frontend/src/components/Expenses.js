@@ -23,6 +23,8 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
+import App from "../App";
+import AddExpenseForm from "./AddExpenseOnce";
 
 function Expenses() {
   const [expenses, setExpenses] = useState([]);
@@ -117,8 +119,12 @@ function Expenses() {
     },
     {
       accessorKey: "amount",
-      header: "Price (€)",
-      cell: ({ row }) => `${parseFloat(row.getValue("amount")).toFixed(2)} €`,
+      header: () => <span className="text-right w-full block">Price</span>,
+      cell: ({ row }) => (
+        <span className="text-right w-full block">
+          {parseFloat(row.getValue("amount")).toFixed(2)} €
+        </span>
+      ),
     },
     {
       accessorKey: "category",
@@ -127,13 +133,15 @@ function Expenses() {
     {
       accessorKey: "date",
       header: "Date",
-      cell: ({ row }) =>
-        new Date(row.getValue("date")).toISOString().split("T")[0],
+      cell: ({ row }) => {
+        const rawDate = row.getValue("date");
+        const date = new Date(rawDate);
+        return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+      },
     },
     {
       id: "actions",
       header: "Actions",
-      className: "text-right",
       cell: ({ row }) => {
         const expense = row.original;
         return (
@@ -144,14 +152,12 @@ function Expenses() {
                   state: { expense },
                 })
               }
+              className="button"
             >
-              Edit
+              <Text variant="bodyBlack">Edit</Text>
             </Button>
-            <Button
-              onClick={() => handleDelete(expense.id)}
-              className="text-red-500 underline"
-            >
-              Delete
+            <Button onClick={() => handleDelete(expense.id)} className="button">
+              <Text variant="bodyBlack">Delete</Text>
             </Button>
           </div>
         );
@@ -176,46 +182,47 @@ function Expenses() {
 
   return (
     <>
-      <Text variant="subtitleBlue" className="text-center my-6">
-        One-time expenses {selectedMonthYear}
-      </Text>
-      <div className="text-center mt-10">
-        <Button
-          onClick={() => setShowMonthFilter(!showMonthFilter)}
-          className="mb-4"
-        >
-          {showMonthFilter ? "Hide filter" : "Filter by Month"}
-        </Button>
+      <Text variant="subtitleBlue">One-time expenses {selectedMonthYear}</Text>
 
-        {showMonthFilter && (
-          <div className="max-w-sm mx-auto mt-4">
-            <FormItem>
-              <FormLabel>Select Filter</FormLabel>
-              <FormControl>
-                <Input
-                  type="month"
-                  value={selectedMonthYear}
-                  onChange={(e) => {
-                    setSelectedMonthYear(e.target.value);
-                    fetchExpenses(e.target.value);
-                  }}
-                />
-              </FormControl>
-            </FormItem>
-            <br />
-            <Button
-              className="text-right font-medium"
-              onClick={() => {
-                setSelectedMonthYear("");
-                fetchExpenses("");
-                setShowMonthFilter(false);
-              }}
-            >
-              Reset filter
-            </Button>
-          </div>
-        )}
-      </div>
+      <AddExpenseForm />
+
+      <Button
+        onClick={() => setShowMonthFilter(!showMonthFilter)}
+        className="button mb-2"
+      >
+        <Text variant="bodyBlack">
+          {showMonthFilter ? "Hide filter" : "Filter by Month"}
+        </Text>
+      </Button>
+
+      {showMonthFilter && (
+        <div className="max-w-sm mx-auto">
+          <FormItem>
+            <FormLabel>Select Month</FormLabel>
+            <FormControl>
+              <Input
+                type="month"
+                value={selectedMonthYear}
+                onChange={(e) => {
+                  setSelectedMonthYear(e.target.value);
+                  fetchExpenses(e.target.value);
+                }}
+              />
+            </FormControl>
+          </FormItem>
+
+          <Button
+            onClick={() => {
+              setSelectedMonthYear("");
+              fetchExpenses("");
+              setShowMonthFilter(false);
+            }}
+            className="button my-2"
+          >
+            <Text variant="bodyBlack">Reset filter</Text>
+          </Button>
+        </div>
+      )}
 
       {loading && <p className="text-center">Loading expenses...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
@@ -229,10 +236,12 @@ function Expenses() {
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                       <TableHead key={header.id}>
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        <Text variant="bodyBlue">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </Text>
                       </TableHead>
                     ))}
                   </TableRow>
@@ -242,27 +251,33 @@ function Expenses() {
                 {table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="font-medium">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                      <TableCell key={cell.id}>
+                        <Text variant="bodyBlack">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Text>
                       </TableCell>
                     ))}
                   </TableRow>
                 ))}
                 {selectedMonthYear === new Date().toISOString().slice(0, 7) && (
-                  <TableRow
-                    style={{
-                      backgroundColor: "#7FDBFF",
-                      fontWeight: "bold",
-                      color: "#333",
-                    }}
-                  >
-                    <TableCell className="font-medium">
-                      Total one-time expenses for this month {selectedMonthYear}
+                  <TableRow>
+                    <TableCell>
+                      <Text variant="bodyBlue">
+                        <strong>
+                          Total one-time expenses for {selectedMonthYear}
+                        </strong>
+                      </Text>
                     </TableCell>
-                    <TableCell>{parseFloat(sum).toFixed(2)}€</TableCell>
+                    <TableCell className="text-right">
+                      <span className="text-right w-full block">
+                        <Text variant="bodyBlue">
+                          <strong>{parseFloat(sum).toFixed(2)} €</strong>
+                        </Text>
+                      </span>
+                    </TableCell>
                     <TableCell />
                     <TableCell />
                     <TableCell />
@@ -271,22 +286,20 @@ function Expenses() {
               </TableBody>
             </Table>
           </div>
-          <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="flex items-center justify-end space-x-2 py-2">
             <Button
-              variant="outline"
-              size="sm"
+              className="button-prevnext"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              Previous
+              <Text variant="smallBlack">Previous</Text>
             </Button>
             <Button
-              variant="outline"
-              size="sm"
+              className="button-prevnext"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
-              Next
+              <Text variant="smallBlack">Next</Text>
             </Button>
           </div>
         </div>

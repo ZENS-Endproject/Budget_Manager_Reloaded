@@ -20,6 +20,7 @@ import {
 } from "@tanstack/react-table";
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
+import AddExpenseForm from "./AddExpenseMonthly";
 
 function MonthlyExpenses() {
   const [expenses, setExpenses] = useState([]);
@@ -132,8 +133,12 @@ function MonthlyExpenses() {
     },
     {
       accessorKey: "amount",
-      header: "Price (€)",
-      cell: ({ row }) => parseFloat(row.getValue("amount")).toFixed(2) + " €",
+      header: () => <span className="text-right w-full block">Price</span>,
+      cell: ({ row }) => (
+        <span className="text-right w-full block">
+          {parseFloat(row.getValue("amount")).toFixed(2)} €
+        </span>
+      ),
     },
     {
       accessorKey: "category",
@@ -171,14 +176,12 @@ function MonthlyExpenses() {
                   }
                 )
               }
+              className="button"
             >
-              Edit
+              <Text variant="bodyBlack">Edit</Text>
             </Button>
-            <Button
-              onClick={() => handleDelete(expense.id)}
-              className="text-red-500 underline"
-            >
-              Delete
+            <Button onClick={() => handleDelete(expense.id)} className="button">
+              <Text variant="bodyBlack">Delete</Text>
             </Button>
           </div>
         );
@@ -202,45 +205,45 @@ function MonthlyExpenses() {
 
   return (
     <>
-      <Text variant="subtitleBlue" className="text-center my-6">
-        Regular expenses {selectedMonthYear}
-      </Text>
-      <div className="text-center mt-10">
-        <Button
-          onClick={() => setShowMonthFilter(!showMonthFilter)}
-          className="mb-4"
-        >
+      <Text variant="subtitleBlue">Regular expenses {selectedMonthYear}</Text>
+      <AddExpenseForm />
+      <Button
+        onClick={() => setShowMonthFilter(!showMonthFilter)}
+        className="button mb-2"
+      >
+        <Text variant="bodyBlack">
           {showMonthFilter ? "Hide filter" : "Filter by Month"}
-        </Button>
+        </Text>
+      </Button>
 
-        {showMonthFilter && (
-          <div className="max-w-sm mx-auto mt-4">
-            <FormItem>
-              <FormLabel>Select Month</FormLabel>
-              <FormControl>
-                <Input
-                  type="month"
-                  value={selectedMonthYear}
-                  onChange={(e) => {
-                    setSelectedMonthYear(e.target.value);
-                    fetchMonthlyExpenses(e.target.value);
-                  }}
-                />
-              </FormControl>
-            </FormItem>
-            <br />
-            <Button
-              onClick={() => {
-                setSelectedMonthYear("");
-                fetchMonthlyExpenses();
-                setShowMonthFilter(false);
-              }}
-            >
-              Reset Filter
-            </Button>
-          </div>
-        )}
-      </div>
+      {showMonthFilter && (
+        <div className="max-w-sm mx-auto">
+          <FormItem>
+            <FormLabel>Select Month</FormLabel>
+            <FormControl>
+              <Input
+                type="month"
+                value={selectedMonthYear}
+                onChange={(e) => {
+                  setSelectedMonthYear(e.target.value);
+                  fetchMonthlyExpenses(e.target.value);
+                }}
+              />
+            </FormControl>
+          </FormItem>
+
+          <Button
+            onClick={() => {
+              setSelectedMonthYear("");
+              fetchMonthlyExpenses();
+              setShowMonthFilter(false);
+            }}
+            className="button my-2"
+          >
+            <Text variant="bodyBlack">Reset Filter</Text>
+          </Button>
+        </div>
+      )}
 
       {loading && <p className="text-center">Loading expenses...</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
@@ -261,10 +264,12 @@ function MonthlyExpenses() {
                           header.column.id === "actions" ? "text-right" : ""
                         }`}
                       >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        <Text variant="bodyBlue">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </Text>
                       </TableHead>
                     ))}
                   </TableRow>
@@ -280,26 +285,32 @@ function MonthlyExpenses() {
                           cell.column.id === "name" ? "w-[100px]" : ""
                         } ${cell.column.id === "actions" ? "text-right" : ""}`}
                       >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        <Text variant="bodyBlack">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Text>
                       </TableCell>
                     ))}
                   </TableRow>
                 ))}
                 {selectedMonthYear === new Date().toISOString().slice(0, 7) && (
-                  <TableRow
-                    style={{
-                      backgroundColor: "#0489A9",
-                      fontWeight: "bold",
-                      color: "#333",
-                    }}
-                  >
+                  <TableRow>
                     <TableCell className="font-medium">
-                      Total regular expenses for this month {selectedMonthYear}
+                      <Text variant="bodyBlue">
+                        <strong>
+                          Total regular expenses for {selectedMonthYear}
+                        </strong>
+                      </Text>
                     </TableCell>
-                    <TableCell>{parseFloat(monthlySum).toFixed(2)} €</TableCell>
+                    <TableCell className="text-right">
+                      <span className="text-right w-full block">
+                        <Text variant="bodyBlue">
+                          <strong>{parseFloat(monthlySum).toFixed(2)} €</strong>
+                        </Text>
+                      </span>
+                    </TableCell>
                     <TableCell />
                     <TableCell />
                     <TableCell />

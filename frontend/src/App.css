@@ -106,3 +106,11 @@ td button {
   margin-left: 5px;
 
 }
+
+.button {
+  @apply bg-[#02586E]/10 hover:bg-[#02586E]/50 transition transform hover:scale-105 p-2 rounded-xl shadow;
+}
+
+.button-prevnext {
+@apply bg-[#f9be28]/10 hover:bg-[#f9be28]/50 transition transform hover:scale-105 h-[25px] w-[100px] p-2 shadow;
+}

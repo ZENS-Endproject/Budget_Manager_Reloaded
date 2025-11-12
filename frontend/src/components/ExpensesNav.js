@@ -19,68 +19,67 @@ function ExpensesNav() {
   const [balance, setBalance] = useState(null);
   // const [debitPerMonth, setDebitPerMonth] = useState(null);
 
-  const fetchBalance = async () => {
-    try {
-      const response = await fetch(`${API_URL}/total_balance/${userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+  // const fetchBalance = async () => {
+  //   try {
+  //     const response = await fetch(`${API_URL}/total_balance/${userId}`, {
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //       },
+  //     });
 
-      const data = await response.json();
+  //     const data = await response.json();
 
-      if (!response.ok) {
-        setError(data.error || "Could not load balance data.");
-        return;
-      }
+  //     if (!response.ok) {
+  //       setError(data.error || "Could not load balance data.");
+  //       return;
+  //     }
 
-      setTotalExpenses(data.totalExpenses);
-      setTotalIncome(data.totalIncome);
-      setBalance(data.balance);
-      //setDebitPerMonth(data.debitPerMonth);
-      setMessage(data.message);
-      setError("");
-    } catch (err) {
-      console.error("Fetch error:", err);
-      setError("Could not load balance data.");
-    }
-  };
-  const handleDownloadPDF = async () => {
-    try {
-      const response = await fetch(`${API_URL}/download-expenses/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+  //     setTotalExpenses(data.totalExpenses);
+  //     setTotalIncome(data.totalIncome);
+  //     setBalance(data.balance);
+  //     //setDebitPerMonth(data.debitPerMonth);
+  //     setMessage(data.message);
+  //     setError("");
+  //   } catch (err) {
+  //     console.error("Fetch error:", err);
+  //     setError("Could not load balance data.");
+  //   }
+  // };
+  // const handleDownloadPDF = async () => {
+  //   try {
+  //     const response = await fetch(`${API_URL}/download-expenses/${userId}`, {
+  //       headers: {
+  //         Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //       },
+  //     });
 
-      if (!response.ok) {
-        throw new Error("Error download PDF.");
-      }
+  //     if (!response.ok) {
+  //       throw new Error("Error download PDF.");
+  //     }
 
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "expenses.pdf");
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (err) {
-      console.error("Error PDF:", err);
-      alert("Error download.");
-    }
-  };
+  //     const blob = await response.blob();
+  //     const url = window.URL.createObjectURL(blob);
+  //     const link = document.createElement("a");
+  //     link.href = url;
+  //     link.setAttribute("download", "expenses.pdf");
+  //     document.body.appendChild(link);
+  //     link.click();
+  //     link.remove();
+  //   } catch (err) {
+  //     console.error("Error PDF:", err);
+  //     alert("Error download.");
+  //   }
+  // };
 
-  useEffect(() => {
-    if (userId) fetchBalance();
-  }, [userId]);
-  const debitPerMonth = balance < 0 ? Math.abs(balance) / 4 : 0;
+  // useEffect(() => {
+  //   if (userId) fetchBalance();
+  // }, [userId]);
+  // const debitPerMonth = balance < 0 ? Math.abs(balance) / 4 : 0;
 
   return (
     <>
-
-      <div
+      {/* <div
         className="expenses-nav"
         style={{
           padding: "20px",
@@ -138,10 +137,38 @@ function ExpensesNav() {
             )}
           </>
         )}
+      </div> */}
+      <div className="max-w-6xl mx-auto px-4 mt-10 grid grid-cols-1 md:grid-cols-2 gap-2">
+        {/* <div>
+          <AddExpenseForm />
+        </div> */}
+        <div
+          className="md:col-span-2 bg-white p-6 rounded-xl shadow"
+          style={{
+            padding: "40px",
+            backgroundColor: "#ffffff",
+            //marginBottom: "20px",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}
+        >
+          <Monthly_expenses user_id={userId} />
+        </div>
+        <div
+          className="md:col-span-2 bg-white p-6 rounded-xl shadow"
+          style={{
+            padding: "40px",
+            backgroundColor: "#ffffff",
+            //marginBottom: "20px",
+            border: "1px solid #ddd",
+            borderRadius: "8px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}
+        >
+          <Expenses user_id={userId} />
+        </div>
       </div>
-      <AddExpenseForm />
-      <Monthly_expenses user_id={userId} />
-      <Expenses user_id={userId} />
     </>
   );
 }

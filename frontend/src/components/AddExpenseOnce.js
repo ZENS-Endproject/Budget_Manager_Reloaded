@@ -11,7 +11,7 @@ import Text from "./Text";
 
 const AddExpenseForm = () => {
   const [showForm, setShowForm] = useState(false);
-  const [type, setType] = useState("once");
+  // const [type, setType] = useState("once");
 
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
@@ -19,8 +19,8 @@ const AddExpenseForm = () => {
       amount: "",
       category_id: "",
       date: "",
-      start_date: "",
-      end_date: "",
+      // start_date: "",
+      // end_date: "",
     },
   });
 
@@ -30,27 +30,28 @@ const AddExpenseForm = () => {
 
     const payload = {
       user_id: userId,
-      ...values,
-      category_id: parseInt(values.category_id),
+      name: values.name,
       amount: parseFloat(values.amount),
+      category_id: parseInt(values.category_id),
+      date: values.date,
     };
 
-    if (type === "monthly") {
-      payload.date_start = values.date_start + "-01"; // hier die Monatskorrektur
-      delete payload.date;
-    } else {
-      delete payload.date_start;
-    }
+    // if (type === "monthly") {
+    //   payload.date_start = values.date_start + "-01"; // hier die Monatskorrektur
+    //   delete payload.date;
+    // } else {
+    //   delete payload.date_start;
+    // }
 
-    const url =
-      type === "monthly"
-        ? `${API_URL}/monthly_expenses`
-        : `${API_URL}/expenses`;
+    // const url =
+    //   type === "monthly"
+    //     ? `${API_URL}/monthly_expenses`
+    //     : `${API_URL}/expenses`;
 
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(url, {
+      const res = await fetch(`${API_URL}/expenses`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -75,19 +76,15 @@ const AddExpenseForm = () => {
   };
 
   return (
-    <div className="text-center mt-10">
+    <div className="my-2">
       <Button onClick={() => setShowForm(!showForm)} className="button">
         <Text variant="bodyBlack">
-          {" "}
-          {showForm ? "Close form" : "Insert new Expense"}
+          {showForm ? "Close form" : "Add new one-time expense"}
         </Text>
       </Button>
       {showForm && (
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="max-w-sm mx-auto space-y-4"
-        >
-          <FormItem>
+        <form onSubmit={handleSubmit(onSubmit)} className="max-w-sm mx-auto">
+          {/* <FormItem>
             <FormLabel>Type</FormLabel>
             <FormControl>
               <Select value={type} onChange={(e) => setType(e.target.value)}>
@@ -95,13 +92,13 @@ const AddExpenseForm = () => {
                 <SelectItem value="monthly">monthly</SelectItem>
               </Select>
             </FormControl>
-          </FormItem>
+          </FormItem> */}
 
           <FormItem>
             <FormLabel>Name</FormLabel>
             <FormControl>
               <Input
-                placeholder="Expense Name"
+                className="font-voces text-xs text-black"
                 {...register("name")}
                 required
               />
@@ -134,16 +131,14 @@ const AddExpenseForm = () => {
             </FormControl>
           </FormItem>
 
-          {type === "once" && (
-            <FormItem>
-              <FormLabel>Date</FormLabel>
-              <FormControl>
-                <Input type="date" {...register("date")} required />
-              </FormControl>
-            </FormItem>
-          )}
+          <FormItem>
+            <FormLabel>Date</FormLabel>
+            <FormControl>
+              <Input type="date" {...register("date")} required />
+            </FormControl>
+          </FormItem>
 
-          {type === "monthly" && (
+          {/* {type === "monthly" && (
             <>
               <FormItem>
                 <FormLabel>Start date</FormLabel>
@@ -152,9 +147,9 @@ const AddExpenseForm = () => {
                 </FormControl>
               </FormItem>
             </>
-          )}
+          )} */}
 
-          <Button type="submit" className="button">
+          <Button type="submit" className="button mt-2">
             <Text variant="bodyBlack">Save</Text>
           </Button>
         </form>
