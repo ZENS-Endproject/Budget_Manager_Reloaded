@@ -14,7 +14,7 @@ ENV REACT_APP_API_URL=$REACT_APP_API_URL
 COPY . .
 
 RUN npm install
-RUN npm run build
+RUN npm run build --verbose
 EXPOSE 5173
 
 # STAGE 2
