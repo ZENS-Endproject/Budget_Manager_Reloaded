@@ -49,7 +49,7 @@ const pool = new Pool({
 
 // CORS React
 app.use(cors({
-  origin: process.env.FRONTEND_URL,
+  origin: "*",
   credentials: true,
 }));
 
@@ -97,10 +97,9 @@ app.get("/login", (req, res) => {
   }
 
   const state = generators.state();
-  const nonce = generators.nonce();
   req.session.state = state;
-  req.session.nonce = nonce;
-  console.log(" Session créée:", req.session);
+
+  console.log(" Session crée:", req.session);
 
   const authUrl = client.authorizationUrl({
     scope: "openid email profile",
@@ -117,14 +116,13 @@ app.get("/login", (req, res) => {
 
 // Callback
 app.get("/callback", async (req, res) => {
-  console.log("Session à la callback:", req.session);
+
 
   try {
     const params = client.callbackParams(req);
     const callbackUrl = `${process.env.BACKEND_URL}/callback`;
     const tokenSet = await client.callback(callbackUrl, params, {
-      state: req.session.state,
-      nonce: req.session.nonce
+      state: params.state
     });
 
 
