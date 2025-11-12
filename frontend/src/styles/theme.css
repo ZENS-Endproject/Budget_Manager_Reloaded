@@ -2,18 +2,18 @@
 :root {
   --bg: #FEFEEF;
   --text: #0A4A56;
-  --header-bg: #FEFEEF;   /* bleibt hell */
+  --header-bg: #FEFEEF;
   --sidebar-bg: #FEFEEF;
   --hover: rgba(4,137,169,0.10);
   --active: #E8EFEF;
 }
 
-/* ==== Dark Mode (dunkles Blau) ==== */
+/* ==== Dark Mode ==== */
 .dark {
   --bg: #071822;
   --text: #E8EFEF;
-  --header-bg: #061520;   /* <-- dunkler Header */
-  --sidebar-bg: #0A2530;
+  --header-bg: var(--bg);
+  --sidebar-bg: var(--bg);
   --hover: rgba(255,255,255,0.05);
   --active: rgba(255,255,255,0.10);
 }
@@ -25,12 +25,6 @@ header {
   transition: background-color .3s ease, color .3s ease;
 }
 
-/* ==== Header ==== */
-header {
-  background: var(--header-bg);
-  transition: background-color .3s ease, color .3s ease;
-}
-
 /* ==== Hauptbereich ==== */
 .app-content {
   background: var(--bg);
@@ -38,13 +32,14 @@ header {
   transition: background-color .3s ease, color .3s ease;
 }
 
-/* ==== Sidebar (Container) ==== */
+/* ==== Sidebar ==== */
 .app-sidebar {
   background: var(--sidebar-bg);
-  transition: background-color .3s ease, color .3s ease;
+  transition: background-color .3s ease, color .3s ease, transform .3s ease;
+  will-change: transform;
 }
 
-/* ==== Sidebar: Links ==== */
+/* ==== Sidebar-Links ==== */
 .app-sidebar a {
   color: var(--text);
   transition: background-color .2s ease, color .2s ease;
@@ -60,8 +55,19 @@ header {
   box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 
-/* ==== Logos ==== */
-.logo-dark { display: none; }
-.logo-light { display: block; }
-.dark .logo-dark { display: block; }
-.dark .logo-light { display: none; }
+
+/* ==== Vereinheitlichung ==== */
+.dark header,
+.dark .app-sidebar,
+.dark .app-content {
+  background-color: var(--bg) !important;
+  border: 0;
+  box-shadow: none;
+}
+
+.header-wave svg { display: block; }
+
+.dark .app-content__inner,
+.dark .app-sidebar > * {
+  background-color: transparent;
+}
