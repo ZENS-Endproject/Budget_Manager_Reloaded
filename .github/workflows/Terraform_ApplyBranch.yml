@@ -118,7 +118,7 @@ jobs:
             
             # Create frontend environment file
             echo "DB_HOST=$HOST" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
-            echo "BACKEND_URL=$NGROK_URL" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
+            #echo "BACKEND_URL=$NGROK_URL" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
             echo "FRONTEND_URL=http://$ip" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
             
      
@@ -127,6 +127,7 @@ jobs:
            
             # echo "REACT_APP_API_URL=http://$ip:5005"  > "/home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local"
             export REACT_APP_API_URL=http://$ip:5005
+            echo "REACT_APP_API_URL=http://$ip:5005"  > "/home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local"
             #export REACT_APP_API_URL=https://unfeoffed-unmaterially-lurlene.ngrok-free.dev
             cd ~/Budget_Manager_Reloaded
 

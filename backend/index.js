@@ -103,8 +103,7 @@ app.get("/login", (req, res) => {
 
   const authUrl = client.authorizationUrl({
     scope: "openid email profile",
-    state,
-    nonce,
+    state
   });
 
   console.log("Session avant redirect:", req.session);
