@@ -5,7 +5,7 @@ provider "aws" {
 variable "aws_instance_type" {
   description = "Type of EC2 instance"
   type        = string
-  default     = "t3.small"
+  default     = "t2.medium"
 }
 
 

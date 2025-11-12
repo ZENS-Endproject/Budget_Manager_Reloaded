@@ -8,6 +8,7 @@ export default function LoginSuccess() {
 
     useEffect(() => {
         const params = new URLSearchParams(location.search);
+        console.log(params);
         const token = params.get("token");
         if (token) {
             localStorage.setItem("token", token); // backup token
