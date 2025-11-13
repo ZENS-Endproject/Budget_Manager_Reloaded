@@ -13,8 +13,8 @@ function ExpensesNav() {
 
   // Récupération sécurisée du token et de l'utilisateur
   const token = localStorage.getItem("token");
-  const user = localStorage.getItem("user");
-  const userId = user?.sub || user?.id; // Cognito utilise "sub" comme ID unique
+  const userId = localStorage.getItem("user");
+
 
   const [totalExpenses, setTotalExpenses] = useState(null);
   const [totalIncome, setTotalIncome] = useState(null);
