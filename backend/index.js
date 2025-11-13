@@ -186,19 +186,38 @@ app.get("/logout", (req, res) => {
 
 
 app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
-  const { user_id } = req.params;
+  const { user_id } = req.params; // ID venant de l'URL
   try {
-    const result_id = await pool.query("SELECT user.id from public.users where userInfo.sub = user.cognito_id");
-    console.log("resultat est: ", result_id);
+
+    const result_id = await pool.query(
+      "SELECT id FROM public.users WHERE cognito_id = $1",
+      [req.user.sub]
+    );
+    const user_cognito_id = result_id.rows[0]?.id;
+
+    if (!user_cognito_id) {
+      return res.status(404).json({ error: "Utilisateur non trouvé" });
+    }
+
+
+    if (parseInt(user_id) !== user_cognito_id) {
+      return res.status(403).json({ error: "Accès interdit" });
+    }
+
 
     const result = await pool.query(
-      `SELECT expenses.id, expenses.user_id, expenses.amount, expenses.name, expenses.category_id, expenses.date, categories.category FROM public.expenses JOIN public.categories on expenses.category_id = categories.id WHERE expenses.user_id = ${user_id} AND expenses.user_id = result_id ORDER BY expenses.date DESC`,
-      [user_id]
+      `SELECT expenses.id, expenses.user_id, expenses.amount, expenses.name, expenses.category_id, expenses.date, categories.category
+       FROM public.expenses
+       JOIN public.categories ON expenses.category_id = categories.id
+       WHERE expenses.user_id = $1
+       ORDER BY expenses.date DESC`,
+      [user_cognito_id]
     );
+
     res.json(result.rows);
   } catch (err) {
     console.error("Error while fetching the Expenses:", err);
-    res.status(500).json({ error: "Internal  Server Error" });
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
 
