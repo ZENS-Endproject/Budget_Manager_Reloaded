@@ -2,8 +2,11 @@ name: Terraform Apply per Branch
 
 on:
   push:
-    branches:
-      - '*'
+    branches-ignore:
+      - 'Na*'
+      - '*Na*'
+      - 'NA*'
+  
   workflow_dispatch:
 
 jobs:
