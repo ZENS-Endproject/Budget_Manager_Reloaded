@@ -41,6 +41,7 @@ jobs:
                  -backend-config="region=eu-central-1"
                 ip=$(terraform output -raw public_ip)
                 echo "Using IP: $ip"
-                curl --version
+                curl -s -u "${{ secrets.STRD_UN }}:${{ secrets.STRD_PD }}" \
+                  "https://dyndns.strato.com/nic/update?hostname=${{ secrets.STRD_HN }}&myip=${ip}")
              
           
