@@ -1,6 +1,6 @@
 
 # STAGE 1
-FROM node AS builder
+FROM node:22 AS builder
 
 
 WORKDIR /app
@@ -14,8 +14,8 @@ ENV REACT_APP_API_URL=$REACT_APP_API_URL
 COPY . .
 
 RUN npm install
-#RUN npm run build
-RUN NODE_OPTIONS="--localstorage-file=/tmp/localstorage.json" npm run build
+RUN npm run build
+#RUN NODE_OPTIONS="--localstorage-file=/tmp/localstorage.json" npm run build
 EXPOSE 5173
 
 # STAGE 2
