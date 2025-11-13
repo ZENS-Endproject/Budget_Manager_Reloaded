@@ -2,6 +2,10 @@ name: Terraform Add Domain
 
 on:  
   workflow_dispatch:
+    inputs:
+      branch:
+        description: "Name of the branch"
+        required: true  
 
 jobs:
   terraform-add_domain:
@@ -25,8 +29,8 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET_KEY }}
           aws-region: eu-central-1
 
-      # Destroy Terraform resources
-      - name: Destroy Terraform resources
+      # Add domain to IP
+      - name: Add domain to IP
         #working-directory: budget-infra
         run: |
           # Get the branch name from workflow input
