@@ -24,7 +24,7 @@ const AddExpenseForm = () => {
   });
 
   const onSubmit = async (values) => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = localStorage.getItem("user");
     const userId = user?.id;
 
     const payload = {

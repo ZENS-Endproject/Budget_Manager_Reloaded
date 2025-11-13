@@ -8,7 +8,7 @@ import { API_URL } from "../lib/utils";
 import Text from "./Text";
 
 function IncomesNav() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = localStorage.getItem("user");
   const userId = user?.id;
   const [totalExpenses, setTotalExpenses] = useState(null);
   const [totalIncome, setTotalIncome] = useState(null);

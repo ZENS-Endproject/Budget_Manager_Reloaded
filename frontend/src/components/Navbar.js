@@ -7,7 +7,7 @@ import { ModeToggle } from "./ModeToggle";
 import Text from "./Text";
 
 function Navbar() {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = localStorage.getItem("user");
   const user_name = user?.e_mail;
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);

@@ -23,7 +23,7 @@ function MonthlyIncomes() {
   const [error, setError] = useState(null);
   const [showMonthFilter, setShowMonthFilter] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = localStorage.getItem("user");
   const userId = user?.id;
   const navigate = useNavigate();
 
