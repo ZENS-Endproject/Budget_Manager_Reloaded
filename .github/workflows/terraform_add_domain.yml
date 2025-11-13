@@ -24,7 +24,8 @@ jobs:
             - name: Terraform Add Domain
               run: | 
                 # Get the branch name from workflow input
-                BRANCH="${{ github.event.inputs.branch }}"
+                #BRANCH="${{ github.event.inputs.branch }}"
+                BRANCH=${GITHUB_REF##*/}
                 SAFE_BRANCH=$(echo "$BRANCH" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
                 echo "Branch: $SAFE_BRANCH"
 
