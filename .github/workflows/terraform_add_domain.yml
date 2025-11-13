@@ -29,9 +29,10 @@ jobs:
                 BUCKET_NAME="tf-bud-relo-state-bucket-${SAFE_BRANCH}"
                 echo "Using bucket: $BUCKET_NAME"
                 #cd budget-infra
-                ip=$(terraform -chdir=budget-infra output -raw public_ip)
-                echo "Using IP: $ip"
                 terraform init -backend-config="key=infra/${SAFE_BRANCH}/terraform.tfstate"
+                ip=$(terraform output -raw public_ip)
+                echo "Using IP: $ip"
+             
                 # terraform destroy -var "branch_name=${SAFE_BRANCH}" -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve              
 
         
