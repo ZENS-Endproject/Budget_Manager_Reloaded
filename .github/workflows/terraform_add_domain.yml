@@ -34,6 +34,7 @@ jobs:
                 echo "Using S3 bucket: $BUCKET_NAME"
 
                 # Initialize Terraform backend for this branch
+                cd budget-infra
                 terraform init \
                  -backend-config="bucket=$BUCKET_NAME" \
                  -backend-config="key=infra/${SAFE_BRANCH}/terraform.tfstate" \
