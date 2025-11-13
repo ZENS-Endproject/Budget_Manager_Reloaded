@@ -7,12 +7,13 @@ import AddExpenseForm from "./AddExpense";
 import { API_URL } from "../lib/utils";
 import { Button } from "./ui/button";
 import Text from "./Text";
+import { fetchWithAuth } from "../lib/fetchWithAuth";
 
 function ExpensesNav() {
   const navigate = useNavigate();
 
-  // Récupération sécurisée du token et de l'utilisateur
-  const token = localStorage.getItem("token");
+
+  const token = localStorage.getItem("access_token");
   const userId = localStorage.getItem("user");
 
 
@@ -31,11 +32,8 @@ function ExpensesNav() {
 
   const fetchBalance = async () => {
     try {
-      const response = await fetch(`${API_URL}/total_balance/${userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetchWithAuth(`${API_URL}/total_balance/${userId}`, {
+        headers: { "Content-Type": "application/json" },
       });
 
       const data = await response.json();
@@ -58,13 +56,8 @@ function ExpensesNav() {
 
   const handleDownloadPDF = async () => {
     try {
-      const response = await fetch(`${API_URL}/download-expenses/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) throw new Error("Error downloading PDF.");
+      const response = await fetchWithAuth(`${API_URL}/download-expenses/${userId}`);
+      if (!response.ok) throw new Error("Error downloading PDF");
 
       const blob = await response.blob();
       const url = window.URL.createObjectURL(blob);

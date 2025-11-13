@@ -137,7 +137,7 @@ app.get("/callback", async (req, res) => {
     req.session.tokens = tokenSet;
 
     // send token + user React
-    const frontendUrl = `${process.env.FRONTEND_URL}/login-success?user=${encodeURIComponent(userInfo.sub)}&token=${encodeURIComponent(tokenSet.access_token)}`;
+    const frontendUrl = `${process.env.FRONTEND_URL}/login-success?user=${encodeURIComponent(userInfo.sub)}&access_token=${encodeURIComponent(tokenSet.access_token)}&refresh_token=${encodeURIComponent(tokenSet.refresh_token)}&id_token=${encodeURIComponent(tokenSet.id_token)}`;
     res.redirect(frontendUrl);
 
 
@@ -162,6 +162,22 @@ const verifier = CognitoJwtVerifier.create({
   tokenUse: 'access',
   clientId: process.env.COGNITO_CLIENT_ID,
 });
+
+
+app.post("/refresh-token", async (req, res) => {
+  const { refresh_token } = req.body;
+
+  if (!refresh_token) return res.status(400).json({ error: "Missing refresh token" });
+
+  try {
+    const tokenSet = await client.refresh(refresh_token);
+    res.json({ access_token: tokenSet.access_token });
+  } catch (err) {
+    console.error("Refresh token error:", err);
+    res.status(403).json({ error: "Failed to refresh token" });
+  }
+});
+
 
 async function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
