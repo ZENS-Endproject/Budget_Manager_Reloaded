@@ -7,7 +7,7 @@ import { Navigate } from "react-router-dom";
 
 import { API_URL } from "../lib/utils";
 
-const user = JSON.parse(localStorage.getItem("user"));
+const user = localStorage.getItem("user");
 const user_id = user?.id; // ohne Token nur der user
 
 // const chartData = [
@@ -40,7 +40,7 @@ const InExBarChart = () => {
   ]);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    const user = localStorage.getItem("user");
     const user_id = user?.id; // ohne Token nur der user
     if (!user_id) return; // User not logged in || !month) return;
 

@@ -63,7 +63,7 @@ const PieChart = () => {
   const year = watch("year");
   const month = watch("month");
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = localStorage.getItem("user");
   const user_id = user?.id; // ohne Token nur der user
 
   useEffect(() => {
