@@ -5,6 +5,7 @@ const cors = require("cors");
 const { Issuer, generators } = require("openid-client");
 const jwt = require("jsonwebtoken");
 const { Pool } = require("pg");
+const { CognitoJwtVerifier } = require('aws-jwt-verify');
 
 
 const app = express();
@@ -99,7 +100,7 @@ app.get("/login", (req, res) => {
   const state = generators.state();
   req.session.state = state;
 
-  console.log(" Session crée:", req.session);
+  console.log(" Session ceated:", req.session);
 
   const authUrl = client.authorizationUrl({
     scope: "openid email profile",
@@ -134,7 +135,7 @@ app.get("/callback", async (req, res) => {
     req.session.tokens = tokenSet;
 
     // send token + user React
-    const frontendUrl = `${process.env.FRONTEND_URL}/login-success?token=${encodeURIComponent(tokenSet.access_token)}`;
+    const frontendUrl = `${process.env.FRONTEND_URL}/login-success?user=${encodeURIComponent(userInfo.sub)}&token=${encodeURIComponent(tokenSet.access_token)}`;
     res.redirect(frontendUrl);
 
 
@@ -150,12 +151,17 @@ app.get("/session-check", (req, res) => {
   if (req.session.userInfo) {
     return res.json({ loggedIn: true, user: req.session.userInfo });
   } else {
-    return res.json({ loggedIn: false });
+    return res.json({ loggedIn: true });
   }
 });
 
+const verifier = CognitoJwtVerifier.create({
+  userPoolId: process.env.COGNITO_POOL_ID,
+  tokenUse: 'access',
+  clientId: process.env.COGNITO_CLIENT_ID,
+});
 
-function authenticateToken(req, res, next) {
+async function authenticateToken(req, res, next) {
   const authHeader = req.headers["authorization"];
   const token = authHeader && authHeader.split(" ")[1]; // "Bearer <token>"
 
@@ -163,13 +169,14 @@ function authenticateToken(req, res, next) {
     return res.status(401).json({ error: "Missing token" });
   }
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ error: "Invalid token" });
-    }
-    req.user = user;
+  try {
+    const payload = await verifier.verify(token)
+    req.user = payload;
     next();
-  });
+  } catch (err) {
+    console.error("Token verification failed:", err)
+    return res.status(403).json({ error: "Invalid Token" });
+  };
 }
 
 
@@ -181,8 +188,11 @@ app.get("/logout", (req, res) => {
 app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
   const { user_id } = req.params;
   try {
+    const result_id = await pool.query("SELECT user.id from public.users where userInfo.sub = user.cognito_id");
+    console.log("resultat est: ", result_id);
+
     const result = await pool.query(
-      "SELECT expenses.id, expenses.user_id, expenses.amount, expenses.name, expenses.category_id, expenses.date, categories.category FROM public.expenses JOIN public.categories on expenses.category_id = categories.id WHERE expenses.user_id = $1 ORDER BY expenses.date DESC",
+      `SELECT expenses.id, expenses.user_id, expenses.amount, expenses.name, expenses.category_id, expenses.date, categories.category FROM public.expenses JOIN public.categories on expenses.category_id = categories.id WHERE expenses.user_id = ${user_id} AND expenses.user_id = result_id ORDER BY expenses.date DESC`,
       [user_id]
     );
     res.json(result.rows);

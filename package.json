@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "aws-jwt-verifier": "^1.1.0"
+  }
+}

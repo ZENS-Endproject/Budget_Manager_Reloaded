@@ -31,8 +31,8 @@ function MonthlyExpenses() {
   const [columnFilters, setColumnFilters] = useState([]);
   const [showMonthFilter, setShowMonthFilter] = useState(false);
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  const userId = user?.id;
+  const userId = localStorage.getItem("user");
+
   const navigate = useNavigate();
 
   const fetchMonthlyExpenses = async (monthYear = "") => {
@@ -255,11 +255,9 @@ function MonthlyExpenses() {
                     {headerGroup.headers.map((header) => (
                       <TableHead
                         key={header.id}
-                        className={`${
-                          header.column.id === "name" ? "w-[100px]" : ""
-                        } ${
-                          header.column.id === "actions" ? "text-right" : ""
-                        }`}
+                        className={`${header.column.id === "name" ? "w-[100px]" : ""
+                          } ${header.column.id === "actions" ? "text-right" : ""
+                          }`}
                       >
                         {flexRender(
                           header.column.columnDef.header,
@@ -276,9 +274,8 @@ function MonthlyExpenses() {
                     {row.getVisibleCells().map((cell) => (
                       <TableCell
                         key={cell.id}
-                        className={`font-medium ${
-                          cell.column.id === "name" ? "w-[100px]" : ""
-                        } ${cell.column.id === "actions" ? "text-right" : ""}`}
+                        className={`font-medium ${cell.column.id === "name" ? "w-[100px]" : ""
+                          } ${cell.column.id === "actions" ? "text-right" : ""}`}
                       >
                         {flexRender(
                           cell.column.columnDef.cell,

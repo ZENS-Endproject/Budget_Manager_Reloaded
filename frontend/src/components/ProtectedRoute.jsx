@@ -1,7 +1,7 @@
 // src/components/ProtectedRoute.jsx
 import React, { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
-
+import { API_URL } from "../lib/utils";
 export default function ProtectedRoute({ children }) {
     const [loading, setLoading] = useState(true);
     const [loggedIn, setLoggedIn] = useState(false);
@@ -9,7 +9,7 @@ export default function ProtectedRoute({ children }) {
     useEffect(() => {
         const checkSession = async () => {
             try {
-                const res = await fetch("http://localhost:5005/session-check", {
+                const res = await fetch(`${API_URL}/session-check`, {
                     credentials: "include",
                 });
                 const data = await res.json();
