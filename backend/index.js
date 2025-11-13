@@ -50,9 +50,11 @@ const pool = new Pool({
 
 // CORS React
 app.use(cors({
-  origin: "*",
-  credentials: true,
+  origin: "*",  // <-- for testing; restrict later
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
+
 
 
 app.use(express.json());
@@ -193,15 +195,15 @@ app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
       "SELECT id FROM public.users WHERE cognito_id = $1",
       [req.user.sub]
     );
-    const user_cognito_id = result_id.rows[0]?.id;
+    const user_cognito_id = result_id.rows[0].id;
 
     if (!user_cognito_id) {
-      return res.status(404).json({ error: "Utilisateur non trouvé" });
+      return res.status(404).json({ error: "User not found" });
     }
 
 
     if (parseInt(user_id) !== user_cognito_id) {
-      return res.status(403).json({ error: "Accès interdit" });
+      return res.status(403).json({ error: "Access denied" });
     }
 
 
