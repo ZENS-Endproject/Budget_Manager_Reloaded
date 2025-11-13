@@ -50,11 +50,11 @@ const pool = new Pool({
 
 // CORS React
 app.use(cors({
-  origin: "*",  // <-- for testing; restrict later
+  origin: 'http://3.65.218.55:3000',
   methods: ["GET", "POST", "PUT", "DELETE"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
 }));
-
 
 
 app.use(express.json());
