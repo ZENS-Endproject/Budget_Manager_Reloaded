@@ -41,5 +41,6 @@ jobs:
                  -backend-config="region=eu-central-1"
                 ip=$(terraform output -raw public_ip)
                 echo "Using IP: $ip"
+                curl --version
              
           
