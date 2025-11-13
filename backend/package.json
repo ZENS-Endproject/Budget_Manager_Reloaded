@@ -13,6 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-cognito-identity-provider": "^3.930.0",
     "@faker-js/faker": "^9.8.0",
+    "aws-jwt-verify": "^5.1.1",
     "bcryptjs": "^3.0.2",
     "c": "^1.1.1",
     "cors": "^2.8.5",
