@@ -6,6 +6,9 @@ import logo from "../assets/header/logo.png";
 import lang from "../assets/header/lang.png";
 import moon from "../assets/header/moon.png";
 import power from "../assets/header/power.png";
+import { Link } from "react-router-dom";
+import sun from "../assets/header/sun.png";
+
 
 const LightWave = () => (
   <div className="absolute inset-0 pointer-events-none select-none header-wave">
@@ -111,20 +114,50 @@ export default function Header({ onToggleSidebar }) {
         {resolvedTheme === "dark" ? <DarkWave /> : <LightWave />}
       </div>
 
-      {/* Inhalte */}
-      <div className="relative z-10 pl-16 h-full">
-        <div className="mx-auto flex h-full items-center justify-start gap-2 px-3">
-          <img src={logo} alt="Logo" className="w-14 h-14 hover:scale-105 transition logo-light" />
-          <img src={lang} alt="Language" className="w-14 h-14 hover:scale-105 transition" />
-          <img
-            src={moon}
-            alt="Toggle dark mode"
-            className="w-14 h-14 hover:scale-105 transition cursor-pointer"
-            onClick={toggleTheme}
-          />
-          <img src={power} alt="Power" className="w-14 h-14 hover:scale-105 transition" />
-        </div>
-      </div>
+            {/* Inhalte */}
+            <div className="relative z-10 h-full px-20">
+              <div className="mx-auto flex h-full items-center justify-between">
+
+                {/* LEFT: LOGO */}
+                <div className="flex items-center">
+                  <Link to="/">
+                    <img
+                      src={logo}
+                      alt="Logo"
+                      className="h-20 w-20 object-contain cursor-pointer hover:scale-105 transition"
+                    />
+                  </Link>
+                </div>
+
+                {/* RIGHT: ICONS — ORIGINAL SIZE, NO BACKGROUND, NO CIRCLES */}
+                <div className="flex items-center gap-8">
+
+                  {/* LANGUAGE ICON */}
+                  <button className="flex items-center justify-center hover:opacity-80 transition">
+                    <img src={lang} alt="Language" className="h-14 w-14 object-contain" />
+                  </button>
+
+                  {/* DARKMODE ICON */}
+                  <button
+                    onClick={toggleTheme}
+                    className="flex items-center justify-center hover:opacity-80 transition cursor-pointer"
+                  >
+                    <img
+                      src={resolvedTheme === "dark" ? sun : moon}
+                      alt="Theme toggle"
+                      className="h-14 w-14 object-contain"
+                    />
+                  </button>
+
+                  {/* LOGOUT ICON */}
+                  <button className="flex items-center justify-center hover:opacity-80 transition">
+                    <img src={power} alt="Logout" className="h-14 w-14 object-contain" />
+                  </button>
+
+                </div>
+              </div>
+            </div>
+
     </header>
   );
 }

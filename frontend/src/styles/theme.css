@@ -71,3 +71,53 @@ header {
 .dark .app-sidebar > * {
   background-color: transparent;
 }
+
+/* ==== Surfaces for About page ==== */
+:root {
+  --surface: rgba(255,255,255,0.70);
+  --surface-strong: rgba(255,255,255,0.80);
+  --border: rgba(0,0,0,0.05);
+  --muted: rgba(10,74,86,0.90);
+  --chip-bg: rgba(10,74,86,0.10);
+  --chip-border: rgba(10,74,86,0.20);
+}
+
+.dark {
+  --surface: rgba(255,255,255,0.06);
+  --surface-strong: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.12);
+  --muted: rgba(232,239,239,0.90);
+  --chip-bg: rgba(232,239,239,0.10);
+  --chip-border: rgba(232,239,239,0.25);
+}
+
+/* Inputs & Textareas – exakt wie Team-Cards */
+input, textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  transition: background-color .3s ease, color .3s ease, border-color .3s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text);
+  opacity: .55;
+}
+
+button.contact-btn {
+  background: var(--chip-bg);
+  color: var(--text);
+  border: 1px solid var(--chip-border);
+  border-radius: 12px;
+  padding: 10px 20px;
+  transition: background-color .3s ease, border-color .3s ease;
+}
+
+button.contact-btn:hover {
+  background: var(--chip-border);
+}

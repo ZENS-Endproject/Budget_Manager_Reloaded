@@ -30,3 +30,14 @@
 .logo-light { display: block; }
 .dark .logo-dark { display: block; }
 .dark .logo-light { display: none; }
+
+/* Remove browser focus border for icon buttons */
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
