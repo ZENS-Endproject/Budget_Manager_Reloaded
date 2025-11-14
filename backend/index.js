@@ -47,10 +47,10 @@ const pool = new Pool({
 // };
 
 // createTable();
-
+const URL_Cors = 'process.env.FRONTEND_URL'
 // CORS React
 app.use(cors({
-  origin: ['process.env.FRONTEND_URL:3000', 'process.env.FRONTEND_URL'],
+  origin: URL_Cors,
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
