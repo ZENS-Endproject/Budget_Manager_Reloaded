@@ -51,7 +51,9 @@ const URL_Cors = process.env.FRONTEND_URL;
 
 // CORS React
 app.use(cors({
-  origin: ['http://3.65.218.55', 'http://3.65.218.55:3000'],
+  origin: (origin, callback) => {
+    callback(null, true);
+  },
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
