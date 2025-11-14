@@ -131,9 +131,24 @@ app.get("/callback", async (req, res) => {
     });
 
 
-    console.log("tokenSet:", tokenSet);
     const userInfo = await client.userinfo(tokenSet.access_token);
-    console.log("userInfo:", userInfo);
+
+    // --- INSERT OU UPDATE USER DANS RDS ---
+    const { sub: cognito_id, email, name } = userInfo;
+
+    const result = await pool.query(
+      `INSERT INTO public.users (name, e_mail, cognito_id)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (cognito_id) DO UPDATE
+       SET name = EXCLUDED.name,
+           e_mail = EXCLUDED.e_mail
+       RETURNING id`,
+      [name || "Unknown", email || "unknown@example.com", cognito_id]
+    );
+
+    const user_db_id = result.rows[0].id;
+
+    console.log("User inserted/updated in RDS:", user_db_id);
 
     //registration session
     req.session.userInfo = userInfo;
