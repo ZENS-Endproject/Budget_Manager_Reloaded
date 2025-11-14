@@ -12,6 +12,7 @@ export default function ProtectedRoute({ children }) {
                 const res = await fetch(`${API_URL}/session-check`, {
                     credentials: "include",
                 });
+                if (!res.ok) throw new Error("Session check failed");
                 const data = await res.json();
                 setLoggedIn(data.loggedIn);
             } catch (err) {
