@@ -170,7 +170,7 @@ CREATE TABLE public.users (
     name character varying(50) NOT NULL,
     password character varying(255) NOT NULL,
     e_mail character varying(100) NOT NULL,
-    cognito_id character varying(200)
+    cognito_id character varying(200) NOT NULL
 );
 
 
