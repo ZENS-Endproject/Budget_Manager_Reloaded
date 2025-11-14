@@ -64,14 +64,16 @@ function MonthlyExpenses() {
 
   const fetchMonthlyExpensesSum = async () => {
     const token = localStorage.getItem("token");
+    const accessToken = localStorage.getItem("access_token");
     try {
       const response = await fetch(
         `${API_URL}/monthly_expenses/sum/${userId}`,
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${accessToken}`,
           },
+          credentials: "include",
         }
       );
       if (!response.ok) {
