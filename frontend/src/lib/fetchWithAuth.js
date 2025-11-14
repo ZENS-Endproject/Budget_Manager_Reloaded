@@ -1,17 +1,14 @@
 import { API_URL } from "../lib/utils";
 
-
 async function getValidToken() {
-    let token = localStorage.getItem("access_token");
     const refreshToken = localStorage.getItem("refresh_token");
-
-    if (!token) return null;
-
+    if (!refreshToken) return null;
 
     const response = await fetch(`${API_URL}/refresh-token`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ refresh_token: refreshToken }),
+        credentials: "include",
     });
 
     if (!response.ok) {
@@ -26,20 +23,24 @@ async function getValidToken() {
     return data.access_token;
 }
 
-// Wrapper fetch
 export async function fetchWithAuth(url, options = {}) {
     let token = localStorage.getItem("access_token");
 
-    if (!options.headers) options.headers = {};
-    options.headers["Authorization"] = `Bearer ${token}`;
+    options.headers = {
+        ...(options.headers || {}),
+        "Authorization": `Bearer ${token}`
+    };
+
+    options.credentials = "include";
 
     let response = await fetch(url, options);
 
-    if (response.status === 403) {
-        token = await getValidToken();
-        if (!token) throw new Error("Session expired");
 
-        options.headers["Authorization"] = `Bearer ${token}`;
+    if (response.status === 401 || response.status === 403) {
+        const newToken = await getValidToken();
+        if (!newToken) throw new Error("Session expired");
+
+        options.headers["Authorization"] = `Bearer ${newToken}`;
         response = await fetch(url, options);
     }
 
