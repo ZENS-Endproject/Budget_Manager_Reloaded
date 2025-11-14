@@ -51,7 +51,7 @@ const URL_Cors = process.env.FRONTEND_URL;
 
 // CORS React
 app.use(cors({
-  origin: URL_Cors,
+  origin: ['http://3.65.218.55', 'http://3.65.218.55:3000'],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
@@ -208,7 +208,7 @@ app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
   try {
 
     const result_id = await pool.query(
-      "SELECT id FROM public.users WHERE cognito_id = $1",
+      "SELECT users.id FROM public.users WHERE cognito_id = $1",
       [req.user.sub]
     );
     const user_cognito_id = result_id.rows[0].id;
@@ -218,7 +218,7 @@ app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
     }
 
 
-    if (parseInt(user_id) !== user_cognito_id) {
+    if (user_id !== user_cognito_id) {
       return res.status(403).json({ error: "Access denied" });
     }
 

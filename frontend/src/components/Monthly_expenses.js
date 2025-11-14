@@ -20,6 +20,8 @@ import {
 } from "@tanstack/react-table";
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
+import { fetchWithAuth } from "../lib/fetchWithAuth";
+
 
 function MonthlyExpenses() {
   const [expenses, setExpenses] = useState([]);
@@ -36,17 +38,14 @@ function MonthlyExpenses() {
   const navigate = useNavigate();
 
   const fetchMonthlyExpenses = async (monthYear = "") => {
-    const token = localStorage.getItem("token");
+    //const token = localStorage.getItem("token");
     const url = monthYear
       ? `${API_URL}/monthly_expenses/${userId}/search?monthYear=${monthYear}`
       : `${API_URL}/monthly_expenses/${userId}`;
 
     try {
-      const response = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+      const response = await fetchWithAuth(url, {
+        headers: { "Content-Type": "application/json" },
       });
 
       if (!response.ok) {
@@ -55,31 +54,23 @@ function MonthlyExpenses() {
 
       const data = await response.json();
       setExpenses(data);
-      setLoading(false);
+      //setLoading(false);
     } catch (err) {
       setError(err.message);
+    } finally {
       setLoading(false);
     }
   };
 
   const fetchMonthlyExpensesSum = async () => {
-    const token = localStorage.getItem("token");
-    const accessToken = localStorage.getItem("access_token");
     try {
-      const response = await fetch(
-        `${API_URL}/monthly_expenses/sum/${userId}`,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${accessToken}`,
-          },
-          credentials: "include",
-        }
-      );
+      const response = await fetchWithAuth(`${API_URL}/monthly_expenses/sum/${userId}`, {
+        headers: { "Content-Type": "application/json" },
+      });
+
       if (!response.ok) {
         throw new Error("Failed to fetch sum");
       }
-
       const data = await response.json();
       setMonthlySum(data.totalMonthlyExpenses || 0);
     } catch (err) {
@@ -93,15 +84,10 @@ function MonthlyExpenses() {
     );
     if (!confirmed) return;
 
-    const token = localStorage.getItem("token");
-
     try {
-      const res = await fetch(`${API_URL}/monthly_expenses/${userId}/${id}`, {
+      const res = await fetchWithAuth(`${API_URL}/monthly_expenses/${userId}/${id}`, {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers: { "Content-Type": "application/json" },
       });
 
       if (!res.ok) {
@@ -111,7 +97,6 @@ function MonthlyExpenses() {
 
       setExpenses((prev) => prev.filter((e) => e.id !== id));
       fetchMonthlyExpensesSum();
-      window.location.reload();
     } catch (err) {
       alert("Failed to delete: " + err.message);
     }
