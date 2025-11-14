@@ -204,35 +204,73 @@ app.get("/logout", (req, res) => {
   req.session.destroy(() => res.redirect(process.env.FRONTEND_URL));
 });
 
+app.get("/expenses", (req, res) => {
+  res.json({ message: "Expenses route works!" });
+});
+// app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
+//   const { user_id } = req.params; // ID venant de l'URL
+//   try {
+//     // Récupérer l'ID numérique à partir du Cognito token
+//     const result_id = await pool.query(
+//       "SELECT id FROM public.users WHERE cognito_id = $1",
+//       [req.user.sub]
+//     );
 
+//     if (!result_id.rows.length) {
+//       return res.status(404).json({ error: "User not found" });
+//     }
+
+//     const user_cognito_id = result_id.rows[0].id;
+
+//     // Comparer correctement l'ID URL (string) avec l'ID numérique
+//     if (parseInt(user_id) !== user_cognito_id) {
+//       return res.status(403).json({ error: "Access denied" });
+//     }
+
+//     // Récupérer les dépenses
+//     const result = await pool.query(
+//       `SELECT expenses.id, expenses.user_id, expenses.amount, expenses.name, expenses.category_id, expenses.date, categories.category
+//        FROM public.expenses
+//        JOIN public.categories ON expenses.category_id = categories.id
+//        WHERE expenses.user_id = $1
+//        ORDER BY expenses.date DESC`,
+//       [user_cognito_id]
+//     );
+
+//     res.json(result.rows);
+//   } catch (err) {
+//     console.error("Error while fetching the Expenses:", err);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// });
 app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
-  const { user_id } = req.params; // ID venant de l'URL
+  const { user_id } = req.params; // ici on attend le cognito_id
   try {
-    // Récupérer l'ID numérique à partir du Cognito token
+
+    if (user_id !== req.user.sub) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+
     const result_id = await pool.query(
       "SELECT id FROM public.users WHERE cognito_id = $1",
-      [req.user.sub]
+      [user_id]
     );
 
     if (!result_id.rows.length) {
       return res.status(404).json({ error: "User not found" });
     }
 
-    const user_cognito_id = result_id.rows[0].id;
+    const user_db_id = result_id.rows[0].id;
 
-    // Comparer correctement l'ID URL (string) avec l'ID numérique
-    if (parseInt(user_id) !== user_cognito_id) {
-      return res.status(403).json({ error: "Access denied" });
-    }
 
-    // Récupérer les dépenses
     const result = await pool.query(
       `SELECT expenses.id, expenses.user_id, expenses.amount, expenses.name, expenses.category_id, expenses.date, categories.category
        FROM public.expenses
        JOIN public.categories ON expenses.category_id = categories.id
        WHERE expenses.user_id = $1
        ORDER BY expenses.date DESC`,
-      [user_cognito_id]
+      [user_db_id]
     );
 
     res.json(result.rows);
@@ -1261,6 +1299,7 @@ app.get(
   authenticateToken,
   async (req, res) => {
     const { user_id } = req.params;
+
     const currentDate = new Date();
     const currentMonth = currentDate.getMonth() + 1; // janvier = 0
     const currentYear = currentDate.getFullYear();
