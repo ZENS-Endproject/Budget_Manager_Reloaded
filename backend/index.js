@@ -47,7 +47,8 @@ const pool = new Pool({
 // };
 
 // createTable();
-const URL_Cors = 'process.env.FRONTEND_URL'
+const URL_Cors = process.env.FRONTEND_URL;
+
 // CORS React
 app.use(cors({
   origin: URL_Cors,
@@ -69,7 +70,7 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: true,
+    secure: false,
     sameSite: "none",
     httpOnly: true,
   },
@@ -85,7 +86,7 @@ async function initializeClient() {
   client = new issuer.Client({
     client_id: process.env.COGNITO_CLIENT_ID,
     client_secret: process.env.COGNITO_CLIENT_SECRET,
-    redirect_uris: [process.env.BACKEND_URL + "/callback"],
+    redirect_uris: [`${process.env.BACKEND_URL}/callback`],
     response_types: ["code"],
   });
 
@@ -153,7 +154,7 @@ app.get("/session-check", (req, res) => {
   if (req.session.userInfo) {
     return res.json({ loggedIn: true, user: req.session.userInfo });
   } else {
-    return res.json({ loggedIn: true });
+    return res.json({ loggedIn: false });
   }
 });
 
@@ -163,20 +164,6 @@ const verifier = CognitoJwtVerifier.create({
   clientId: process.env.COGNITO_CLIENT_ID,
 });
 
-
-app.post("/refresh-token", async (req, res) => {
-  const { refresh_token } = req.body;
-
-  if (!refresh_token) return res.status(400).json({ error: "Missing refresh token" });
-
-  try {
-    const tokenSet = await client.refresh(refresh_token);
-    res.json({ access_token: tokenSet.access_token });
-  } catch (err) {
-    console.error("Refresh token error:", err);
-    res.status(403).json({ error: "Failed to refresh token" });
-  }
-});
 
 
 async function authenticateToken(req, res, next) {
@@ -197,6 +184,19 @@ async function authenticateToken(req, res, next) {
   };
 }
 
+app.post("/refresh-token", async (req, res) => {
+  const { refresh_token } = req.body;
+
+  if (!refresh_token) return res.status(400).json({ error: "Missing refresh token" });
+
+  try {
+    const tokenSet = await client.refresh(refresh_token);
+    res.json({ access_token: tokenSet.access_token });
+  } catch (err) {
+    console.error("Refresh token error:", err);
+    res.status(403).json({ error: "Failed to refresh token" });
+  }
+});
 
 app.get("/logout", (req, res) => {
   req.session.destroy(() => res.redirect(process.env.FRONTEND_URL));
