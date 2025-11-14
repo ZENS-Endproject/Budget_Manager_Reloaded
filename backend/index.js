@@ -246,7 +246,7 @@ app.get("/expenses", (req, res) => {
 // });
 app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
   const { user_id } = req.params; // ici on attend le cognito_id
-  res.json({ id_cognito: req.user.sub })
+
   try {
 
     if (user_id !== req.user.sub) {
