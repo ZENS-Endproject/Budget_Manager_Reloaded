@@ -208,23 +208,24 @@ app.get("/logout", (req, res) => {
 app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
   const { user_id } = req.params; // ID venant de l'URL
   try {
-
+    // Récupérer l'ID numérique à partir du Cognito token
     const result_id = await pool.query(
-      "SELECT users.id FROM public.users WHERE cognito_id = $1",
+      "SELECT id FROM public.users WHERE cognito_id = $1",
       [req.user.sub]
     );
-    const user_cognito_id = result_id.rows[0].id;
 
-    if (!user_cognito_id) {
+    if (!result_id.rows.length) {
       return res.status(404).json({ error: "User not found" });
     }
 
+    const user_cognito_id = result_id.rows[0].id;
 
-    if (user_id !== user_cognito_id) {
+    // Comparer correctement l'ID URL (string) avec l'ID numérique
+    if (parseInt(user_id) !== user_cognito_id) {
       return res.status(403).json({ error: "Access denied" });
     }
 
-
+    // Récupérer les dépenses
     const result = await pool.query(
       `SELECT expenses.id, expenses.user_id, expenses.amount, expenses.name, expenses.category_id, expenses.date, categories.category
        FROM public.expenses
@@ -240,6 +241,7 @@ app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
 
 app.get("/expenses/:user_id/search", authenticateToken, async (req, res) => {
   const { user_id } = req.params;
