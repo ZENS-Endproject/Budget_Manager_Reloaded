@@ -178,6 +178,7 @@ async function authenticateToken(req, res, next) {
 
   try {
     const payload = await verifier.verify(token)
+    console.log("Token payload:", payload);
     req.user = payload;
     next();
   } catch (err) {
@@ -245,6 +246,7 @@ app.get("/expenses", (req, res) => {
 // });
 app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
   const { user_id } = req.params; // ici on attend le cognito_id
+  res.json({ id_cognito: req.user.sub })
   try {
 
     if (user_id !== req.user.sub) {
@@ -273,8 +275,10 @@ app.get("/expenses/:user_id", authenticateToken, async (req, res) => {
       [user_db_id]
     );
 
-    res.json(result.rows);
-  } catch (err) {
+    return res.json(result.rows);
+  }
+
+  catch (err) {
     console.error("Error while fetching the Expenses:", err);
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -363,13 +367,33 @@ app.delete("/expenses/:id_user/:id", authenticateToken, async (req, res) => {
 
 app.get("/monthly_expenses/:user_id", authenticateToken, async (req, res) => {
   const { user_id } = req.params;
+
   try {
-    const result = await pool.query(
-      "SELECT monthly_expenses.id, monthly_expenses.user_id, monthly_expenses.amount, monthly_expenses.name, monthly_expenses.category_id, categories.category, monthly_expenses.date_start, monthly_expenses.date_end FROM public.monthly_expenses JOIN public.categories on monthly_expenses.category_id = categories.id WHERE monthly_expenses.user_id = $1",
+
+    if (user_id !== req.user.sub) {
+      return res.status(403).json({ error: "Access denied" });
+    }
+
+    const result_id = await pool.query(
+      "SELECT id FROM public.users WHERE cognito_id = $1",
       [user_id]
     );
-    res.json(result.rows);
-  } catch (err) {
+    if (!result_id.rows.length) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    const user_db_id = result_id.rows[0].id;
+    try {
+      const result = await pool.query(
+        "SELECT monthly_expenses.id, monthly_expenses.user_id, monthly_expenses.amount, monthly_expenses.name, monthly_expenses.category_id, categories.category, monthly_expenses.date_start, monthly_expenses.date_end FROM public.monthly_expenses JOIN public.categories on monthly_expenses.category_id = categories.id WHERE monthly_expenses.user_id = $1",
+        [user_db_id]
+      );
+      res.json(result.rows);
+    } catch (err) {
+      console.error("Error while fetching monthly Expenses:", err);
+      res.status(500).json({ error: "Internal  Server Error" });
+    }
+  }
+  catch (err) {
     console.error("Error while fetching monthly Expenses:", err);
     res.status(500).json({ error: "Internal  Server Error" });
   }
