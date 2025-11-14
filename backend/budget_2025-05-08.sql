@@ -169,7 +169,8 @@ CREATE TABLE public.users (
     id integer NOT NULL,
     name character varying(50) NOT NULL,
     password character varying(255) NOT NULL,
-    e_mail character varying(100) NOT NULL
+    e_mail character varying(100) NOT NULL,
+    cognito_id character varying(200)
 );
 
 
@@ -447,8 +448,7 @@ COPY public.monthly_incomes (id, user_id, amount, name, date_start, date_end) FR
 --
 
 COPY public.users (id, name, password, e_mail) FROM stdin;
-1	Tina	$2b$10$Ymn6UXMleQg2Qq7DNVnuceq4xQu2R4k9pFSGza95eC/owqmqpy50y	tina@zens.de
-2	Kris	$2b$10$Mo2FS.cIGSe7xyEA98mfFe2h0m8DLf1IqhuzTKxrVElhAkxsyMNPy	kris@zens.de
+1	Tina	$2b$10$Ymn6UXMleQg2Qq7DNVnuceq4xQu2R4k9pFSGza95eC/owqmqpy50y	tina@zens.de	d35428c2-a071-70e7-7d4c-33715a254a11
 \.
 
 -- 1	Tina	Tina1234	tina@zens.de
