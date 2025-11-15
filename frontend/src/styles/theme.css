@@ -1,7 +1,12 @@
 /* ==== Light / Default ==== */
 :root {
   --bg: #FEFEEF;
+  --bg-white: #E8EFEF;
   --text: #0A4A56;
+  --text-blue: #02586E;
+  --text-black: #000000;
+  --button-blue: 2, 88, 110;
+  --button-yellow: 249, 190, 40;
   --header-bg: #FEFEEF;   /* bleibt hell */
   --sidebar-bg: #FEFEEF;
   --hover: rgba(4,137,169,0.10);
@@ -11,7 +16,12 @@
 /* ==== Dark Mode (dunkles Blau) ==== */
 .dark {
   --bg: #071822;
+  --bg-white: #0A4A56;
   --text: #E8EFEF;
+  --text-blue: #FEFEEF;
+  --text-black: #E8EFEF;
+  --button-blue: 2, 88, 110;
+  --button-yellow: 249, 190, 40;
   --header-bg: #061520;   /* <-- dunkler Header */
   --sidebar-bg: #0A2530;
   --hover: rgba(255,255,255,0.05);

@@ -10,6 +10,9 @@ import ChartDataLabels from "chartjs-plugin-datalabels"; // Import the plugin
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
 
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
+
 ChartJS.register(ArcElement, Tooltip, Legend, Title, ChartDataLabels);
 const token = localStorage.getItem("token");
 const options = {
@@ -49,7 +52,7 @@ const PieChart = () => {
   const now = new Date();
   const currentYear = now.getFullYear().toString();
   const currentMonth = (now.getMonth() + 1).toString();
-
+  const { t } = useTranslation();
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [
@@ -135,14 +138,14 @@ const PieChart = () => {
   return (
     <>
       <Text variant="subtitleBlue">
-        Expenses by Category - {year}-{formattedMonth}
+        {t("expensesByCategory")} - {year}-{formattedMonth}
       </Text>
       <br />
       <div style={styles.chartBox}>
         <Form className="">
           <div className="flex justify-between gap-8">
             <FormLabel>
-              <Text variant="bodyBlack">Year</Text>
+              <Text variant="bodyBlack">{t("year")}</Text>
             </FormLabel>
             <FormControl>
               <Input
@@ -158,7 +161,7 @@ const PieChart = () => {
           <br />
           <div className="flex justify-between gap-8">
             <FormLabel>
-              <Text variant="bodyBlack">Month</Text>
+              <Text variant="bodyBlack">{t("month")}</Text>
             </FormLabel>
             <FormControl>
               <div className="h-[25px] w-[120px]">
@@ -167,18 +170,18 @@ const PieChart = () => {
                   defaultValue={currentMonth}
                   className="hover:bg-[#02586E]/10 text-[10pt] shadow"
                 >
-                  <SelectItem value="1">January</SelectItem>
-                  <SelectItem value="2">February</SelectItem>
-                  <SelectItem value="3">March</SelectItem>
-                  <SelectItem value="4">April</SelectItem>
-                  <SelectItem value="5">May</SelectItem>
-                  <SelectItem value="6">June</SelectItem>
-                  <SelectItem value="7">July</SelectItem>
-                  <SelectItem value="8">August</SelectItem>
-                  <SelectItem value="9">September</SelectItem>
-                  <SelectItem value="10">October</SelectItem>
-                  <SelectItem value="11">November</SelectItem>
-                  <SelectItem value="12">December</SelectItem>
+                  <SelectItem value="1">{t("january")}</SelectItem>
+                  <SelectItem value="2">{t("february")}</SelectItem>
+                  <SelectItem value="3">{t("march")}</SelectItem>
+                  <SelectItem value="4">{t("april")}</SelectItem>
+                  <SelectItem value="5">{t("may")}</SelectItem>
+                  <SelectItem value="6">{t("june")}</SelectItem>
+                  <SelectItem value="7">{t("july")}</SelectItem>
+                  <SelectItem value="8">{t("august")}</SelectItem>
+                  <SelectItem value="9">{t("september")}</SelectItem>
+                  <SelectItem value="10">{t("october")}</SelectItem>
+                  <SelectItem value="11">{t("november")}</SelectItem>
+                  <SelectItem value="12">{t("december")}</SelectItem>
                 </Select>
               </div>
             </FormControl>

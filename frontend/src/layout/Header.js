@@ -1,5 +1,6 @@
 import React from "react";
 import { useTheme } from "next-themes";
+import { useTranslation } from "react-i18next";
 
 // Icons
 import logo from "../assets/header/logo.png";
@@ -9,7 +10,14 @@ import power from "../assets/header/power.png";
 
 export default function Header({ onToggleSidebar }) {
   const { resolvedTheme, setTheme } = useTheme();
-  const toggleTheme = () => setTheme(resolvedTheme === "dark" ? "light" : "dark");
+  const toggleTheme = () =>
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+
+  const { i18n } = useTranslation();
+  const toggleLanguage = () => {
+    const newLanguage = i18n.language === "en" ? "de" : "en";
+    i18n.changeLanguage(newLanguage);
+  };
 
   return (
     <header
@@ -71,15 +79,33 @@ export default function Header({ onToggleSidebar }) {
       {/* Inhalte */}
       <div className="relative z-10 pl-16 h-full">
         <div className="mx-auto flex h-full items-center justify-start gap-2 px-3">
-          <img src={logo} alt="Logo" className="w-14 h-14 hover:scale-105 transition logo-light" />
-          <img src={lang} alt="Language" className="w-14 h-14 hover:scale-105 transition" />
+          <img
+            src={logo}
+            alt="Logo"
+            className="w-14 h-14 hover:scale-105 transition logo-light"
+          />
+          <img
+            src={lang}
+            alt="Language"
+            className="w-14 h-14 hover:scale-105 transition cursor-pointer"
+            onClick={toggleLanguage}
+            title={
+              i18n.language === "de"
+                ? "Switch to English"
+                : "Auf Deutsch wechseln"
+            }
+          />
           <img
             src={moon}
             alt="Toggle dark mode"
             className="w-14 h-14 hover:scale-105 transition cursor-pointer"
             onClick={toggleTheme}
           />
-          <img src={power} alt="Power" className="w-14 h-14 hover:scale-105 transition" />
+          <img
+            src={power}
+            alt="Power"
+            className="w-14 h-14 hover:scale-105 transition"
+          />
         </div>
       </div>
     </header>

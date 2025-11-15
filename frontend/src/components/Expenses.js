@@ -25,7 +25,8 @@ import { API_URL } from "../lib/utils";
 import Text from "./Text";
 import App from "../App";
 import AddExpenseForm from "./AddExpenseOnce";
-
+import { useTranslation } from "react-i18next";
+import i18next from "../locales/i18n";
 function Expenses() {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +39,7 @@ function Expenses() {
   const userId = user?.id;
   const navigate = useNavigate();
   const [showMonthFilter, setShowMonthFilter] = useState(false);
+  const { t } = useTranslation();
 
   const fetchExpenses = async (monthYear = "") => {
     const token = localStorage.getItem("token");
@@ -79,9 +81,7 @@ function Expenses() {
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Do you really want to delete this entry?"
-    );
+    const confirmed = window.confirm(t("deleteEntry"));
     if (!confirmed) return;
     const token = localStorage.getItem("token");
     try {
@@ -115,11 +115,13 @@ function Expenses() {
   const columns = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("name"),
     },
     {
       accessorKey: "amount",
-      header: () => <span className="text-right w-full block">Price</span>,
+      header: () => (
+        <span className="text-right w-full block">{t("price")}</span>
+      ),
       cell: ({ row }) => (
         <span className="text-right w-full block">
           {parseFloat(row.getValue("amount")).toFixed(2)} €
@@ -128,11 +130,11 @@ function Expenses() {
     },
     {
       accessorKey: "category",
-      header: "Category",
+      header: t("category"),
     },
     {
       accessorKey: "date",
-      header: "Date",
+      header: t("date"),
       cell: ({ row }) => {
         const rawDate = row.getValue("date");
         const date = new Date(rawDate);
@@ -141,7 +143,7 @@ function Expenses() {
     },
     {
       id: "actions",
-      header: "Actions",
+      header: t("actions"),
       cell: ({ row }) => {
         const expense = row.original;
         return (
@@ -154,10 +156,10 @@ function Expenses() {
               }
               className="button"
             >
-              <Text variant="bodyBlack">Edit</Text>
+              <Text variant="bodyBlack">{t("edit")}</Text>
             </Button>
             <Button onClick={() => handleDelete(expense.id)} className="button">
-              <Text variant="bodyBlack">Delete</Text>
+              <Text variant="bodyBlack">{t("delete")}</Text>
             </Button>
           </div>
         );
@@ -182,7 +184,9 @@ function Expenses() {
 
   return (
     <>
-      <Text variant="subtitleBlue">One-time expenses {selectedMonthYear}</Text>
+      <Text variant="subtitleBlue">
+        {t("oneTimeExpenses")} {selectedMonthYear}
+      </Text>
 
       <AddExpenseForm />
 
@@ -191,14 +195,14 @@ function Expenses() {
         className="button mb-2"
       >
         <Text variant="bodyBlack">
-          {showMonthFilter ? "Hide filter" : "Filter by Month"}
+          {showMonthFilter ? t("hideFilter") : t("filterByMonth")}
         </Text>
       </Button>
 
       {showMonthFilter && (
         <div className="max-w-sm mx-auto">
           <FormItem>
-            <FormLabel>Select Month</FormLabel>
+            <FormLabel>{t("selectMonth")}</FormLabel>
             <FormControl>
               <Input
                 type="month"
@@ -219,12 +223,12 @@ function Expenses() {
             }}
             className="button my-2"
           >
-            <Text variant="bodyBlack">Reset filter</Text>
+            <Text variant="bodyBlack">{t("resetFilter")}</Text>
           </Button>
         </div>
       )}
 
-      {loading && <p className="text-center">Loading expenses...</p>}
+      {loading && <p className="text-center">{t("loadingExpenses")}</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
       {!loading && !error && (
@@ -267,7 +271,7 @@ function Expenses() {
                     <TableCell>
                       <Text variant="bodyBlue">
                         <strong>
-                          Total one-time expenses for {selectedMonthYear}
+                          {t("totalOneTimeExpenses")} - {selectedMonthYear}
                         </strong>
                       </Text>
                     </TableCell>
@@ -292,14 +296,14 @@ function Expenses() {
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              <Text variant="smallBlack">Previous</Text>
+              <Text variant="smallBlack">{t("previous")}</Text>
             </Button>
             <Button
               className="button-prevnext"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
-              <Text variant="smallBlack">Next</Text>
+              <Text variant="smallBlack">{t("next")}</Text>
             </Button>
           </div>
         </div>
