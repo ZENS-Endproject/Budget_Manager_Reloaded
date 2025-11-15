@@ -8,8 +8,11 @@ import { Select, SelectItem } from "./ui/select";
 
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 
 const AddIncomeForm = () => {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   // const [type, setType] = useState("once");
 
@@ -63,7 +66,7 @@ const AddIncomeForm = () => {
         window.location.reload();
       } else {
         const data = await res.json();
-        alert("Fehler: " + data.error);
+        alert("Error: " + data.error);
       }
     } catch (err) {
       console.error("Error:", err);
@@ -75,7 +78,7 @@ const AddIncomeForm = () => {
     <div className="my-2">
       <Button onClick={() => setShowForm(!showForm)} className="button">
         <Text variant="bodyBlack">
-          {showForm ? "Close form" : "Add new regular income"}
+          {showForm ? t("closeForm") : t("addNewRegularIncome")}
         </Text>
       </Button>
 
@@ -92,7 +95,7 @@ const AddIncomeForm = () => {
           </FormItem> */}
           <Text variant="smallBlack">
             <FormItem>
-              <FormLabel>Name</FormLabel>
+              <FormLabel>{t("name")}</FormLabel>
               <FormControl>
                 <Input
                   className="font-voces text-xs text-black"
@@ -103,7 +106,7 @@ const AddIncomeForm = () => {
             </FormItem>
 
             <FormItem>
-              <FormLabel>Amount (€)</FormLabel>
+              <FormLabel>{t("price")} (€)</FormLabel>
               <FormControl>
                 <Input
                   type="number"
@@ -124,14 +127,14 @@ const AddIncomeForm = () => {
             )} */}
 
             <FormItem>
-              <FormLabel>Start date</FormLabel>
+              <FormLabel>{t("dateStart")}</FormLabel>
               <FormControl>
                 <Input type="month" {...register("date_start")} required />
               </FormControl>
             </FormItem>
           </Text>
           <Button type="submit" className="button mt-2">
-            <Text variant="bodyBlack">Save</Text>
+            <Text variant="bodyBlack">{t("save")}</Text>
           </Button>
         </form>
       )}

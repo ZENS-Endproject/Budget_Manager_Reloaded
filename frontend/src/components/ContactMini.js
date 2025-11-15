@@ -10,19 +10,24 @@ export default function ContactMini() {
     if (!subject.trim() || !message.trim()) return;
 
     setState({ loading: true, ok: null, error: "" });
+
     try {
       const base = process.env.REACT_APP_API_BASE || "";
-      const res = await fetch(`${base}/api/contact`, {
+      const res = await fetch(`${base}/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subject, message }),
       });
-      if (!res.ok) throw new Error(await res.text());
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Unknown error");
+      }
       setState({ loading: false, ok: true, error: "" });
       setSubject("");
       setMessage("");
     } catch (err) {
       setState({ loading: false, ok: false, error: "Failed to send" });
+      console.error("Contact form error:", err);
     }
   }
 
@@ -58,7 +63,9 @@ export default function ContactMini() {
         >
           {state.loading ? "Sending..." : "Send"}
         </button>
-        {state.ok && <span className="text-sm text-green-700">Thank you! ✉️</span>}
+        {state.ok && (
+          <span className="text-sm text-green-700">Thank you! ✉️</span>
+        )}
         {state.ok === false && (
           <span className="text-sm text-red-700">{state.error}</span>
         )}

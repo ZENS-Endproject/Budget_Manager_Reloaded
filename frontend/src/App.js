@@ -2,6 +2,7 @@ import React from "react";
 import Navbar from "./components/Navbar";
 import PieChart from "./components/PieChart";
 import InExBarChart from "./components/InExBarChart";
+import theme from "./styles/theme.css";
 
 import { Navigate } from "react-router-dom";
 import "./App.css";

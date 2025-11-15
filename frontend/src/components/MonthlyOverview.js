@@ -8,10 +8,12 @@ import { API_URL } from "../lib/utils";
 import { Button } from "./ui/button";
 import Text from "./Text";
 
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 function MonthlyOverview() {
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
-
+  const { t } = useTranslation();
   const [totalExpenses, setTotalExpenses] = useState(null);
   const [totalIncome, setTotalIncome] = useState(null);
   const [message, setMessage] = useState("");
@@ -81,23 +83,25 @@ function MonthlyOverview() {
 
   return (
     <>
-      <Text variant="subtitleBlue">Monthly Overview - {currentMonth}</Text>
+      <Text variant="subtitleBlue">
+        {t("monthlyOverview")} - {currentMonth}
+      </Text>
       {error && <p style={{ color: "red" }}>{error}</p>}
       {totalExpenses !== null && totalIncome !== null && (
         <>
           <br />
           <div className="flex justify-between gap-8">
-            <Text variant="bodyBlack">Total Expenses</Text>
+            <Text variant="bodyBlack">{t("totalExpenses")}</Text>
             <Text variant="bodyBlack">{totalExpenses.toFixed(2)} €</Text>
           </div>
           <br />
           <div className="flex justify-between gap-8">
-            <Text variant="bodyBlack">Total Income</Text>
+            <Text variant="bodyBlack">{t("totalIncome")}</Text>
             <Text variant="bodyBlack">{totalIncome.toFixed(2)} €</Text>
           </div>
           <br />
           <div className="flex justify-between gap-8">
-            <Text variant="bodyBlack">Balance</Text>
+            <Text variant="bodyBlack">{t("balance")}</Text>
             <Text
               variant={balance < 0 ? "bodyRed" : "bodyBlack"}
               className="font-bold"
@@ -116,7 +120,7 @@ function MonthlyOverview() {
       )}
       <br />
       <Button onClick={handleDownloadPDF} className="button">
-        <Text variant="bodyBlack">Download PDF</Text>
+        <Text variant="bodyBlack">{t("downloadPDF")}</Text>
       </Button>{" "}
     </>
   );

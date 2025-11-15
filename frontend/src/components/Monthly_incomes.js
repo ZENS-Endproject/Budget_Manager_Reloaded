@@ -15,6 +15,8 @@ import { FormItem, FormLabel, FormControl } from "./ui/form";
 import { Input } from "./ui/input";
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 function MonthlyIncomes() {
   const [income, setIncome] = useState([]);
   const [monthlySum, setMonthlySum] = useState(0);
@@ -22,7 +24,7 @@ function MonthlyIncomes() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showMonthFilter, setShowMonthFilter] = useState(false);
-
+  const { t } = useTranslation();
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
   const navigate = useNavigate();
@@ -84,9 +86,7 @@ function MonthlyIncomes() {
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Do you Want to delete this monthly income entry?"
-    );
+    const confirmed = window.confirm(t("deleteEntry"));
     if (!confirmed) return;
     const token = localStorage.getItem("token");
     try {
@@ -113,21 +113,23 @@ function MonthlyIncomes() {
 
   return (
     <>
-      <Text variant="subtitleBlue">Regular income {selectedMonthYear}</Text>
+      <Text variant="subtitleBlue">
+        {t("regularIncome")} {selectedMonthYear}
+      </Text>
       <AddIncomeForm />
       <Button
         onClick={() => setShowMonthFilter(!showMonthFilter)}
         className="button mb-2"
       >
         <Text variant="bodyBlack">
-          {showMonthFilter ? "Hide filter" : "Filter by Month"}
+          {showMonthFilter ? t("hideFilter") : t("filterByMonth")}
         </Text>
       </Button>
 
       {showMonthFilter && (
         <div className="max-w-sm mx-auto">
           <FormItem>
-            <FormLabel>Select Month</FormLabel>
+            <FormLabel>{t("selectMonth")}</FormLabel>
             <FormControl>
               <Input
                 type="month"
@@ -148,12 +150,12 @@ function MonthlyIncomes() {
             }}
             className="button my-2"
           >
-            <Text variant="bodyBlack">Reset Filter</Text>
+            <Text variant="bodyBlack">{t("resetFilter")}</Text>
           </Button>
         </div>
       )}
 
-      {loading && <p className="text-center">Loading incomes...</p>}
+      {loading && <p className="text-center">{t("loadingIncome")}</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
       {!loading && !error && (
@@ -163,24 +165,24 @@ function MonthlyIncomes() {
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-[100px]">
-                    <Text variant="bodyBlue">Name</Text>
+                    <Text variant="bodyBlue">{t("name")}</Text>
                   </TableHead>
                   <TableHead>
                     <Text
                       variant="bodyBlue"
                       className="text-right w-full block"
                     >
-                      Price
+                      {t("price")}
                     </Text>
                   </TableHead>
                   <TableHead>
-                    <Text variant="bodyBlue">Start Date</Text>
+                    <Text variant="bodyBlue">{t("dateStart")}</Text>
                   </TableHead>
                   <TableHead>
-                    <Text variant="bodyBlue">End Date</Text>
+                    <Text variant="bodyBlue">{t("dateEnd")}</Text>
                   </TableHead>
                   <TableHead>
-                    <Text variant="bodyBlue">Actions</Text>
+                    <Text variant="bodyBlue">{t("actions")}</Text>
                   </TableHead>
                 </TableRow>
               </TableHeader>
@@ -223,13 +225,13 @@ function MonthlyIncomes() {
                         }
                         className="button"
                       >
-                        <Text variant="bodyBlack">Edit</Text>
+                        <Text variant="bodyBlack">{t("edit")}</Text>
                       </Button>
                       <Button
                         onClick={() => handleDelete(income.id)}
                         className="button"
                       >
-                        <Text variant="bodyBlack">Delete</Text>
+                        <Text variant="bodyBlack">{t("delete")}</Text>
                       </Button>
                     </TableCell>
                   </TableRow>
@@ -239,7 +241,7 @@ function MonthlyIncomes() {
                     <TableCell>
                       <Text variant="bodyBlue">
                         <strong>
-                          Total regular income for {selectedMonthYear}
+                          {t("totalRegularIncome")} - {selectedMonthYear}
                         </strong>
                       </Text>
                     </TableCell>
