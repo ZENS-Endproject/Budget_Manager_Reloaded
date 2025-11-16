@@ -20,29 +20,26 @@ export default function About() {
     24;
 
   return (
-    <main
-      className="min-h-screen"
-      style={{ backgroundColor: "#FEFEEF", color: "#0A4A56" }}
-    >
+    <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <section className="pt-6 pb-12">
         <div
           className="grid gap-6 px-6"
           style={{
             paddingLeft: `calc(var(--sidebar-width, 0px) + ${gutter}px)`,
-            gridTemplateColumns: "minmax(0,1fr) 360px", // linke flexible, rechte fixe Spalte
+            gridTemplateColumns: "minmax(0,1fr) 360px",
           }}
         >
           {/* Zeile 1 – links: What is ZENS? */}
-          <article className="col-start-1 row-start-1 rounded-2xl bg-white/70 shadow-sm ring-1 ring-black/5 p-6 md:p-7">
+          <article className="col-start-1 row-start-1 rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
             <h2 className="text-[18px] font-semibold mb-3">What is ZENS?</h2>
-            <div className="space-y-3 text-[14px] leading-relaxed text-[#0A4A56]/90">
+            <div className="space-y-3 text-[14px] leading-relaxed text-[var(--muted)]">
               <p>
                 Take control of your money — with the Budget App! It helps you
                 track income and expenses and instantly see where your money
                 goes.
               </p>
               <p>
-                Add one-off or recurring entries, filter & categorize, and
+                Add one-off or recurring entries, filter &amp; categorize, and
                 explore clear charts. Everything stays neatly organized in one
                 place, and you can export your data (e.g. PDF/CSV) anytime.
               </p>
@@ -53,9 +50,9 @@ export default function About() {
           </article>
 
           {/* Zeile 1 – rechts: Impressum */}
-          <aside className="col-start-2 row-start-1 rounded-2xl bg-white/70 shadow-sm ring-1 ring-black/5 p-6 md:p-7 h-fit">
+          <aside className="col-start-2 row-start-1 rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7 h-fit">
             <h2 className="text-[18px] font-semibold mb-3">Impressum</h2>
-            <div className="space-y-4 text-[13px] text-[#0A4A56]/90">
+            <div className="space-y-4 text-[13px] text-[var(--muted)]">
               <div>
                 <div className="font-semibold">Unternehmen</div>
                 <div>Dein Firmenname</div>
@@ -75,15 +72,15 @@ export default function About() {
           </aside>
 
           {/* Zeile 2 – links: Team */}
-          <article className="col-start-1 row-start-2 rounded-2xl bg-white/70 shadow-sm ring-1 ring-black/5 p-6 md:p-7">
+          <article className="col-start-1 row-start-2 rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
             <h2 className="text-[18px] font-semibold mb-5">This is our Team</h2>
             <div className="grid gap-6 sm:grid-cols-2">
               {team.map((m) => (
                 <div
                   key={m.name}
-                  className="flex items-start gap-4 rounded-2xl bg-white/80 ring-1 ring-black/5 p-5"
+                  className="flex items-start gap-4 rounded-2xl bg-[var(--surface-strong)] ring-1 ring-[var(--border)] p-5"
                 >
-                  <div className="w-14 h-14 shrink-0 rounded-full bg-[#0A4A56]/10 grid place-items-center text-sm font-semibold">
+                  <div className="w-14 h-14 shrink-0 rounded-full bg-[var(--chip-bg)] grid place-items-center text-sm font-semibold">
                     {m.name
                       .split(" ")
                       .map((s) => s[0])
@@ -92,13 +89,13 @@ export default function About() {
                   </div>
                   <div>
                     <div className="font-semibold leading-tight">{m.name}</div>
-                    <div className="text-sm text-[#0A4A56]/70">{m.role}</div>
+                    <div className="text-sm text-[var(--muted)]">{m.role}</div>
                     {m.traits?.length > 0 && (
                       <div className="mt-2 flex flex-wrap gap-2">
                         {m.traits.map((t) => (
                           <span
                             key={t}
-                            className="text-xs rounded-full border border-[#0A4A56]/20 px-2 py-1 text-[#0A4A56]/80"
+                            className="text-xs rounded-full border px-2 py-1 text-[color:var(--text)]/80 border-[var(--chip-border)]"
                           >
                             {t}
                           </span>
@@ -111,7 +108,8 @@ export default function About() {
             </div>
           </article>
 
-          <div className="col-start-2 row-start-2">
+          {/* Zeile 2 – rechts: Kontakt-Miniform */}
+          <div className="rounded-2xl bg-[var(--surface-strong)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
             <ContactMini />
           </div>
         </div>
