@@ -23,17 +23,25 @@ jobs:
 
             - name: Terraform Add Domain
               run: | 
-                BRANCH_NAME=${GITHUB_REF##*/}
-                # Sanitize the branch name for S3 (replace slashes)
-                SAFE_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-')
+                # Get the branch name from workflow input
+                #BRANCH="${{ github.event.inputs.branch }}"
+                BRANCH=${GITHUB_REF##*/}
+                SAFE_BRANCH=$(echo "$BRANCH" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+                echo "Branch: $SAFE_BRANCH"
+
+                # S3 bucket name for the backend
                 BUCKET_NAME="tf-bud-relo-state-bucket-${SAFE_BRANCH}"
-                echo "Using bucket: $BUCKET_NAME"
+                echo "Using S3 bucket: $BUCKET_NAME"
+
+                # Initialize Terraform backend for this branch
                 cd budget-infra
-                ip=$(terraform -chdir=budget-infra output -raw public_ip)
+                terraform init \
+                 -backend-config="bucket=$BUCKET_NAME" \
+                 -backend-config="key=infra/${SAFE_BRANCH}/terraform.tfstate" \
+                 -backend-config="region=eu-central-1"
+                ip=$(terraform output -raw public_ip)
                 echo "Using IP: $ip"
-                terraform init -backend-config="key=infra/${SAFE_BRANCH}/terraform.tfstate"
-                # terraform destroy -var "branch_name=${SAFE_BRANCH}" -var "db_password=${{ secrets.DB_PASSWORD }}" -auto-approve              
-
-        
-
+                curl -s -u "${{ secrets.STRT_UN }}:${{ secrets.STRT_PD }}" \
+                  "https://dyndns.strato.com/nic/update?hostname=${{ secrets.STRT_HN }}&myip=${ip}"
+             
           
