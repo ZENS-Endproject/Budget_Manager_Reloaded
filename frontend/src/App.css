@@ -51,32 +51,19 @@
   font-weight: bold;
 }
 
-body {
-
-  background: linear-gradient(90deg, #0488a957, white);
-
-}
-
 .expenses-nav {
   padding: 20px;
   background-color: transparent !important;
   margin-bottom: 20px;
   border: 1px solid rgb(221, 221, 221);
   border-radius: 8px;
-  box-shadow: rgb(0 0 0 / 50%) 0px 2px 8px;
 }
 
 .dark .expenses-nav {
   padding: 20px;
-  background-color: black !important;
   margin-bottom: 20px;
   border: 1px solid rgb(221, 221, 221);
   border-radius: 8px;
-  box-shadow: rgb(0 0 0 / 50%) 0px 2px 8px;
-}
-
-.dark body {
-  background: black !important;
 }
 
 .dark .navbar-links * {
@@ -85,11 +72,6 @@ body {
 
 .piechart {
   background: transparent;
-}
-
-.dark .shadow,
-.dark .expenses-nav {
-  background-color: black !important;
 }
 
 .dark .navbar-links button {
