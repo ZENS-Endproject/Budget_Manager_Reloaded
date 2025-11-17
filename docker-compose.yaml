@@ -25,6 +25,7 @@ services:
     container_name: frontend
     ports:
       - "80:80"
+      - "443:443"
     env_file:
       - ./frontend/.env.local
     restart: always
