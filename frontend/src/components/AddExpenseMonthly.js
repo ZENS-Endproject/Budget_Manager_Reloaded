@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { FormItem, FormLabel, FormControl } from "./ui/form";
@@ -15,7 +15,7 @@ import i18n from "../locales/i18n";
 const AddExpenseForm = () => {
   const [showForm, setShowForm] = useState(false);
   // const [type, setType] = useState("once");
-
+  const navigate = useNavigate();
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       name: "",
@@ -68,6 +68,7 @@ const AddExpenseForm = () => {
         alert("Saved!");
         reset();
         setShowForm(false);
+        setTimeout(() => navigate("/expenses"), 1000);
         window.location.reload();
       } else {
         const data = await res.json();
