@@ -22,6 +22,12 @@ EXPOSE 5173
 FROM nginx:alpine
 
 COPY default.conf /etc/nginx/conf.d/default.conf
+
+COPY fullchain.pem /etc/nginx/fullchain.pem
+COPY privkey.pem /etc/nginx/privkey.pem
+COPY options-ssl-nginx.conf /etc/nginx/options-ssl-nginx.conf
+COPY ssl-dhparams.pem /etc/nginx/ssl-dhparams.pem
+
 COPY --from=builder /app/build /usr/share/nginx/html
 
 EXPOSE 80
