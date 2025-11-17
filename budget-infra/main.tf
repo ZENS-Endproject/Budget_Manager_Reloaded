@@ -52,6 +52,14 @@ resource "aws_security_group" "sg_frontend" {
     protocol    = "tcp"
   }
 
+  # Allow HTTPS
+  ingress {
+    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+  }
+
   # Allow app port (5005)
   ingress {
     cidr_blocks = ["0.0.0.0/0"]
