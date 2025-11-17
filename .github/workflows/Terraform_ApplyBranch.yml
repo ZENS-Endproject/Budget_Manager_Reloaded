@@ -95,10 +95,24 @@ jobs:
       # copy ng files
       - name: Copy ng files
         run: |
-          echo "${{ secrets.NG_FC }}" > /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/frontend/fullchain.pem
-          echo "${{ secrets.NG_PK }}" > /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/frontend/privkey.pem
-          echo "${{ secrets.NG_OP }}" > /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/frontend/options-ssl-nginx.conf
-          echo "${{ secrets.NG_DH }}" > /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/frontend/ssl-dhparams.pem
+
+          cat << 'EOF' > /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/frontend/fullchain.pem
+          ${{ secrets.NG_FC }}
+          EOF
+          cat << 'EOF' > /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/frontend/privkey.pem
+          ${{ secrets.NG_PK }}
+          EOF
+          cat << 'EOF' > /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/frontend/options-ssl-nginx.conf
+          ${{ secrets.NG_OP }}
+          EOF
+          cat << 'EOF' >  /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/frontend/ssl-dhparams.pem
+          ${{ secrets.NG_DH }}
+          EOF          
+
+          #echo "${{ secrets.NG_FC }}" > /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/frontend/fullchain.pem
+          #echo "${{ secrets.NG_PK }}" > /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/frontend/privkey.pem
+          #echo "${{ secrets.NG_OP }}" > /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/frontend/options-ssl-nginx.conf
+          #echo "${{ secrets.NG_DH }}" > /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/frontend/ssl-dhparams.pem
 
       # Deploy the app on EC2
       - name: Deploy App
