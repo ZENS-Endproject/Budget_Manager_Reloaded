@@ -45,8 +45,8 @@ function IncomesNav() {
     if (userId) fetchBalance();
   }, [userId]);
   return (
-    <>
-      <div className="max-w-6xl mx-auto px-4 mt-10 grid grid-cols-1 md:grid-cols-2 gap-2">
+    <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
+      <div className="max-w-6xl pt-4 pb-12 grid grid-cols-1 md:grid-cols-2 gap-2">
         {/* <div
         className="expenses-nav"
         style={{
@@ -69,12 +69,12 @@ function IncomesNav() {
         & <p style={{ color: "red" }}>{message}</p>}
       </div> */}
         <div
-          className="md:col-span-2 bg-white p-6 rounded-xl shadow"
+          className="md:col-span-2 bg-[var(--bg-white)] p-6 rounded-xl shadow"
           style={{
             padding: "40px",
-            backgroundColor: "#ffffff",
+
             //marginBottom: "20px",
-            border: "1px solid #ddd",
+            border: "1px solid text-[var(--muted)]",
             borderRadius: "8px",
             boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
           }}
@@ -82,12 +82,12 @@ function IncomesNav() {
           <Monthly_incomes user_id={userId} />
         </div>
         <div
-          className="md:col-span-2 bg-white p-6 rounded-xl shadow"
+          className="md:col-span-2 bg-[var(--bg-white)] p-6 rounded-xl shadow"
           style={{
             padding: "40px",
-            backgroundColor: "#ffffff",
+
             //marginBottom: "20px",
-            border: "1px solid #ddd",
+            border: "1px solid text-[var(--muted)]",
             borderRadius: "8px",
             boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
           }}
@@ -95,7 +95,7 @@ function IncomesNav() {
           <Income user_id={userId} />{" "}
         </div>
       </div>
-    </>
+    </main>
   );
 }
 
