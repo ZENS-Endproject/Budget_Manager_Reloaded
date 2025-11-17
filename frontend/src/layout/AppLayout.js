@@ -8,7 +8,7 @@ import "../styles/theme.css";
 export default function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const toggleSidebar = useCallback(() => setSidebarOpen(v => !v), []);
+  const toggleSidebar = useCallback(() => setSidebarOpen((v) => !v), []);
   const closeSidebar = useCallback(() => setSidebarOpen(false), []);
 
   return (

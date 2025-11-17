@@ -21,9 +21,9 @@ export default function About() {
 
   return (
     <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
-      <section className="pt-6 pb-12">
+      <section className="pt-4 pb-12">
         <div
-          className="grid gap-6 px-6"
+          className="grid gap-2 px-6"
           style={{
             paddingLeft: `calc(var(--sidebar-width, 0px) + ${gutter}px)`,
             gridTemplateColumns: "minmax(0,1fr) 360px",

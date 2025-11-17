@@ -1,7 +1,7 @@
 /* ==== Light / Default ==== */
 :root {
   --bg: #FEFEEF;
-  --bg-white: #E8EFEF;
+  --bg-white: #FFFFFF;
   --text: #0A4A56;
   --text-blue: #02586E;
   --text-black: #000000;
@@ -16,8 +16,8 @@
 /* ==== Dark Mode (dunkles Blau) ==== */
 .dark {
   --bg: #071822;
-  --bg-white: #0A4A56;
-  --text: #E8EFEF;
+  --bg-white: rgba(255,255,255,0.06);
+  --text: #FFFFFF;
   --text-blue: #FEFEEF;
   --text-black: #E8EFEF;
   --button-blue: 2, 88, 110;
