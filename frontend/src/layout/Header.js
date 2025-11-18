@@ -12,6 +12,7 @@ import moon from "../assets/header/moon.png";
 import power from "../assets/header/power.png";
 import { Link } from "react-router-dom";
 import sun from "../assets/header/sun.png";
+import Text from "../components/Text";
 
 const LightWave = () => (
   <div className="absolute inset-0 pointer-events-none select-none header-wave">
@@ -107,13 +108,16 @@ export default function Header({ onToggleSidebar }) {
     i18n.changeLanguage(newLanguage);
   };
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  const user_email = user?.e_mail;
+
   const navigate = useNavigate();
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
     navigate("/login");
   };
-  
+
   return (
     <header className="sticky top-0 z-50 w-full h-[120px] bg-[var(--header-bg)] transition-colors duration-300">
 
@@ -135,19 +139,23 @@ export default function Header({ onToggleSidebar }) {
             <div className="relative z-10 h-full px-20">
               <div className="mx-auto flex h-full items-center justify-between">
 
-                {/* LEFT: LOGO */}
-                <div className="flex items-center">
-                  <Link to="/">
-                    <img
-                      src={logo}
-                      alt="Logo"
-                      className="h-20 w-20 object-contain cursor-pointer hover:scale-105 transition"
-                    />
-                  </Link>
-                </div>
 
-                {/* RIGHT: ICONS */}
-                <div className="flex items-center gap-8">
+          {/* LEFT: LOGO */}
+          <div className="flex items-center">
+            <Link to="/">
+              <img
+                src={logo}
+                alt="Logo"
+                className="h-20 w-20 object-contain cursor-pointer hover:scale-105 transition"
+              />
+            </Link>
+          </div>
+
+          {/* RIGHT: ICONS — ORIGINAL SIZE, NO BACKGROUND, NO CIRCLES */}
+          <div className="flex items-center gap-8">
+            <span className="username">
+              <Text variant="subtitleBlue">{user_email}</Text>
+            </span>
 
                   {/* LANGUAGE ICON */}
                   <button
