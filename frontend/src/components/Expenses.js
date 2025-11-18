@@ -23,7 +23,10 @@ import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
-
+import App from "../App";
+import AddExpenseForm from "./AddExpenseOnce";
+import { useTranslation } from "react-i18next";
+import i18next from "../locales/i18n";
 function Expenses() {
   const [expenses, setExpenses] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -36,6 +39,7 @@ function Expenses() {
   const userId = user?.id;
   const navigate = useNavigate();
   const [showMonthFilter, setShowMonthFilter] = useState(false);
+  const { t } = useTranslation();
 
   const fetchExpenses = async (monthYear = "") => {
     const token = localStorage.getItem("token");
@@ -77,9 +81,7 @@ function Expenses() {
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Do you really want to delete this entry?"
-    );
+    const confirmed = window.confirm(t("deleteEntry"));
     if (!confirmed) return;
     const token = localStorage.getItem("token");
     try {
@@ -113,27 +115,35 @@ function Expenses() {
   const columns = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("name"),
     },
     {
       accessorKey: "amount",
-      header: "Price (€)",
-      cell: ({ row }) => `${parseFloat(row.getValue("amount")).toFixed(2)} €`,
+      header: () => (
+        <span className="text-right w-full block">{t("price")}</span>
+      ),
+      cell: ({ row }) => (
+        <span className="text-right w-full block">
+          {parseFloat(row.getValue("amount")).toFixed(2)} €
+        </span>
+      ),
     },
     {
       accessorKey: "category",
-      header: "Category",
+      header: t("category"),
     },
     {
       accessorKey: "date",
-      header: "Date",
-      cell: ({ row }) =>
-        new Date(row.getValue("date")).toISOString().split("T")[0],
+      header: t("date"),
+      cell: ({ row }) => {
+        const rawDate = row.getValue("date");
+        const date = new Date(rawDate);
+        return `${date.getDate()}.${date.getMonth() + 1}.${date.getFullYear()}`;
+      },
     },
     {
       id: "actions",
-      header: "Actions",
-      className: "text-right",
+      header: t("actions"),
       cell: ({ row }) => {
         const expense = row.original;
         return (
@@ -144,14 +154,12 @@ function Expenses() {
                   state: { expense },
                 })
               }
+              className="button"
             >
-              Edit
+              <Text variant="bodyBlack">{t("edit")}</Text>
             </Button>
-            <Button
-              onClick={() => handleDelete(expense.id)}
-              className="text-red-500 underline"
-            >
-              Delete
+            <Button onClick={() => handleDelete(expense.id)} className="button">
+              <Text variant="bodyBlack">{t("delete")}</Text>
             </Button>
           </div>
         );
@@ -176,48 +184,51 @@ function Expenses() {
 
   return (
     <>
-      <Text variant="subtitleBlue" className="text-center my-6">
-        One-time expenses {selectedMonthYear}
+      <Text variant="subtitleBlue">
+        {t("oneTimeExpenses")} {selectedMonthYear}
       </Text>
-      <div className="text-center mt-10">
-        <Button
-          onClick={() => setShowMonthFilter(!showMonthFilter)}
-          className="mb-4"
-        >
-          {showMonthFilter ? "Hide filter" : "Filter by Month"}
-        </Button>
 
-        {showMonthFilter && (
-          <div className="max-w-sm mx-auto mt-4">
-            <FormItem>
-              <FormLabel>Select Filter</FormLabel>
-              <FormControl>
-                <Input
-                  type="month"
-                  value={selectedMonthYear}
-                  onChange={(e) => {
-                    setSelectedMonthYear(e.target.value);
-                    fetchExpenses(e.target.value);
-                  }}
-                />
-              </FormControl>
-            </FormItem>
-            <br />
-            <Button
-              className="text-right font-medium"
-              onClick={() => {
-                setSelectedMonthYear("");
-                fetchExpenses("");
-                setShowMonthFilter(false);
-              }}
-            >
-              Reset filter
-            </Button>
-          </div>
-        )}
-      </div>
+      <AddExpenseForm />
 
-      {loading && <p className="text-center">Loading expenses...</p>}
+      <Button
+        onClick={() => setShowMonthFilter(!showMonthFilter)}
+        className="button mb-2"
+      >
+        <Text variant="bodyBlack">
+          {showMonthFilter ? t("hideFilter") : t("filterByMonth")}
+        </Text>
+      </Button>
+
+      {showMonthFilter && (
+        <div className="max-w-sm mx-auto">
+          <FormItem>
+            <FormLabel>{t("selectMonth")}</FormLabel>
+            <FormControl>
+              <Input
+                type="month"
+                value={selectedMonthYear}
+                onChange={(e) => {
+                  setSelectedMonthYear(e.target.value);
+                  fetchExpenses(e.target.value);
+                }}
+              />
+            </FormControl>
+          </FormItem>
+
+          <Button
+            onClick={() => {
+              setSelectedMonthYear("");
+              fetchExpenses("");
+              setShowMonthFilter(false);
+            }}
+            className="button my-2"
+          >
+            <Text variant="bodyBlack">{t("resetFilter")}</Text>
+          </Button>
+        </div>
+      )}
+
+      {loading && <p className="text-center">{t("loadingExpenses")}</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
       {!loading && !error && (
@@ -229,10 +240,12 @@ function Expenses() {
                   <TableRow key={headerGroup.id}>
                     {headerGroup.headers.map((header) => (
                       <TableHead key={header.id}>
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        <Text variant="bodyBlue">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </Text>
                       </TableHead>
                     ))}
                   </TableRow>
@@ -242,27 +255,33 @@ function Expenses() {
                 {table.getRowModel().rows.map((row) => (
                   <TableRow key={row.id}>
                     {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="font-medium">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                      <TableCell key={cell.id}>
+                        <Text variant="bodyBlack">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Text>
                       </TableCell>
                     ))}
                   </TableRow>
                 ))}
                 {selectedMonthYear === new Date().toISOString().slice(0, 7) && (
-                  <TableRow
-                    style={{
-                      backgroundColor: "#7FDBFF",
-                      fontWeight: "bold",
-                      color: "#333",
-                    }}
-                  >
-                    <TableCell className="font-medium">
-                      Total one-time expenses for this month {selectedMonthYear}
+                  <TableRow>
+                    <TableCell>
+                      <Text variant="bodyBlue">
+                        <strong>
+                          {t("totalOneTimeExpenses")} - {selectedMonthYear}
+                        </strong>
+                      </Text>
                     </TableCell>
-                    <TableCell>{parseFloat(sum).toFixed(2)}€</TableCell>
+                    <TableCell className="text-right">
+                      <span className="text-right w-full block">
+                        <Text variant="bodyBlue">
+                          <strong>{parseFloat(sum).toFixed(2)} €</strong>
+                        </Text>
+                      </span>
+                    </TableCell>
                     <TableCell />
                     <TableCell />
                     <TableCell />
@@ -271,22 +290,20 @@ function Expenses() {
               </TableBody>
             </Table>
           </div>
-          <div className="flex items-center justify-end space-x-2 py-4">
+          <div className="flex items-center justify-end space-x-2 py-2">
             <Button
-              variant="outline"
-              size="sm"
+              className="button-prevnext"
               onClick={() => table.previousPage()}
               disabled={!table.getCanPreviousPage()}
             >
-              Previous
+              <Text variant="smallBlack">{t("previous")}</Text>
             </Button>
             <Button
-              variant="outline"
-              size="sm"
+              className="button-prevnext"
               onClick={() => table.nextPage()}
               disabled={!table.getCanNextPage()}
             >
-              Next
+              <Text variant="smallBlack">{t("next")}</Text>
             </Button>
           </div>
         </div>

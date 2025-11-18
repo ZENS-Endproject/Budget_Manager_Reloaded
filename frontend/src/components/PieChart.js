@@ -8,6 +8,10 @@ import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend, Title } from "chart.js";
 import ChartDataLabels from "chartjs-plugin-datalabels"; // Import the plugin
 import { API_URL } from "../lib/utils";
+import Text from "./Text";
+
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title, ChartDataLabels);
 const token = localStorage.getItem("token");
@@ -20,12 +24,18 @@ const options = {
       labels: {
         boxWidth: 40,
         padding: 15,
+        color: "black",
+        font: {
+          family: "Voces, sans-serif",
+          size: 12,
+        },
       },
     },
     datalabels: {
-      color: "black", // Color of the data labels
+      color: "white", // Color of the data labels
       font: {
         // weight: "bold",
+        family: "Voces, sans-serif",
         size: 12,
       },
       formatter: (value, context) => {
@@ -42,7 +52,7 @@ const PieChart = () => {
   const now = new Date();
   const currentYear = now.getFullYear().toString();
   const currentMonth = (now.getMonth() + 1).toString();
-
+  const { t } = useTranslation();
   const [chartData, setChartData] = useState({
     labels: [],
     datasets: [
@@ -86,7 +96,24 @@ const PieChart = () => {
 
         if (res.ok) {
           const data = await res.json();
-          setChartData(data); // Update pie chart data
+          const colors = [
+            "#05CDFF",
+            "#013947",
+            "#037B99",
+            "#04A6CF",
+            "#02586E",
+          ];
+          setChartData({
+            labels: data.labels,
+            datasets: [
+              {
+                data: data.datasets[0].data,
+                backgroundColor: data.labels.map(
+                  (_, i) => colors[i % colors.length]
+                ),
+              },
+            ],
+          }); // Update pie chart data
         } else {
           const err = await res.json();
           console.error("Backend error:", err.error);
@@ -106,10 +133,63 @@ const PieChart = () => {
 
   const isChartEmpty = chartData && chartData.labels.length === 0;
 
+  const formattedMonth = month.toString().padStart(2, "0");
+
   return (
     <>
+      <Text variant="subtitleBlue">
+        {t("expensesByCategory")} - {year}-{formattedMonth}
+      </Text>
+      <br />
       <div style={styles.chartBox}>
-        <div className="max-h-[400px] max-w-[800px] p-4 bg-white rounded shadow piechart">
+        <Form className="">
+          <div className="flex justify-between gap-8">
+            <FormLabel>
+              <Text variant="bodyBlack">{t("year")}</Text>
+            </FormLabel>
+            <FormControl>
+              <Input
+                type="number"
+                step="1"
+                {...register("year")}
+                defaultValue={currentYear}
+                required
+                className="hover:bg-[#02586E]/10 text-[10pt] h-[25px] w-[120px] shadow"
+              />
+            </FormControl>
+          </div>
+          <br />
+          <div className="flex justify-between gap-8">
+            <FormLabel>
+              <Text variant="bodyBlack">{t("month")}</Text>
+            </FormLabel>
+            <FormControl>
+              <div className="h-[25px] w-[120px]">
+                <Select
+                  {...register("month")}
+                  defaultValue={currentMonth}
+                  className="hover:bg-[#02586E]/10 text-[10pt] shadow"
+                >
+                  <SelectItem value="1">{t("january")}</SelectItem>
+                  <SelectItem value="2">{t("february")}</SelectItem>
+                  <SelectItem value="3">{t("march")}</SelectItem>
+                  <SelectItem value="4">{t("april")}</SelectItem>
+                  <SelectItem value="5">{t("may")}</SelectItem>
+                  <SelectItem value="6">{t("june")}</SelectItem>
+                  <SelectItem value="7">{t("july")}</SelectItem>
+                  <SelectItem value="8">{t("august")}</SelectItem>
+                  <SelectItem value="9">{t("september")}</SelectItem>
+                  <SelectItem value="10">{t("october")}</SelectItem>
+                  <SelectItem value="11">{t("november")}</SelectItem>
+                  <SelectItem value="12">{t("december")}</SelectItem>
+                </Select>
+              </div>
+            </FormControl>
+          </div>
+        </Form>
+        <br />
+        <br />
+        <div className="max-h-[400px] max-w-[800px] ">
           {isChartEmpty ? (
             <p style={{ color: "red" }}>
               No expenses available for the selected month and year.
@@ -118,46 +198,6 @@ const PieChart = () => {
             <Pie data={chartData} options={options} width={400} height={400} />
           )}
         </div>
-
-        <Form className="p-4 rounded shadow w-1/2">
-          <FormItem className="text-[12pt]">
-            <FormLabel className="text-[12pt]">Month</FormLabel>
-            <FormControl>
-              <Select
-                {...register("month")}
-                defaultValue={currentMonth}
-                className="bg-blue-300 text-[12pt]"
-              >
-                <SelectItem value="1">January</SelectItem>
-                <SelectItem value="2">February</SelectItem>
-                <SelectItem value="3">March</SelectItem>
-                <SelectItem value="4">April</SelectItem>
-                <SelectItem value="5">May</SelectItem>
-                <SelectItem value="6">June</SelectItem>
-                <SelectItem value="7">July</SelectItem>
-                <SelectItem value="8">August</SelectItem>
-                <SelectItem value="9">September</SelectItem>
-                <SelectItem value="10">October</SelectItem>
-                <SelectItem value="11">November</SelectItem>
-                <SelectItem value="12">December</SelectItem>
-              </Select>
-            </FormControl>
-          </FormItem>
-
-          <FormItem className="text-[12pt]">
-            <FormLabel className="text-[12pt]">Year</FormLabel>
-            <FormControl className="bg-blue-300 text-[12pt]">
-              <Input
-                type="number"
-                step="1"
-                {...register("year")}
-                defaultValue={currentYear}
-                required
-                className="bg-blue-300 text-[12pt]"
-              />
-            </FormControl>
-          </FormItem>
-        </Form>
       </div>
     </>
   );

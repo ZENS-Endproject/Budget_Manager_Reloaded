@@ -11,9 +11,11 @@ import {
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
-import Navbar from "../components/Navbar";
 
 import { API_URL } from "../lib/utils";
+import Text from "../components/Text";
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 
 export default function EditMonthlyIncome() {
   const { state } = useLocation();
@@ -29,6 +31,8 @@ export default function EditMonthlyIncome() {
   const [amount, setAmount] = useState("");
 
   const [message, setMessage] = useState("");
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (income) {
@@ -74,49 +78,55 @@ export default function EditMonthlyIncome() {
 
   return (
     <>
-      <Navbar />
       <div className="flex flex-col gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">Edit Monthly Income</CardTitle>
-            <CardDescription>Update the fields below</CardDescription>
+            <CardTitle className="font-normal">
+              <Text variant="subtitleBlue">{t("editRegularIncome")}</Text>
+            </CardTitle>
+            <CardDescription>
+              <Text variant="smallBlack">{t("updateFields")}</Text>
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit}>
               <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <Label>Income ID</Label>
-                  <Input value={incomeId} disabled />
-                </div>
-                <div className="grid gap-2">
-                  <Label>User ID</Label>
-                  <Input value={userId} disabled />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Price (€)</Label>
-                  <Input
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid gap-2" v>
-                  <Label>Name</Label>
-                  <Input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
-
+                <Text variant="smallBlack">
+                  {/* <div className="grid gap-2">
+                    <Label>Income ID</Label>
+                    <Input value={incomeId} disabled className="w-[250pt]" />
+                  </div>
+                  <div className="grid gap-2 mt-2">
+                    <Label>User ID</Label>
+                    <Input value={userId} disabled className="w-[250pt]" />
+                  </div> */}
+                  <div className="grid gap-2 mt-2">
+                    <Label>{t("price")} (€)</Label>
+                    <Input
+                      type="number"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      required
+                      className="w-[250pt]"
+                    />
+                  </div>
+                  <div className="grid gap-2 mt-2">
+                    <Label>{t("name")}</Label>
+                    <Input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                      className="w-[250pt]"
+                    />
+                  </div>
+                </Text>
                 {message && (
                   <div className="text-sm text-green-600">{message}</div>
                 )}
 
-                <Button type="submit" className="w-full">
-                  Speichern
+                <Button type="submit" className="button w-[50pt]">
+                  <Text variant="bodyBlack">{t("submit")}</Text>
                 </Button>
               </div>
             </form>

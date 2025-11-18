@@ -1,0 +1,47 @@
+name: Terraform Add Domain
+
+on:  
+  workflow_dispatch:
+
+jobs:
+    terraform-add_domain:
+        runs-on: ubuntu-latest
+#        if: github.event_name == 'workflow_dispatch'
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v5
+
+            - name: Setup Terraform
+              uses: hashicorp/setup-terraform@v3
+
+            - name: Setup AWS Credentials
+              uses: aws-actions/configure-aws-credentials@v5
+              with:
+                  aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  aws-secret-access-key: ${{ secrets.AWS_ACCESS_SECRET_KEY }}
+                  aws-region: eu-central-1
+
+            - name: Terraform Add Domain
+              run: | 
+                # Get the branch name from workflow input
+                #BRANCH="${{ github.event.inputs.branch }}"
+                BRANCH=${GITHUB_REF##*/}
+                SAFE_BRANCH=$(echo "$BRANCH" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
+                echo "Branch: $SAFE_BRANCH"
+
+                # S3 bucket name for the backend
+                BUCKET_NAME="tf-bud-relo-state-bucket-${SAFE_BRANCH}"
+                echo "Using S3 bucket: $BUCKET_NAME"
+
+                # Initialize Terraform backend for this branch
+                cd budget-infra
+                terraform init \
+                 -backend-config="bucket=$BUCKET_NAME" \
+                 -backend-config="key=infra/${SAFE_BRANCH}/terraform.tfstate" \
+                 -backend-config="region=eu-central-1"
+                ip=$(terraform output -raw public_ip)
+                echo "Using IP: $ip"
+                curl -s -u "${{ secrets.STRT_UN }}:${{ secrets.STRT_PD }}" \
+                  "https://dyndns.strato.com/nic/update?hostname=${{ secrets.STRT_HN }}&myip=${ip}"
+             
+          

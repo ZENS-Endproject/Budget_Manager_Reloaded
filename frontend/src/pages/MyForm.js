@@ -12,9 +12,13 @@ import {
 import { Label } from "../components/ui/label";
 import { Input } from "../components/ui/input";
 import { Button } from "../components/ui/button";
-import Navbar from "../components/Navbar";
+import { FormItem, FormLabel, FormControl } from "../components/ui/form";
+import { Select, SelectItem } from "../components/ui/select";
 
 import { API_URL } from "../lib/utils";
+import Text from "../components/Text";
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 
 export default function MyForm() {
   const { state } = useLocation();
@@ -31,6 +35,8 @@ export default function MyForm() {
   const [categoryId, setCategoryId] = useState("");
   const [date, setDate] = useState("");
   const [message, setMessage] = useState("");
+
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (expense) {
@@ -83,65 +89,91 @@ export default function MyForm() {
 
   return (
     <>
-      <Navbar />
-      <div className={cn("flex flex-col gap-6")}>
+      <div className="flex flex-col gap-6">
         <Card>
           <CardHeader>
-            <CardTitle className="text-2xl">Edit Expense</CardTitle>
-            <CardDescription>Update the fields below</CardDescription>
+            <CardTitle className="font-normal">
+              <Text variant="subtitleBlue">{t("editOneTimeExpense")}</Text>
+            </CardTitle>
+            <CardDescription>
+              <Text variant="smallBlack">{t("updateFields")}</Text>
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit}>
               <div className="flex flex-col gap-6">
-                <div className="grid gap-2">
-                  <Label>Expense ID</Label>
-                  <Input value={expenseId} disabled />
-                </div>
-                <div className="grid gap-2">
-                  <Label>User ID</Label>
-                  <Input value={userId} disabled />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Amount</Label>
-                  <Input
-                    type="number"
-                    value={amount}
-                    onChange={(e) => setAmount(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Name</Label>
-                  <Input
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Category ID</Label>
-                  <Input
-                    type="number"
-                    value={categoryId}
-                    onChange={(e) => setCategoryId(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label>Date</Label>
-                  <Input
-                    type="date"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    required
-                  />
-                </div>
+                <Text variant="smallBlack">
+                  {/* <div className="grid gap-2">
+                    <Label>Expense ID</Label>
+                    <Input value={expenseId} disabled className="w-[250pt]" />
+                  </div>
+                  <div className="grid gap-2 mt-2">
+                    <Label>User ID</Label>
+                    <Input value={userId} disabled className="w-[250pt]" />
+                  </div> */}
+                  <div className="grid gap-2 mt-2">
+                    <Label>{t("price")} (€)</Label>
+                    <Input
+                      type="number"
+                      value={amount}
+                      onChange={(e) => setAmount(e.target.value)}
+                      required
+                      className="w-[250pt]"
+                    />
+                  </div>
+                  <div className="grid gap-2 mt-2">
+                    <Label>{t("name")}</Label>
+                    <Input
+                      type="text"
+                      value={name}
+                      onChange={(e) => setName(e.target.value)}
+                      required
+                      className="w-[250pt]"
+                    />
+                  </div>
+                  <div className="grid gap-2 mt-2">
+                    <FormItem>
+                      <FormLabel>{t("category")}</FormLabel>
+                      <FormControl className="w-[250pt]">
+                        <Select
+                          value={categoryId}
+                          onChange={(e) => setCategoryId(e.target.value)}
+                        >
+                          <SelectItem value="1">{t("shopping")}</SelectItem>
+                          <SelectItem value="2">
+                            {t("entertainment")}
+                          </SelectItem>
+                          <SelectItem value="3">{t("transport")}</SelectItem>
+                          <SelectItem value="4">{t("rentEnergy")}</SelectItem>
+                          <SelectItem value="5">{t("other")}</SelectItem>
+                        </Select>
+                      </FormControl>
+                    </FormItem>
+                    {/* <Label>Category ID</Label>
+                    <Input
+                      type="number"
+                      value={categoryId}
+                      onChange={(e) => setCategoryId(e.target.value)}
+                      required
+                      className="w-[250pt]"
+                    /> */}
+                  </div>
+                  <div className="grid gap-2 mt-2">
+                    <Label>{t("date")}</Label>
+                    <Input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      required
+                      className="w-[250pt]"
+                    />
+                  </div>
+                </Text>
                 {message && (
                   <div className="text-sm text-green-600">{message}</div>
                 )}
-                <Button type="submit" className="w-full">
-                  Submit
+                <Button type="submit" className="button w-[50pt]">
+                  <Text variant="bodyBlack">{t("submit")}</Text>
                 </Button>
               </div>
             </form>

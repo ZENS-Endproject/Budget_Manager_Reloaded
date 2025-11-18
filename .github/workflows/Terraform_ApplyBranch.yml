@@ -2,8 +2,11 @@ name: Terraform Apply per Branch
 
 on:
   push:
-    branches:
-      - '*'
+    branches-ignore:
+      - 'Na*'
+      - '*Na*'
+      - 'NA*'
+  
   workflow_dispatch:
 
 jobs:
@@ -22,7 +25,7 @@ jobs:
           BRANCH_NAME=${GITHUB_REF##*/}
           SAFE_BRANCH=$(echo "$BRANCH_NAME" | tr '/' '-' | tr '[:upper:]' '[:lower:]')
           echo "branch_name=$SAFE_BRANCH" >> $GITHUB_OUTPUT
-
+                   
       # Setup Terraform CLI
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -74,6 +77,7 @@ jobs:
           chmod 400 ~/.ssh/myPrivateKey
           ssh-keyscan -H $ip >> ~/.ssh/known_hosts
 
+     
       # Install Docker and Docker Compose V2 on EC2
       - name: Install Docker & Docker Compose
         run: |
@@ -97,33 +101,6 @@ jobs:
 
           # Copy project files to EC2
           scp -i ~/.ssh/myPrivateKey -r /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded ubuntu@$ip:/home/ubuntu
-
-          # Create .env.local files and start containers
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
-           
-
-        
-
-          # Create frontend environment file
-          echo "DB_HOST=$HOST" > "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
-          # echo "REACT_APP_API_URL=http://$ip:5005"  > "/home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local"
-          export REACT_APP_API_URL=http://$ip:5005
-          cd ~/Budget_Manager_Reloaded
-
-            # # Stop any running containers and rebuild
-            # docker compose down -v || true
-            # docker compose build --no-cache
-          
-          docker compose up -d --build
-          "
-
-      # Initialize PostgreSQL database schema
-      - name: Initialize DB schema
-        run: |
-          ip=$(terraform -chdir=budget-infra output -raw public_ip)
-          ENDPOINT=$(terraform -chdir=budget-infra output -raw rds_endpoint)
-          HOST=$(echo "$ENDPOINT" | cut -d':' -f1 | tr -d '\r\n')
-
           # Install psql client if missing
           ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
             sudo apt update && sudo apt install -y postgresql-client
@@ -133,3 +110,27 @@ jobs:
           ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
             PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h '$HOST' -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
           "
+          # Create .env.local files and start containers
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+          # Create frontend environment file
+          echo "DB_HOST=$HOST" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
+          # echo "REACT_APP_API_URL=http://$ip:5005"  > "/home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local"
+          export REACT_APP_API_URL=http://$ip:5005
+          cd ~/Budget_Manager_Reloaded
+          # Stop any running containers and rebuild
+          docker compose down -v || true
+          # docker compose build --no-cache 
+          docker compose up -d --build
+          "
+    
+     # Generate test data
+      - name: Generate test data
+        run: |
+          ip=$(terraform -chdir=budget-infra output -raw public_ip)
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+          docker exec backend sh -c 'cd /app && node TestDataGenerator_V2.js'
+          "
+
+     
+
+          

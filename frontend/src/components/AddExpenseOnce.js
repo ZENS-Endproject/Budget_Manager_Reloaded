@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { FormItem, FormLabel, FormControl } from "./ui/form";
@@ -8,19 +8,22 @@ import { Select, SelectItem } from "./ui/select";
 
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 
 const AddExpenseForm = () => {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
-  const [type, setType] = useState("once");
-
+  // const [type, setType] = useState("once");
+  const navigate = useNavigate();
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       name: "",
       amount: "",
       category_id: "",
       date: "",
-      start_date: "",
-      end_date: "",
+      // start_date: "",
+      // end_date: "",
     },
   });
 
@@ -30,27 +33,28 @@ const AddExpenseForm = () => {
 
     const payload = {
       user_id: userId,
-      ...values,
-      category_id: parseInt(values.category_id),
+      name: values.name,
       amount: parseFloat(values.amount),
+      category_id: parseInt(values.category_id),
+      date: values.date,
     };
 
-    if (type === "monthly") {
-      payload.date_start = values.date_start + "-01"; // hier die Monatskorrektur
-      delete payload.date;
-    } else {
-      delete payload.date_start;
-    }
+    // if (type === "monthly") {
+    //   payload.date_start = values.date_start + "-01"; // hier die Monatskorrektur
+    //   delete payload.date;
+    // } else {
+    //   delete payload.date_start;
+    // }
 
-    const url =
-      type === "monthly"
-        ? `${API_URL}/monthly_expenses`
-        : `${API_URL}/expenses`;
+    // const url =
+    //   type === "monthly"
+    //     ? `${API_URL}/monthly_expenses`
+    //     : `${API_URL}/expenses`;
 
     const token = localStorage.getItem("token");
 
     try {
-      const res = await fetch(url, {
+      const res = await fetch(`${API_URL}/expenses`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -63,6 +67,7 @@ const AddExpenseForm = () => {
         alert("Saved!");
         reset();
         setShowForm(false);
+        setTimeout(() => navigate("/expenses"), 1000);
         window.location.reload();
       } else {
         const data = await res.json();
@@ -75,19 +80,15 @@ const AddExpenseForm = () => {
   };
 
   return (
-    <div className="text-center mt-10">
+    <div className="my-2">
       <Button onClick={() => setShowForm(!showForm)} className="button">
         <Text variant="bodyBlack">
-          {" "}
-          {showForm ? "Close form" : "Insert new Expense"}
+          {showForm ? t("closeForm") : t("addNewOneTimeExpense")}
         </Text>
       </Button>
       {showForm && (
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="max-w-sm mx-auto space-y-4"
-        >
-          <FormItem>
+        <form onSubmit={handleSubmit(onSubmit)} className="max-w-sm mx-auto">
+          {/* <FormItem>
             <FormLabel>Type</FormLabel>
             <FormControl>
               <Select value={type} onChange={(e) => setType(e.target.value)}>
@@ -95,13 +96,13 @@ const AddExpenseForm = () => {
                 <SelectItem value="monthly">monthly</SelectItem>
               </Select>
             </FormControl>
-          </FormItem>
+          </FormItem> */}
 
           <FormItem>
-            <FormLabel>Name</FormLabel>
+            <FormLabel>{t("name")}</FormLabel>
             <FormControl>
               <Input
-                placeholder="Expense Name"
+                className="font-voces text-xs text-black"
                 {...register("name")}
                 required
               />
@@ -109,7 +110,7 @@ const AddExpenseForm = () => {
           </FormItem>
 
           <FormItem>
-            <FormLabel>Amount (€)</FormLabel>
+            <FormLabel>{t("price")} (€)</FormLabel>
             <FormControl>
               <Input
                 type="number"
@@ -121,29 +122,27 @@ const AddExpenseForm = () => {
           </FormItem>
 
           <FormItem>
-            <FormLabel>Category</FormLabel>
+            <FormLabel>{t("category")}</FormLabel>
             <FormControl>
               <Select {...register("category_id")} required>
-                <SelectItem value="">-- choose category --</SelectItem>
-                <SelectItem value="1">Shopping</SelectItem>
-                <SelectItem value="2">Entertainment</SelectItem>
-                <SelectItem value="3">Transport</SelectItem>
-                <SelectItem value="4">Rent & Energy</SelectItem>
-                <SelectItem value="5">Other</SelectItem>
+                <SelectItem value="">{t("chooseCategory")}</SelectItem>
+                <SelectItem value="1">{t("shopping")}</SelectItem>
+                <SelectItem value="2">{t("entertainment")}</SelectItem>
+                <SelectItem value="3">{t("transport")}</SelectItem>
+                <SelectItem value="4">{t("rentEnergy")}</SelectItem>
+                <SelectItem value="5">{t("other")}</SelectItem>
               </Select>
             </FormControl>
           </FormItem>
 
-          {type === "once" && (
-            <FormItem>
-              <FormLabel>Date</FormLabel>
-              <FormControl>
-                <Input type="date" {...register("date")} required />
-              </FormControl>
-            </FormItem>
-          )}
+          <FormItem>
+            <FormLabel>{t("date")}</FormLabel>
+            <FormControl>
+              <Input type="date" {...register("date")} required />
+            </FormControl>
+          </FormItem>
 
-          {type === "monthly" && (
+          {/* {type === "monthly" && (
             <>
               <FormItem>
                 <FormLabel>Start date</FormLabel>
@@ -152,10 +151,10 @@ const AddExpenseForm = () => {
                 </FormControl>
               </FormItem>
             </>
-          )}
+          )} */}
 
-          <Button type="submit" className="button">
-            <Text variant="bodyBlack">Save</Text>
+          <Button type="submit" className="button mt-2">
+            <Text variant="bodyBlack">{t("save")}</Text>
           </Button>
         </form>
       )}

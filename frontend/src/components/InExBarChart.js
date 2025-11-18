@@ -6,6 +6,10 @@ import { ChartContainer } from "./ui/chart"; // No type imports in JS
 import { Navigate } from "react-router-dom";
 
 import { API_URL } from "../lib/utils";
+import Text from "./Text";
+
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 
 const user = JSON.parse(localStorage.getItem("user"));
 const user_id = user?.id; // ohne Token nur der user
@@ -19,22 +23,22 @@ const user_id = user?.id; // ohne Token nur der user
 // { month: "June", expenses: 214, income: 140 },
 // ];
 
-const chartConfig = {
-  expenses: {
-    label: "Expenses",
-    color: " #F5C858", //  #FBBF24",
-  },
-  income: {
-    label: "Income",
-    color: " #0489A9",
-  },
-};
-
 const InExBarChart = () => {
+  const { t } = useTranslation();
   const now = new Date();
   const year = now.getFullYear().toString();
   const month = (now.getMonth() + 1).toString();
 
+  const chartConfig = {
+    expenses: {
+      label: t("expenses"),
+      color: " #037B99", // "#F5C858",
+    },
+    income: {
+      label: t("income"),
+      color: "#FBBF24",
+    },
+  };
   const [chartData, setChartData] = useState([
     { month: "", expenses: 0, income: 0 },
   ]);
@@ -81,9 +85,11 @@ const InExBarChart = () => {
   }
   return (
     <>
+      <Text variant="subtitleBlue">{t("annualOverview")}</Text>
+      <br />
       <ChartContainer
         config={chartConfig}
-        className="max-h-[400px] max-w-[800px]"
+        className="w-full flex justify-center items-center max-h-[400px]"
       >
         <BarChart accessibilityLayer data={chartData}>
           <CartesianGrid vertical={false} />
@@ -93,9 +99,20 @@ const InExBarChart = () => {
             tickMargin={10}
             axisLine={false}
             tickFormatter={(value) => value.slice(0, 3)}
+            tick={{
+              style: {
+                fill: "#000",
+                fontSize: "12px",
+                fontFamily: "Voces, sans-serif",
+              },
+            }}
           />
           <ChartTooltip content={<ChartTooltipContent />} />
-          <ChartLegend content={<ChartLegendContent />} />
+          <ChartLegend
+            content={
+              <ChartLegendContent className="font-voces text-xs text-black" />
+            }
+          />
           <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
           <Bar dataKey="income" fill="var(--color-income)" radius={4} />
         </BarChart>

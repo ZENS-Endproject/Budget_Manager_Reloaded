@@ -12,137 +12,37 @@ function ExpensesNav() {
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
 
-  const [totalExpenses, setTotalExpenses] = useState(null);
-  const [totalIncome, setTotalIncome] = useState(null);
-  const [message, setMessage] = useState("");
-  const [error, setError] = useState("");
-  const [balance, setBalance] = useState(null);
-  // const [debitPerMonth, setDebitPerMonth] = useState(null);
-
-  const fetchBalance = async () => {
-    try {
-      const response = await fetch(`${API_URL}/total_balance/${userId}`, {
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setError(data.error || "Could not load balance data.");
-        return;
-      }
-
-      setTotalExpenses(data.totalExpenses);
-      setTotalIncome(data.totalIncome);
-      setBalance(data.balance);
-      //setDebitPerMonth(data.debitPerMonth);
-      setMessage(data.message);
-      setError("");
-    } catch (err) {
-      console.error("Fetch error:", err);
-      setError("Could not load balance data.");
-    }
-  };
-  const handleDownloadPDF = async () => {
-    try {
-      const response = await fetch(`${API_URL}/download-expenses/${userId}`, {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Error download PDF.");
-      }
-
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute("download", "expenses.pdf");
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-    } catch (err) {
-      console.error("Error PDF:", err);
-      alert("Error download.");
-    }
-  };
-
-  useEffect(() => {
-    if (userId) fetchBalance();
-  }, [userId]);
-  const debitPerMonth = balance < 0 ? Math.abs(balance) / 4 : 0;
-
   return (
-    <>
+    <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
+      <div className="max-w-6xl pt-4 pb-12 grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div
+          className="md:col-span-2 bg-[var(--bg-white)] p-6 rounded-xl shadow"
+          style={{
+            padding: "40px",
 
-      <div
-        className="expenses-nav"
-        style={{
-          padding: "20px",
-          backgroundColor: "#ffffff",
-          marginBottom: "20px",
-          border: "1px solid #ddd",
-          borderRadius: "8px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-        }}
-      >
-        <Button onClick={handleDownloadPDF}>Download (PDF)</Button> <br />{" "}
-        <br />
-        <Text variant="subtitleBlue" className="my-6">
-          Monthly Overview
-        </Text>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {totalExpenses !== null && totalIncome !== null && (
-          <>
-            <p>
-              <strong>Total Expenses:</strong>{" "}
-              <span style={{ color: "red", fontWeight: "bold" }}>
-                {totalExpenses.toFixed(2)} €
-              </span>
-            </p>
-            <p>
-              <strong>Total Income:</strong>{" "}
-              <span style={{ color: "green", fontWeight: "bold" }}>
-                {" "}
-                {totalIncome.toFixed(2)} €
-              </span>
-            </p>
-            <p>
-              <strong>Balance:</strong>{" "}
-              <span
-                style={{
-                  color: balance < 0 ? "red" : "green",
-                  fontWeight: "bold",
-                }}
-              >
-                {balance.toFixed(2)} €
-              </span>
-            </p>
-            {balance < 0 && debitPerMonth !== null && (
-              <p style={{ color: "red", fontWeight: "bold" }}>
-                Your expenses exceed your income.{" "}
-                <span>
-                  To cover the debit, divide the amount over 4 months: Save{" "}
-                </span>
-                <strong style={{ color: "green" }}>
-                  {" "}
-                  {Math.abs(debitPerMonth).toFixed(2)} €
-                </strong>{" "}
-                per month.
-              </p>
-            )}
-          </>
-        )}
+            //marginBottom: "20px",
+            border: "1px solid text-[var(--muted)]",
+            borderRadius: "8px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}
+        >
+          <Monthly_expenses user_id={userId} />
+        </div>
+        <div
+          className="md:col-span-2 bg-[var(--bg-white)] p-6 rounded-xl shadow"
+          style={{
+            padding: "40px",
+
+            //marginBottom: "20px",
+            border: "1px solid text-[var(--muted)]",
+            borderRadius: "8px",
+            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          }}
+        >
+          <Expenses user_id={userId} />
+        </div>
       </div>
-      <AddExpenseForm />
-      <Monthly_expenses user_id={userId} />
-      <Expenses user_id={userId} />
-    </>
+    </main>
   );
 }
 

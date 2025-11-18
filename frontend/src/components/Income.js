@@ -14,10 +14,14 @@ import { FormItem, FormLabel, FormControl } from "./ui/form";
 import { Input } from "./ui/input";
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
+import App from "../App";
+import AddIncomeForm from "./AddIncomeOnce";
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 
 function Income() {
   const [income, setIncome] = useState([]);
-  const [Sum, setSum] = useState(0);
+  const [sum, setSum] = useState(0);
   const [selectedMonthYear, setSelectedMonthYear] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,6 +29,7 @@ function Income() {
   const userId = user?.id;
   const navigate = useNavigate();
   const [showMonthFilter, setShowMonthFilter] = useState(false);
+  const { t } = useTranslation();
 
   useEffect(() => {
     const today = new Date();
@@ -59,9 +64,7 @@ function Income() {
     }
   };
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Do you really want to delete this entry?"
-    );
+    const confirmed = window.confirm(t("deleteEntry"));
     if (!confirmed) return;
     const token = localStorage.getItem("token");
     try {
@@ -109,107 +112,146 @@ function Income() {
 
   return (
     <>
-      <Text variant="subtitleBlue" className="text-center my-6">
-        One-Time Incomes {selectedMonthYear}
+      <Text variant="subtitleBlue">
+        {t("oneTimeIncome")} {selectedMonthYear}
       </Text>
-      <div className="text-center mt-10">
-        <Button
-          onClick={() => setShowMonthFilter(!showMonthFilter)}
-          className="mb-4"
-        >
-          {showMonthFilter ? "Hide filter" : "Filter by Month"}
-        </Button>
+      <AddIncomeForm />
+      <Button
+        onClick={() => setShowMonthFilter(!showMonthFilter)}
+        className="button mb-2"
+      >
+        <Text variant="bodyBlack">
+          {showMonthFilter ? t("hideFilter") : t("filterByMonth")}
+        </Text>
+      </Button>
 
-        {showMonthFilter && (
-          <div className="max-w-sm mx-auto mt-4">
-            <FormItem>
-              <FormLabel>Select Filter</FormLabel>
-              <FormControl>
-                <Input
-                  type="month"
-                  value={selectedMonthYear}
-                  onChange={(e) => {
-                    setSelectedMonthYear(e.target.value);
-                    fetchIncomes(e.target.value);
-                  }}
-                />
-              </FormControl>
-            </FormItem>
-            <br />
-            <Button
-              onClick={() => {
-                setSelectedMonthYear("");
-                fetchIncomes();
-                setShowMonthFilter(false);
-              }}
-            >
-              Reset filter
-            </Button>
-          </div>
-        )}
-      </div>
-      {loading && <p className="text-center">Loading income...</p>}
+      {showMonthFilter && (
+        <div className="max-w-sm mx-auto">
+          <FormItem>
+            <FormLabel>{t("selectMonth")}</FormLabel>
+            <FormControl>
+              <Input
+                type="month"
+                value={selectedMonthYear}
+                onChange={(e) => {
+                  setSelectedMonthYear(e.target.value);
+                  fetchIncomes(e.target.value);
+                }}
+              />
+            </FormControl>
+          </FormItem>
+
+          <Button
+            onClick={() => {
+              setSelectedMonthYear("");
+              fetchIncomes();
+              setShowMonthFilter(false);
+            }}
+            className="button my-2"
+          >
+            <Text variant="bodyBlack">{t("resetFilter")}</Text>
+          </Button>
+        </div>
+      )}
+
+      {loading && <p className="text-center">{t("loadingIncome")}</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
       {!loading && !error && (
-        <div className="max-w-4xl mx-auto">
-          <Table className="incomes-table">
-            <TableCaption></TableCaption>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-[100px]">Name</TableHead>
-                <TableHead>Price (€)</TableHead>
-                <TableHead className="text-right">Date</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {income.map((income) => (
-                <TableRow key={income.id}>
-                  <TableCell className="font-medium">{income.name}</TableCell>
-                  <TableCell>{parseFloat(income.amount).toFixed(2)}</TableCell>
-                  <TableCell>
-                    {new Date(income.date).toISOString().split("T")[0]}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      onClick={() =>
-                        navigate(
-                          `/edit-income/${income.user_id}/${income.id}`,
-                          {
-                            state: { income },
-                          }
-                        )
-                      }
+        <div className="max-w-5xl mx-auto">
+          <div className="table-wrapper">
+            <Table className="incomes-table">
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[100px]">
+                    <Text variant="bodyBlue">{t("name")}</Text>
+                  </TableHead>
+                  <TableHead>
+                    <Text
+                      variant="bodyBlue"
+                      className="text-right w-full block"
                     >
-                      Edit
-                    </Button>
-                    <Button
-                      onClick={() => handleDelete(income.id)}
-                      className="text-red-500 underline"
-                    >
-                      Delete
-                    </Button>
-                  </TableCell>
+                      {t("price")}
+                    </Text>
+                  </TableHead>
+                  <TableHead>
+                    <Text variant="bodyBlue">{t("date")}</Text>
+                  </TableHead>
+                  <TableHead>
+                    <Text variant="bodyBlue">{t("actions")}</Text>
+                  </TableHead>
                 </TableRow>
-              ))}
-              {selectedMonthYear === new Date().toISOString().slice(0, 7) && (
-                <TableRow
-                  style={{
-                    backgroundColor: "#7FDBFF",
-                    fontWeight: "bold",
-                    color: "#333",
-                  }}
-                >
-                  <TableCell>
-                    Total One-Time Incomes for this month {selectedMonthYear}
-                  </TableCell>
-                  <TableCell>{parseFloat(Sum).toFixed(2)}€</TableCell>
-                  <TableCell />
-                  <TableCell />
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {income.map((income) => (
+                  <TableRow key={income.id}>
+                    <TableCell>
+                      <Text variant="bodyBlack">{income.name}</Text>
+                    </TableCell>
+                    <TableCell>
+                      <span className="text-right w-full block">
+                        <Text variant="bodyBlack">
+                          {parseFloat(income.amount).toFixed(2)} €
+                        </Text>
+                      </span>
+                    </TableCell>
+                    <TableCell>
+                      <Text variant="bodyBlack">
+                        {income.date
+                          ? (() => {
+                              const d = new Date(income.date);
+                              return `${d.getDate()}.${
+                                d.getMonth() + 1
+                              }.${d.getFullYear()}`;
+                            })()
+                          : "No date"}
+                      </Text>
+                    </TableCell>
+                    <TableCell>
+                      <Button
+                        onClick={() =>
+                          navigate(
+                            `/edit-income/${income.user_id}/${income.id}`,
+                            {
+                              state: { income },
+                            }
+                          )
+                        }
+                        className="button"
+                      >
+                        <Text variant="bodyBlack">{t("edit")}</Text>
+                      </Button>
+                      <Button
+                        onClick={() => handleDelete(income.id)}
+                        className="button"
+                      >
+                        <Text variant="bodyBlack">{t("delete")}</Text>
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+                {selectedMonthYear === new Date().toISOString().slice(0, 7) && (
+                  <TableRow>
+                    <TableCell>
+                      <Text variant="bodyBlue">
+                        <strong>
+                          {t("totalOneTimeIncome")} - {selectedMonthYear}{" "}
+                        </strong>
+                      </Text>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <span className="text-right w-full block">
+                        <Text variant="bodyBlue">
+                          <strong>{parseFloat(sum).toFixed(2)} €</strong>
+                        </Text>
+                      </span>
+                    </TableCell>
+                    <TableCell />
+                    <TableCell />
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       )}
     </>

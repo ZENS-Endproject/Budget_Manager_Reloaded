@@ -20,6 +20,9 @@ import {
 } from "@tanstack/react-table";
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
+import AddExpenseForm from "./AddExpenseMonthly";
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 
 function MonthlyExpenses() {
   const [expenses, setExpenses] = useState([]);
@@ -30,6 +33,7 @@ function MonthlyExpenses() {
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
   const [showMonthFilter, setShowMonthFilter] = useState(false);
+  const { t } = useTranslation();
 
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
@@ -86,9 +90,7 @@ function MonthlyExpenses() {
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Do you really want to delete this entry?"
-    );
+    const confirmed = window.confirm(t("deleteEntry"));
     if (!confirmed) return;
 
     const token = localStorage.getItem("token");
@@ -126,22 +128,28 @@ function MonthlyExpenses() {
   const columns = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("name"),
       size: 100,
       cell: ({ row }) => row.getValue("name"),
     },
     {
       accessorKey: "amount",
-      header: "Price (€)",
-      cell: ({ row }) => parseFloat(row.getValue("amount")).toFixed(2) + " €",
+      header: () => (
+        <span className="text-right w-full block">{t("price")}</span>
+      ),
+      cell: ({ row }) => (
+        <span className="text-right w-full block">
+          {parseFloat(row.getValue("amount")).toFixed(2)} €
+        </span>
+      ),
     },
     {
       accessorKey: "category",
-      header: "Category",
+      header: t("category"),
     },
     {
       accessorKey: "date_start",
-      header: "Start Date",
+      header: t("dateStart"),
       cell: ({ row }) =>
         row.getValue("date_start")
           ? new Date(row.getValue("date_start")).toLocaleDateString()
@@ -149,7 +157,7 @@ function MonthlyExpenses() {
     },
     {
       accessorKey: "date_end",
-      header: "End Date",
+      header: t("dateEnd"),
       cell: ({ row }) =>
         row.getValue("date_end")
           ? new Date(row.getValue("date_end")).toLocaleDateString()
@@ -157,7 +165,7 @@ function MonthlyExpenses() {
     },
     {
       id: "actions",
-      header: "Actions",
+      header: t("actions"),
       cell: ({ row }) => {
         const expense = row.original;
         return (
@@ -171,14 +179,12 @@ function MonthlyExpenses() {
                   }
                 )
               }
+              className="button"
             >
-              Edit
+              <Text variant="bodyBlack">{t("edit")}</Text>
             </Button>
-            <Button
-              onClick={() => handleDelete(expense.id)}
-              className="text-red-500 underline"
-            >
-              Delete
+            <Button onClick={() => handleDelete(expense.id)} className="button">
+              <Text variant="bodyBlack">{t("delete")}</Text>
             </Button>
           </div>
         );
@@ -202,47 +208,49 @@ function MonthlyExpenses() {
 
   return (
     <>
-      <Text variant="subtitleBlue" className="text-center my-6">
-        Regular expenses {selectedMonthYear}
+      <Text variant="subtitleBlue">
+        {t("regularExpenses")} {selectedMonthYear}
       </Text>
-      <div className="text-center mt-10">
-        <Button
-          onClick={() => setShowMonthFilter(!showMonthFilter)}
-          className="mb-4"
-        >
-          {showMonthFilter ? "Hide filter" : "Filter by Month"}
-        </Button>
+      <AddExpenseForm />
+      <Button
+        onClick={() => setShowMonthFilter(!showMonthFilter)}
+        className="button mb-2"
+      >
+        <Text variant="bodyBlack">
+          {showMonthFilter ? t("hideFilter") : t("filterByMonth")}
+        </Text>
+      </Button>
 
-        {showMonthFilter && (
-          <div className="max-w-sm mx-auto mt-4">
-            <FormItem>
-              <FormLabel>Select Month</FormLabel>
-              <FormControl>
-                <Input
-                  type="month"
-                  value={selectedMonthYear}
-                  onChange={(e) => {
-                    setSelectedMonthYear(e.target.value);
-                    fetchMonthlyExpenses(e.target.value);
-                  }}
-                />
-              </FormControl>
-            </FormItem>
-            <br />
-            <Button
-              onClick={() => {
-                setSelectedMonthYear("");
-                fetchMonthlyExpenses();
-                setShowMonthFilter(false);
-              }}
-            >
-              Reset Filter
-            </Button>
-          </div>
-        )}
-      </div>
+      {showMonthFilter && (
+        <div className="max-w-sm mx-auto">
+          <FormItem>
+            <FormLabel>{t("selectMonth")}</FormLabel>
+            <FormControl>
+              <Input
+                type="month"
+                value={selectedMonthYear}
+                onChange={(e) => {
+                  setSelectedMonthYear(e.target.value);
+                  fetchMonthlyExpenses(e.target.value);
+                }}
+              />
+            </FormControl>
+          </FormItem>
 
-      {loading && <p className="text-center">Loading expenses...</p>}
+          <Button
+            onClick={() => {
+              setSelectedMonthYear("");
+              fetchMonthlyExpenses();
+              setShowMonthFilter(false);
+            }}
+            className="button my-2"
+          >
+            <Text variant="bodyBlack">{t("resetFilter")}</Text>
+          </Button>
+        </div>
+      )}
+
+      {loading && <p className="text-center">{t("loadingExpenses")}</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
       {!loading && !error && (
@@ -261,10 +269,12 @@ function MonthlyExpenses() {
                           header.column.id === "actions" ? "text-right" : ""
                         }`}
                       >
-                        {flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        <Text variant="bodyBlue">
+                          {flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                        </Text>
                       </TableHead>
                     ))}
                   </TableRow>
@@ -280,26 +290,32 @@ function MonthlyExpenses() {
                           cell.column.id === "name" ? "w-[100px]" : ""
                         } ${cell.column.id === "actions" ? "text-right" : ""}`}
                       >
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext()
-                        )}
+                        <Text variant="bodyBlack">
+                          {flexRender(
+                            cell.column.columnDef.cell,
+                            cell.getContext()
+                          )}
+                        </Text>
                       </TableCell>
                     ))}
                   </TableRow>
                 ))}
                 {selectedMonthYear === new Date().toISOString().slice(0, 7) && (
-                  <TableRow
-                    style={{
-                      backgroundColor: "#0489A9",
-                      fontWeight: "bold",
-                      color: "#333",
-                    }}
-                  >
+                  <TableRow>
                     <TableCell className="font-medium">
-                      Total regular expenses for this month {selectedMonthYear}
+                      <Text variant="bodyBlue">
+                        <strong>
+                          {t("totalRegularExpenses")} - {selectedMonthYear}
+                        </strong>
+                      </Text>
                     </TableCell>
-                    <TableCell>{parseFloat(monthlySum).toFixed(2)} €</TableCell>
+                    <TableCell className="text-right">
+                      <span className="text-right w-full block">
+                        <Text variant="bodyBlue">
+                          <strong>{parseFloat(monthlySum).toFixed(2)} €</strong>
+                        </Text>
+                      </span>
+                    </TableCell>
                     <TableCell />
                     <TableCell />
                     <TableCell />

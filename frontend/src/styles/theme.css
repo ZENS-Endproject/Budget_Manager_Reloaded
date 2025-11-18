@@ -1,0 +1,138 @@
+/* ==== Light / Default ==== */
+:root {
+  --bg: #FEFEEF;
+  --bg-white: #FFFFFF;
+  --text: #0A4A56;
+  --text-blue: #02586E;
+  --text-black: #000000;
+  --button-blue: 2, 88, 110;
+  --button-yellow: 249, 190, 40;
+  --header-bg: #FEFEEF;   /* bleibt hell */
+  --sidebar-bg: #FEFEEF;
+  --hover: rgba(4,137,169,0.10);
+  --active: #E8EFEF;
+}
+
+/* ==== Dark Mode (dunkles Blau) ==== */
+.dark {
+  --bg: #071822;
+  --bg-white: rgba(255,255,255,0.06);
+  --text: #FFFFFF;
+  --text-blue: #FEFEEF;
+  --text-black: #E8EFEF;
+  --button-blue: 2, 88, 110;
+  --button-yellow: 249, 190, 40;
+  --header-bg: #061520;   /* <-- dunkler Header */
+  --sidebar-bg: #0A2530;
+  --hover: rgba(255,255,255,0.05);
+  --active: rgba(255,255,255,0.10);
+}
+
+/* ==== Header ==== */
+header {
+  background: var(--header-bg);
+  color: var(--text);
+  transition: background-color .3s ease, color .3s ease;
+}
+
+/* ==== Hauptbereich ==== */
+.app-content {
+  background: var(--bg);
+  color: var(--text);
+  transition: background-color .3s ease, color .3s ease;
+}
+
+/* ==== Sidebar ==== */
+.app-sidebar {
+  background: var(--sidebar-bg);
+  transition: background-color .3s ease, color .3s ease;
+  will-change: transform;
+}
+
+/* ==== Sidebar: Links ==== */
+.app-sidebar a {
+  color: var(--text);
+  transition: background-color .2s ease, color .2s ease;
+}
+.app-sidebar a:hover {
+  background: var(--hover);
+}
+.app-sidebar a.active,
+.app-sidebar a[aria-current="page"] {
+  background: var(--active);
+  color: var(--text);
+  font-weight: 600;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+}
+
+/* ==== Logos ==== */
+/* .logo-dark { display: none; }
+.logo-light { display: block; }
+.dark .logo-dark { display: block; }
+.dark .logo-light { display: none; } */
+
+/* ==== Vereinheitlichung ==== */
+.dark header,
+.dark .app-sidebar,
+.dark .app-content {
+  background-color: var(--bg) !important;
+  border: 0;
+  box-shadow: none;
+}
+
+.header-wave svg { display: block; }
+
+.dark .app-content__inner,
+.dark .app-sidebar > * {
+  background-color: transparent;
+}
+
+/* ==== Surfaces for About page ==== */
+:root {
+  --surface: rgba(255,255,255,0.70);
+  --surface-strong: rgba(255,255,255,0.80);
+  --border: rgba(0,0,0,0.05);
+  --muted: rgba(10,74,86,0.90);
+  --chip-bg: rgba(10,74,86,0.10);
+  --chip-border: rgba(10,74,86,0.20);
+}
+
+.dark {
+  --surface: rgba(255,255,255,0.06);
+  --surface-strong: rgba(255,255,255,0.08);
+  --border: rgba(255,255,255,0.12);
+  --muted: rgba(232,239,239,0.90);
+  --chip-bg: rgba(232,239,239,0.10);
+  --chip-border: rgba(232,239,239,0.25);
+}
+
+/* Inputs & Textareas – exakt wie Team-Cards */
+input, textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--surface-strong);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 14px;
+  transition: background-color .3s ease, color .3s ease, border-color .3s ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: var(--text);
+  opacity: .55;
+}
+
+button.contact-btn {
+  background: var(--chip-bg);
+  color: var(--text);
+  border: 1px solid var(--chip-border);
+  border-radius: 12px;
+  padding: 10px 20px;
+  transition: background-color .3s ease, border-color .3s ease;
+}
+
+button.contact-btn:hover {
+  background: var(--chip-border);
+}

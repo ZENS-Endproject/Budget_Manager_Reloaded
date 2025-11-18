@@ -1,0 +1,43 @@
+/* Hamburger (nur Mobile sichtbar) */
+.hamburger {
+  display: none;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    display: block;
+  }
+}
+
+/* Tabellen: auf Mobile ein paar Spalten ausblenden */
+@media (max-width: 768px) {
+  .expenses-table tbody tr td:nth-child(3),
+  .expenses-table tbody tr td:nth-child(4) {
+    display: none !important;
+  }
+
+  .incomes-table tbody tr td:nth-child(3) {
+    display: none !important;
+  }
+}
+
+/* Logo-Switch hell/dunkel */
+.logo-dark { display: none; }
+.logo-light { display: block; }
+.dark .logo-dark { display: block; }
+.dark .logo-light { display: none; }
+
+/* Remove browser focus border for icon buttons */
+button:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+button:focus-visible {
+  outline: none !important;
+  box-shadow: none !important;
+}
