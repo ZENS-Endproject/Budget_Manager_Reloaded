@@ -1,15 +1,17 @@
 import React from "react";
 import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
+
 
 // Icons
 import logo from "../assets/header/logo.png";
-import lang from "../assets/header/lang.png";
+import deutschIcon from "../assets/header/deutsch.png";
+import englischIcon from "../assets/header/englisch.png";
 import moon from "../assets/header/moon.png";
 import power from "../assets/header/power.png";
 import { Link } from "react-router-dom";
 import sun from "../assets/header/sun.png";
-
 
 const LightWave = () => (
   <div className="absolute inset-0 pointer-events-none select-none header-wave">
@@ -105,6 +107,13 @@ export default function Header({ onToggleSidebar }) {
     i18n.changeLanguage(newLanguage);
   };
 
+  const navigate = useNavigate();
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+  
   return (
     <header className="sticky top-0 z-50 w-full h-[120px] bg-[var(--header-bg)] transition-colors duration-300">
 
@@ -137,12 +146,19 @@ export default function Header({ onToggleSidebar }) {
                   </Link>
                 </div>
 
-                {/* RIGHT: ICONS — ORIGINAL SIZE, NO BACKGROUND, NO CIRCLES */}
+                {/* RIGHT: ICONS */}
                 <div className="flex items-center gap-8">
 
                   {/* LANGUAGE ICON */}
-                  <button className="flex items-center justify-center hover:opacity-80 transition">
-                    <img src={lang} alt="Language" className="h-14 w-14 object-contain" />
+                  <button
+                    onClick={toggleLanguage}
+                    className="flex items-center justify-center hover:opacity-80 transition cursor-pointer"
+                  >
+                    <img
+                      src={i18n.language === "en" ? deutschIcon : englischIcon}
+                      alt="Language toggle"
+                      className="h-14 w-14 object-contain"
+                    />
                   </button>
 
                   {/* DARKMODE ICON */}
@@ -158,7 +174,10 @@ export default function Header({ onToggleSidebar }) {
                   </button>
 
                   {/* LOGOUT ICON */}
-                  <button className="flex items-center justify-center hover:opacity-80 transition">
+                  <button
+                    onClick={handleLogout}
+                    className="flex items-center justify-center hover:opacity-80 transition cursor-pointer"
+                  >
                     <img src={power} alt="Logout" className="h-14 w-14 object-contain" />
                   </button>
 

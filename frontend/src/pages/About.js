@@ -23,14 +23,13 @@ export default function About() {
     <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
       <section className="pt-4 pb-12">
         <div
-          className="grid gap-2 px-6"
+          className="about-grid px-6 gap-2"
           style={{
             paddingLeft: `calc(var(--sidebar-width, 0px) + ${gutter}px)`,
-            gridTemplateColumns: "minmax(0,1fr) 360px",
           }}
         >
-          {/* Zeile 1 – links: What is ZENS? */}
-          <article className="col-start-1 row-start-1 rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
+          {/* What is ZENS? */}
+          <article className="rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
             <h2 className="text-[18px] font-semibold mb-3">What is ZENS?</h2>
             <div className="space-y-3 text-[14px] leading-relaxed text-[var(--muted)]">
               <p>
@@ -41,16 +40,14 @@ export default function About() {
               <p>
                 Add one-off or recurring entries, filter &amp; categorize, and
                 explore clear charts. Everything stays neatly organized in one
-                place, and you can export your data (e.g. PDF/CSV) anytime.
+                place, and you can export your data anytime.
               </p>
-              <p>
-                Modern, clean, and easy to use — built with React &amp; Node.js.
-              </p>
+              <p>Modern, clean, and easy to use — built with React & Node.js.</p>
             </div>
           </article>
 
-          {/* Zeile 1 – rechts: Impressum */}
-          <aside className="col-start-2 row-start-1 rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7 h-fit">
+          {/* Impressum */}
+          <aside className="rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7 h-fit">
             <h2 className="text-[18px] font-semibold mb-3">Impressum</h2>
             <div className="space-y-4 text-[13px] text-[var(--muted)]">
               <div>
@@ -71,8 +68,8 @@ export default function About() {
             </div>
           </aside>
 
-          {/* Zeile 2 – links: Team */}
-          <article className="col-start-1 row-start-2 rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
+          {/* Team */}
+          <article className="rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
             <h2 className="text-[18px] font-semibold mb-5">This is our Team</h2>
             <div className="grid gap-6 sm:grid-cols-2">
               {team.map((m) => (
@@ -108,7 +105,7 @@ export default function About() {
             </div>
           </article>
 
-          {/* Zeile 2 – rechts: Kontakt-Miniform */}
+          {/* Contact form */}
           <div className="rounded-2xl bg-[var(--surface-strong)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
             <ContactMini />
           </div>

@@ -54,10 +54,9 @@ export default function ContactMini() {
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         rows={4}
-        className="w-full mb-4 rounded-xl border border-[#D8E4E8] bg-white/90 px-3 py-2 outline-none resize-y focus:ring-2 focus:ring-[#0489A9]/30"
+        className="w-full mb-4 rounded-lg p-2"
         placeholder="Type your message here..."
       />
-
       <div className="flex items-center gap-3">
         {state.ok && (
           <span className="text-sm text-green-700">Thank you! ✉️</span>
