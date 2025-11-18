@@ -1,3 +1,4 @@
+import React, { useState, useEffect } from "react";
 export default function ContactMini() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
@@ -58,13 +59,6 @@ export default function ContactMini() {
       />
 
       <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={state.loading || !subject.trim() || !message.trim()}
-          className="rounded-full bg-[#0489A9] px-4 py-2 text-white disabled:opacity-50 hover:brightness-105 transition"
-        >
-          {state.loading ? "Sending..." : "Send"}
-        </button>
         {state.ok && (
           <span className="text-sm text-green-700">Thank you! ✉️</span>
         )}
