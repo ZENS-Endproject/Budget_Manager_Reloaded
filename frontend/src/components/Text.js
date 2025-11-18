@@ -8,12 +8,12 @@ export default function Text({
   className,
 }) {
   const base = {
-    menuBlue: "font-sourceserif text-2xl text-[#02586E]",
-    subtitleBlue: "font-voces text-lg text-[#02586E]",
-    bodyBlack: "font-voces text-base text-black",
-    bodyBlue: "font-voces text-base text-[#02586E]",
-    bodyRed: "font-voces text-base text-[#DC2626]",
-    smallBlack: "font-voces text-xs text-black",
+    menuBlue: "font-sourceserif text-2xl text-[var(--text-blue)]",
+    subtitleBlue: "font-voces text-lg text-[var(--text-blue)]",
+    bodyBlack: "font-voces text-sm text-[var(--text-black)]",
+    bodyBlue: "font-voces text-sm text-[var(--text-blue)]",
+    bodyRed: "font-voces text-sm text-[#DC2626]",
+    smallBlack: "font-voces text-xs text-[var(--text-black)]",
     smallRed: "font-voces text-xs text-[#DC2626]",
   };
   // 12px	text-xs

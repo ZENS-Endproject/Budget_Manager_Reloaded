@@ -90,9 +90,20 @@ td button {
 }
 
 .button {
-  @apply bg-[#02586E]/10 hover:bg-[#02586E]/50 transition transform hover:scale-105 p-2 rounded-xl shadow;
+  background-color: rgba(var(--button-blue), 0.10) ;
+  @apply transition transform hover:scale-105 p-2 rounded-xl shadow rounded-xl;
+}
+
+.button:hover {
+  background-color: rgba(var(--button-blue), 0.50);
 }
 
 .button-prevnext {
-@apply bg-[#f9be28]/10 hover:bg-[#f9be28]/50 transition transform hover:scale-105 h-[25px] w-[100px] p-2 shadow;
+  background-color: rgba(var(--button-yellow), 0.10);
+  @apply transition transform hover:scale-105 h-[25px] w-[100px] p-2 shadow rounded-xl;
 }
+
+.button-prevnext:hover {
+  background-color: rgba(var(--button-yellow), 0.50);
+}
+

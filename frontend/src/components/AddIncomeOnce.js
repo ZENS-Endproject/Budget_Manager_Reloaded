@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-
+import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "./ui/form";
@@ -8,11 +8,14 @@ import { Select, SelectItem } from "./ui/select";
 
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 
 const AddIncomeForm = () => {
+  const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   // const [type, setType] = useState("once");
-
+  const navigate = useNavigate();
   const { register, handleSubmit, reset } = useForm({
     defaultValues: {
       name: "",
@@ -60,6 +63,7 @@ const AddIncomeForm = () => {
         alert("Saved");
         reset();
         setShowForm(false);
+        setTimeout(() => navigate("/expenses"), 1000);
         window.location.reload();
       } else {
         const data = await res.json();
@@ -75,7 +79,7 @@ const AddIncomeForm = () => {
     <div className="my-2">
       <Button onClick={() => setShowForm(!showForm)} className="button">
         <Text variant="bodyBlack">
-          {showForm ? "Close form" : "Add new one-time income"}
+          {showForm ? t("closeForm") : t("addNewOneTimeIncome")}
         </Text>{" "}
       </Button>
       {showForm && (
@@ -91,7 +95,7 @@ const AddIncomeForm = () => {
           </FormItem> */}
 
           <FormItem>
-            <FormLabel>Name</FormLabel>
+            <FormLabel>{t("name")}</FormLabel>
             <FormControl>
               <Input
                 className="font-voces text-xs text-black"
@@ -102,7 +106,7 @@ const AddIncomeForm = () => {
           </FormItem>
 
           <FormItem>
-            <FormLabel>Amount (€)</FormLabel>
+            <FormLabel>{t("price")} (€)</FormLabel>
             <FormControl>
               <Input
                 type="number"
@@ -114,7 +118,7 @@ const AddIncomeForm = () => {
           </FormItem>
 
           <FormItem>
-            <FormLabel>Date</FormLabel>
+            <FormLabel>{t("date")}</FormLabel>
             <FormControl>
               <Input type="date" {...register("date")} required />
             </FormControl>
@@ -132,7 +136,7 @@ const AddIncomeForm = () => {
           )} */}
 
           <Button type="submit" className="button mt-2">
-            <Text variant="bodyBlack">Save</Text>
+            <Text variant="bodyBlack">{t("save")}</Text>
           </Button>
         </form>
       )}

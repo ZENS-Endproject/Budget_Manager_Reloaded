@@ -2,6 +2,9 @@ import React, { useEffect } from "react";
 import { NavLink } from "react-router-dom";
 import Text from "../components/Text";
 
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
+
 /**
  * Farbkonzept:
  *  - Hintergrund: #FEFEEF (helles Offwhite)
@@ -14,6 +17,8 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
     "block rounded-2xl px-6 py-3 text-[20px] leading-tight transition-colors duration-200";
   const active = "bg-[#E8EFEF] text-[#0A4A56] font-semibold shadow-sm";
   const inactive = "text-[#0A4A56] hover:bg-[#0489A91A]";
+
+  const { t } = useTranslation();
 
   // Body-Scroll sperren, wenn Drawer offen (mobile)
   useEffect(() => {
@@ -59,7 +64,7 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
                 `${itemBase} ${isActive ? active : inactive}`
               }
             >
-              Statistics
+              <Text variant="menuBlue">{t("statistics")}</Text>
             </NavLink>
 
             <NavLink
@@ -68,7 +73,7 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
                 `${itemBase} ${isActive ? active : inactive}`
               }
             >
-              Expenses
+              <Text variant="menuBlue">{t("expenses")}</Text>
             </NavLink>
 
             <NavLink
@@ -77,7 +82,7 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
                 `${itemBase} ${isActive ? active : inactive}`
               }
             >
-              Income
+              <Text variant="menuBlue">{t("income")}</Text>
             </NavLink>
           </nav>
 
@@ -87,13 +92,11 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
               to="/about"
               className={({ isActive }) =>
                 `${itemBase} ${
-                  isActive
-                    ? active
-                    : "text-[#0A4A56]/90 hover:bg-[#0489A91A]"
+                  isActive ? active : "text-[#0A4A56]/90 hover:bg-[#0489A91A]"
                 }`
               }
             >
-              About us
+              <Text variant="menuBlue">{t("aboutUs")}</Text>
             </NavLink>
           </div>
         </div>

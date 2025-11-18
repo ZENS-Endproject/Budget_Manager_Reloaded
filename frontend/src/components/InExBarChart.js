@@ -8,6 +8,9 @@ import { Navigate } from "react-router-dom";
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
 
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
+
 const user = JSON.parse(localStorage.getItem("user"));
 const user_id = user?.id; // ohne Token nur der user
 
@@ -20,22 +23,22 @@ const user_id = user?.id; // ohne Token nur der user
 // { month: "June", expenses: 214, income: 140 },
 // ];
 
-const chartConfig = {
-  expenses: {
-    label: "Expenses",
-    color: " #037B99", // "#F5C858",
-  },
-  income: {
-    label: "Income",
-    color: "#FBBF24",
-  },
-};
-
 const InExBarChart = () => {
+  const { t } = useTranslation();
   const now = new Date();
   const year = now.getFullYear().toString();
   const month = (now.getMonth() + 1).toString();
 
+  const chartConfig = {
+    expenses: {
+      label: t("expenses"),
+      color: " #037B99", // "#F5C858",
+    },
+    income: {
+      label: t("income"),
+      color: "#FBBF24",
+    },
+  };
   const [chartData, setChartData] = useState([
     { month: "", expenses: 0, income: 0 },
   ]);
@@ -82,7 +85,7 @@ const InExBarChart = () => {
   }
   return (
     <>
-      <Text variant="subtitleBlue">Annual Overview</Text>
+      <Text variant="subtitleBlue">{t("annualOverview")}</Text>
       <br />
       <ChartContainer
         config={chartConfig}

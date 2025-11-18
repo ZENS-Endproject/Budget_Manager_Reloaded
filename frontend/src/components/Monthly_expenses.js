@@ -21,6 +21,8 @@ import {
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
 import AddExpenseForm from "./AddExpenseMonthly";
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 
 function MonthlyExpenses() {
   const [expenses, setExpenses] = useState([]);
@@ -31,6 +33,7 @@ function MonthlyExpenses() {
   const [sorting, setSorting] = useState([]);
   const [columnFilters, setColumnFilters] = useState([]);
   const [showMonthFilter, setShowMonthFilter] = useState(false);
+  const { t } = useTranslation();
 
   const user = JSON.parse(localStorage.getItem("user"));
   const userId = user?.id;
@@ -87,9 +90,7 @@ function MonthlyExpenses() {
   };
 
   const handleDelete = async (id) => {
-    const confirmed = window.confirm(
-      "Do you really want to delete this entry?"
-    );
+    const confirmed = window.confirm(t("deleteEntry"));
     if (!confirmed) return;
 
     const token = localStorage.getItem("token");
@@ -127,13 +128,15 @@ function MonthlyExpenses() {
   const columns = [
     {
       accessorKey: "name",
-      header: "Name",
+      header: t("name"),
       size: 100,
       cell: ({ row }) => row.getValue("name"),
     },
     {
       accessorKey: "amount",
-      header: () => <span className="text-right w-full block">Price</span>,
+      header: () => (
+        <span className="text-right w-full block">{t("price")}</span>
+      ),
       cell: ({ row }) => (
         <span className="text-right w-full block">
           {parseFloat(row.getValue("amount")).toFixed(2)} €
@@ -142,11 +145,11 @@ function MonthlyExpenses() {
     },
     {
       accessorKey: "category",
-      header: "Category",
+      header: t("category"),
     },
     {
       accessorKey: "date_start",
-      header: "Start Date",
+      header: t("dateStart"),
       cell: ({ row }) =>
         row.getValue("date_start")
           ? new Date(row.getValue("date_start")).toLocaleDateString()
@@ -154,7 +157,7 @@ function MonthlyExpenses() {
     },
     {
       accessorKey: "date_end",
-      header: "End Date",
+      header: t("dateEnd"),
       cell: ({ row }) =>
         row.getValue("date_end")
           ? new Date(row.getValue("date_end")).toLocaleDateString()
@@ -162,7 +165,7 @@ function MonthlyExpenses() {
     },
     {
       id: "actions",
-      header: "Actions",
+      header: t("actions"),
       cell: ({ row }) => {
         const expense = row.original;
         return (
@@ -178,10 +181,10 @@ function MonthlyExpenses() {
               }
               className="button"
             >
-              <Text variant="bodyBlack">Edit</Text>
+              <Text variant="bodyBlack">{t("edit")}</Text>
             </Button>
             <Button onClick={() => handleDelete(expense.id)} className="button">
-              <Text variant="bodyBlack">Delete</Text>
+              <Text variant="bodyBlack">{t("delete")}</Text>
             </Button>
           </div>
         );
@@ -205,21 +208,23 @@ function MonthlyExpenses() {
 
   return (
     <>
-      <Text variant="subtitleBlue">Regular expenses {selectedMonthYear}</Text>
+      <Text variant="subtitleBlue">
+        {t("regularExpenses")} {selectedMonthYear}
+      </Text>
       <AddExpenseForm />
       <Button
         onClick={() => setShowMonthFilter(!showMonthFilter)}
         className="button mb-2"
       >
         <Text variant="bodyBlack">
-          {showMonthFilter ? "Hide filter" : "Filter by Month"}
+          {showMonthFilter ? t("hideFilter") : t("filterByMonth")}
         </Text>
       </Button>
 
       {showMonthFilter && (
         <div className="max-w-sm mx-auto">
           <FormItem>
-            <FormLabel>Select Month</FormLabel>
+            <FormLabel>{t("selectMonth")}</FormLabel>
             <FormControl>
               <Input
                 type="month"
@@ -240,12 +245,12 @@ function MonthlyExpenses() {
             }}
             className="button my-2"
           >
-            <Text variant="bodyBlack">Reset Filter</Text>
+            <Text variant="bodyBlack">{t("resetFilter")}</Text>
           </Button>
         </div>
       )}
 
-      {loading && <p className="text-center">Loading expenses...</p>}
+      {loading && <p className="text-center">{t("loadingExpenses")}</p>}
       {error && <p className="text-center text-red-500">{error}</p>}
 
       {!loading && !error && (
@@ -300,7 +305,7 @@ function MonthlyExpenses() {
                     <TableCell className="font-medium">
                       <Text variant="bodyBlue">
                         <strong>
-                          Total regular expenses for {selectedMonthYear}
+                          {t("totalRegularExpenses")} - {selectedMonthYear}
                         </strong>
                       </Text>
                     </TableCell>
