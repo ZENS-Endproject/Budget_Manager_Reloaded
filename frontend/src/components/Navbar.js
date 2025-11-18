@@ -53,10 +53,10 @@ function Navbar() {
         <Link to="/" style={styles.linkb}>
           <Text variant="menuBlue">Statistics</Text>
         </Link>
-        <Link to="/expenses" style={styles.linkb}>
+        <Link to="/exps" style={styles.linkb}>
           <Text variant="menuBlue">Expenses</Text>
         </Link>
-        <Link to="/incomes" style={styles.linkb}>
+        <Link to="/incs" style={styles.linkb}>
           <Text variant="menuBlue">Income</Text>
         </Link>
         <Link to="/about" style={styles.linkb}>
