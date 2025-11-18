@@ -1,8 +1,13 @@
 /* ==== Light / Default ==== */
 :root {
   --bg: #FEFEEF;
+  --bg-white: #FFFFFF;
   --text: #0A4A56;
-  --header-bg: #FEFEEF;
+  --text-blue: #02586E;
+  --text-black: #000000;
+  --button-blue: 2, 88, 110;
+  --button-yellow: 249, 190, 40;
+  --header-bg: #FEFEEF;   /* bleibt hell */
   --sidebar-bg: #FEFEEF;
   --hover: rgba(4,137,169,0.10);
   --active: #E8EFEF;
@@ -11,9 +16,14 @@
 /* ==== Dark Mode ==== */
 .dark {
   --bg: #071822;
-  --text: #E8EFEF;
-  --header-bg: var(--bg);
-  --sidebar-bg: var(--bg);
+  --bg-white: rgba(255,255,255,0.06);
+  --text: #FFFFFF;
+  --text-blue: #FEFEEF;
+  --text-black: #E8EFEF;
+  --button-blue: 2, 88, 110;
+  --button-yellow: 249, 190, 40;
+  --header-bg: #061520;   /* <-- dunkler Header */
+  --sidebar-bg: #0A2530;
   --hover: rgba(255,255,255,0.05);
   --active: rgba(255,255,255,0.10);
 }
@@ -35,7 +45,7 @@ header {
 /* ==== Sidebar ==== */
 .app-sidebar {
   background: var(--sidebar-bg);
-  transition: background-color .3s ease, color .3s ease, transform .3s ease;
+  transition: background-color .3s ease, color .3s ease;
   will-change: transform;
 }
 
@@ -55,6 +65,11 @@ header {
   box-shadow: 0 1px 2px rgba(0,0,0,0.06);
 }
 
+/* ==== Logos ==== */
+/* .logo-dark { display: none; }
+.logo-light { display: block; }
+.dark .logo-dark { display: block; }
+.dark .logo-light { display: none; } */
 
 /* ==== Vereinheitlichung ==== */
 .dark header,

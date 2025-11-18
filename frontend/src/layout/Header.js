@@ -1,5 +1,6 @@
 import React from "react";
 import { useTheme } from "next-themes";
+import { useTranslation } from "react-i18next";
 
 // Icons
 import logo from "../assets/header/logo.png";
@@ -92,9 +93,17 @@ const DarkWave = () => (
   </div>
 );
 
+
 export default function Header({ onToggleSidebar }) {
   const { resolvedTheme, setTheme } = useTheme();
-  const toggleTheme = () => setTheme(resolvedTheme === "dark" ? "light" : "dark");
+  const toggleTheme = () =>
+    setTheme(resolvedTheme === "dark" ? "light" : "dark");
+
+  const { i18n } = useTranslation();
+  const toggleLanguage = () => {
+    const newLanguage = i18n.language === "en" ? "de" : "en";
+    i18n.changeLanguage(newLanguage);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full h-[120px] bg-[var(--header-bg)] transition-colors duration-300">
@@ -113,7 +122,6 @@ export default function Header({ onToggleSidebar }) {
       <div className="absolute inset-0 pointer-events-none select-none">
         {resolvedTheme === "dark" ? <DarkWave /> : <LightWave />}
       </div>
-
             {/* Inhalte */}
             <div className="relative z-10 h-full px-20">
               <div className="mx-auto flex h-full items-center justify-between">
@@ -157,7 +165,6 @@ export default function Header({ onToggleSidebar }) {
                 </div>
               </div>
             </div>
-
     </header>
   );
 }
