@@ -20,7 +20,7 @@ import {
 } from "@tanstack/react-table";
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
-import AddExpenseForm from "./AddExpenseMonthly";
+import AddExpenseMonthlyForm from "./AddExpenseMonthly";
 import { useTranslation } from "react-i18next";
 import i18n from "../locales/i18n";
 
@@ -211,7 +211,7 @@ function MonthlyExpenses() {
       <Text variant="subtitleBlue">
         {t("regularExpenses")} {selectedMonthYear}
       </Text>
-      <AddExpenseForm />
+      <AddExpenseMonthlyForm />
       <Button
         onClick={() => setShowMonthFilter(!showMonthFilter)}
         className="button mb-2"

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import AddIncomeForm from "./AddIncomeMonthly";
+import AddIncomeOnceForm from "./AddIncomeMonthly";
 import {
   Table,
   TableBody,
@@ -116,7 +116,7 @@ function MonthlyIncomes() {
       <Text variant="subtitleBlue">
         {t("regularIncome")} {selectedMonthYear}
       </Text>
-      <AddIncomeForm />
+      <AddIncomeOnceForm />
       <Button
         onClick={() => setShowMonthFilter(!showMonthFilter)}
         className="button mb-2"

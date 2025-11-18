@@ -24,7 +24,7 @@ import { Input } from "./ui/input";
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
 import App from "../App";
-import AddExpenseForm from "./AddExpenseOnce";
+import AddExpenseOnceForm from "./AddExpenseOnce";
 import { useTranslation } from "react-i18next";
 import i18next from "../locales/i18n";
 function Expenses() {
@@ -188,7 +188,7 @@ function Expenses() {
         {t("oneTimeExpenses")} {selectedMonthYear}
       </Text>
 
-      <AddExpenseForm />
+      <AddExpenseOnceForm />
 
       <Button
         onClick={() => setShowMonthFilter(!showMonthFilter)}

@@ -11,7 +11,7 @@ import Text from "./Text";
 import { useTranslation } from "react-i18next";
 import i18n from "../locales/i18n";
 
-const AddExpenseForm = () => {
+const AddExpenseMonthlyForm = () => {
   const [showForm, setShowForm] = useState(false);
   // const [type, setType] = useState("once");
   const navigate = useNavigate();
@@ -160,4 +160,4 @@ const AddExpenseForm = () => {
   );
 };
 
-export default AddExpenseForm;
+export default AddExpenseMonthlyForm;
