@@ -33,8 +33,8 @@ root.render(
     {/* App mit neuem Layout */}
             <Route element={<AppLayout />}>
               <Route path="/" element={<App />} />
-              <Route path="/expenses" element={<ExpensesNav />} />
-              <Route path="/incomes" element={<IncomesNav />} />
+              <Route path="/exps" element={<ExpensesNav />} />
+              <Route path="/incs" element={<IncomesNav />} />
               <Route path="/about" element={<About />} />
               <Route path="/edit-income/:userId/:expenseId" element={<EditIncome />} />
               <Route
