@@ -12,7 +12,7 @@ import i18n from "../locales/i18n";
  *  - Hover: #0489A91A
  *  - Active: #E8EFEF
  */
-export default function Sidebar({ open = false, onClose = () => {} }) {
+export default function Sidebar({ open = false, onClose = () => { } }) {
   const itemBase =
     "block rounded-2xl px-6 py-3 text-[20px] leading-tight transition-colors duration-200";
   const active = "bg-[#E8EFEF] text-[#0A4A56] font-semibold shadow-sm";
@@ -68,7 +68,7 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
             </NavLink>
 
             <NavLink
-              to="/expenses"
+              to="/exps"
               className={({ isActive }) =>
                 `${itemBase} ${isActive ? active : inactive}`
               }
@@ -77,7 +77,7 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
             </NavLink>
 
             <NavLink
-              to="/incomes"
+              to="/incs"
               className={({ isActive }) =>
                 `${itemBase} ${isActive ? active : inactive}`
               }
@@ -91,8 +91,7 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
             <NavLink
               to="/about"
               className={({ isActive }) =>
-                `${itemBase} ${
-                  isActive ? active : "text-[#0A4A56]/90 hover:bg-[#0489A91A]"
+                `${itemBase} ${isActive ? active : "text-[#0A4A56]/90 hover:bg-[#0489A91A]"
                 }`
               }
             >
