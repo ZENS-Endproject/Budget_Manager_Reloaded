@@ -71,7 +71,7 @@ export default function EditIncome() {
       const updatedIncome = await response.json();
       console.log("Update successful:", updatedIncome);
       setMessage("Income updated successfully!");
-      setTimeout(() => navigate("/incomes"), 1000);
+      setTimeout(() => navigate("/incs"), 1000);
     } catch (err) {
       console.error(err);
       alert("An error occurred while updating the income.");

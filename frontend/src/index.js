@@ -26,11 +26,11 @@ root.render(
     <React.StrictMode>
       <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
         <Router>
-  <Routes>
-    {/* Public */}
-    <Route path="/login" element={<Login />} />
-    <Route path="/signup" element={<Signup />} />
-    {/* App mit neuem Layout */}
+          <Routes>
+            {/* Public */}
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            {/* App mit neuem Layout */}
             <Route element={<AppLayout />}>
               <Route path="/" element={<App />} />
               <Route path="/exps" element={<ExpensesNav />} />

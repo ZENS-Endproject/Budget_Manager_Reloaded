@@ -42,7 +42,7 @@ export function LoginForm({ className, ...props }) {
         localStorage.setItem("user", JSON.stringify(data.user));
 
         console.log("Logged in user:", data.user);
-        navigate("/expenses");
+        navigate("/exps");
       }
     } catch (err) {
       console.error("Login error:", err);

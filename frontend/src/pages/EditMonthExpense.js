@@ -75,7 +75,7 @@ export default function EditMonthExpense() {
       const updatedExpense = await response.json();
       console.log("Update successful:", updatedExpense);
       setMessage("Expense updated successfully!");
-      setTimeout(() => navigate("/expenses"), 1000);
+      setTimeout(() => navigate("/exps"), 1000);
     } catch (err) {
       console.error(err);
       alert("An error occurred while updating the expense.");
