@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 export default function ContactMini() {
+  const user = JSON.parse(localStorage.getItem("user"));
+  const user_email = user?.e_mail;
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [state, setState] = useState({ loading: false, ok: null, error: "" });
@@ -15,7 +17,7 @@ export default function ContactMini() {
       const res = await fetch(`${base}/contact`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ subject, message }),
+        body: JSON.stringify({ user_email, subject, message }),
       });
       if (!res.ok) {
         const text = await res.text();
