@@ -22,21 +22,25 @@ export default function ContactMini() {
         body: JSON.stringify({ user_email, subject, message }),
       });
 
+
       if (!res.ok) {
         const text = await res.text();
         throw new Error(text || "Unknown error");
       }
+
 
       setState({ loading: false, ok: true, error: "" });
       setSubject("");
       setMessage("");
     } catch (err) {
       console.error("Contact error:", err);
+      console.error("Contact error:", err);
       setState({ loading: false, ok: false, error: "Failed to send" });
     }
   }
 
   return (
+    <div className="rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
     <div className="rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
       <h2 className="text-[18px] font-semibold mb-3 text-[var(--text)]">
         {t("contactUs")}
