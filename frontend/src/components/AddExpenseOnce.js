@@ -11,7 +11,7 @@ import Text from "./Text";
 import { useTranslation } from "react-i18next";
 import i18n from "../locales/i18n";
 
-const AddExpenseForm = () => {
+const AddExpenseOnceForm = () => {
   const { t } = useTranslation();
   const [showForm, setShowForm] = useState(false);
   // const [type, setType] = useState("once");
@@ -162,4 +162,4 @@ const AddExpenseForm = () => {
   );
 };
 
-export default AddExpenseForm;
+export default AddExpenseOnceForm;

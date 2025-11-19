@@ -43,12 +43,12 @@ export default function Sidebar({ open = false, onClose = () => {} }) {
           "app-sidebar",
           "fixed inset-y-0 left-0 z-40 w-72 transform transition-transform duration-300 md:static md:z-auto",
           open ? "translate-x-0" : "-translate-x-full",
-          "bg-[#FEFEEF] md:w-120 md:translate-x-0 md:transform-none",
+          "bg-[var(--sidebar-bg)] md:w-120 md:translate-x-0 md:transform-none",
           "md:shrink-0",
         ].join(" ")}
       >
         <div
-          className="pl-6 pr-6 pt-[120px] md:pt-10 pb-10 
+          className="pl-6 pr-6 pt-[140px] md:pt-10 pb-10 
                     min-h-full md:pl-16 md:pr-10 
                     md:min-h-[calc(100vh-120px)] 
                     md:sticky md:top-[100px] 
