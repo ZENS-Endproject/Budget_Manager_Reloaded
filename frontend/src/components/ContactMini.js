@@ -1,5 +1,4 @@
-import React, { useState } from "react";
-
+import React, { useState, useEffect } from "react";
 export default function ContactMini() {
   const user = JSON.parse(localStorage.getItem("user"));
   const user_email = user?.e_mail;
@@ -34,37 +33,33 @@ export default function ContactMini() {
   }
 
   return (
-    <form
-      onSubmit={onSubmit}
-      className="rounded-2xl bg-white/70 shadow-sm ring-1 ring-black/5 p-6 md:p-7 text-[#0A4A56]"
+    <div
+      className="rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7"
     >
-      <h3 className="text-[16px] font-semibold mb-4">Contact us</h3>
+      <h2 className="text-[18px] font-semibold mb-3 text-[var(--text)]">
+        Contact us
+      </h2>
 
-      <label className="block text-sm mb-1">Subject</label>
-      <input
-        value={subject}
-        onChange={(e) => setSubject(e.target.value)}
-        className="w-full mb-3 rounded-xl border border-[#D8E4E8] bg-white/90 px-3 py-2 outline-none focus:ring-2 focus:ring-[#0489A9]/30"
-        placeholder="What’s your message about?"
-      />
+      <div className="mb-4">
+        <label className="block mb-1 text-[14px] text-[var(--text)]">
+          Subject
+        </label>
+        <input
+          type="text"
+          placeholder="What’s your message about?"
+          className="w-full rounded-lg p-2"
+        />
+      </div>
 
       <label className="block text-sm mb-1">Message</label>
       <textarea
         value={message}
         onChange={(e) => setMessage(e.target.value)}
         rows={4}
-        className="w-full mb-4 rounded-xl border border-[#D8E4E8] bg-white/90 px-3 py-2 outline-none resize-y focus:ring-2 focus:ring-[#0489A9]/30"
+        className="w-full mb-4 rounded-lg p-2"
         placeholder="Type your message here..."
       />
-
       <div className="flex items-center gap-3">
-        <button
-          type="submit"
-          disabled={state.loading || !subject.trim() || !message.trim()}
-          className="rounded-full bg-[#0489A9] px-4 py-2 text-white disabled:opacity-50 hover:brightness-105 transition"
-        >
-          {state.loading ? "Sending..." : "Send"}
-        </button>
         {state.ok && (
           <span className="text-sm text-green-700">Thank you! ✉️</span>
         )}
@@ -72,6 +67,10 @@ export default function ContactMini() {
           <span className="text-sm text-red-700">{state.error}</span>
         )}
       </div>
-    </form>
+
+      <button className="contact-btn">
+        Send
+      </button>
+    </div>
   );
 }
