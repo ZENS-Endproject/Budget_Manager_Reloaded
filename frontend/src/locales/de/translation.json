@@ -76,5 +76,20 @@
 "editRegularIncome": "Regelmäßiges Einkommen bearbeiten",
 "editOneTimeIncome": "Einmaliges Einkommen bearbeiten",
 "updateFields": "Aktualisiere die Felder:",
-"submit": "Absenden"
+"submit": "Absenden",
+
+"whatIsZens": "Was ist ZENS?",
+"p1": "Behalte die Kontrolle über dein Geld — mit der Budget-App! Sie hilft dir, Einnahmen und Ausgaben zu verfolgen und sofort zu sehen, wohin dein Geld fließt.",
+"p2": "Füge einmalige oder wiederkehrende Einträge hinzu, filtere und kategorisiere sie, und entdecke übersichtliche Diagramme. Alles bleibt ordentlich an einem Ort organisiert, und du kannst deine Daten jederzeit exportieren.",
+"p3": "Modern, klar und einfach zu bedienen — entwickelt mit React & Node.js.",
+
+"thisIsOurTeam": "Das ist unser Team",
+"contactUs": "Kontaktiere uns",
+"subject": "Betreff",
+"whatIsYourMessageAbout": "Worum geht es?",
+"message": "Nachricht",
+"typeYourMessageHere": "Schreibe hier eine Nachricht",
+"sending": "Wird gesendet...",
+"send": "Senden",
+"thankYou": "Vielen Dank!"
 }

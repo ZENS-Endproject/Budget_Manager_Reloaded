@@ -1,12 +1,13 @@
 import React, { useState } from "react";
-
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 export default function ContactMini() {
   const user = JSON.parse(localStorage.getItem("user"));
   const user_email = user?.e_mail;
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [state, setState] = useState({ loading: false, ok: null, error: "" });
-
+  const { t } = useTranslation();
   async function onSubmit(e) {
     e.preventDefault();
     if (!subject.trim() || !message.trim()) return;
@@ -38,29 +39,31 @@ export default function ContactMini() {
   return (
     <div className="rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
       <h2 className="text-[18px] font-semibold mb-3 text-[var(--text)]">
-        Contact us
+        {t("contactUs")}
       </h2>
 
       <form onSubmit={onSubmit}>
         <div className="mb-4">
           <label className="block mb-1 text-[14px] text-[var(--text)]">
-            Subject
+            {t("subject")}
           </label>
           <input
             value={subject}
             onChange={(e) => setSubject(e.target.value)}
             type="text"
-            placeholder="What’s your message about?"
+            placeholder={t("whatIsYourMessageAbout")}
           />
         </div>
 
-        <label className="block text-sm mb-1 text-[var(--text)]">Message</label>
+        <label className="block text-sm mb-1 text-[var(--text)]">
+          {t("message")}
+        </label>
 
         <textarea
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           rows={4}
-          placeholder="Type your message here..."
+          placeholder={t("typeYourMessageHere")}
           className="mb-3"
         />
 
@@ -70,11 +73,11 @@ export default function ContactMini() {
             disabled={state.loading || !subject.trim() || !message.trim()}
             className="contact-btn"
           >
-            {state.loading ? "Sending..." : "Send"}
+            {state.loading ? t("sending") : t("send")}
           </button>
 
           {state.ok && (
-            <span className="text-sm text-green-700">Thank you! ✉️</span>
+            <span className="text-sm text-green-700">{t("thankYou")} ✉️</span>
           )}
           {state.ok === false && (
             <span className="text-sm text-red-700">{state.error}</span>

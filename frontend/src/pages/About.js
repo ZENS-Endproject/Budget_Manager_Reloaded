@@ -1,5 +1,7 @@
 import React from "react";
 import ContactMini from "../components/ContactMini";
+import { useTranslation } from "react-i18next";
+import i18n from "../locales/i18n";
 
 const team = [
   { name: "Zsuzsanna Farkas", role: "Frontend", traits: ["trait", "trait"] },
@@ -18,6 +20,7 @@ export default function About() {
         10
       )) ||
     24;
+  const { t } = useTranslation();
 
   return (
     <main className="min-h-screen bg-[var(--bg)] text-[var(--text)]">
@@ -30,19 +33,13 @@ export default function About() {
         >
           {/* What is ZENS? */}
           <article className="rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
-            <h2 className="text-[18px] font-semibold mb-3">What is ZENS?</h2>
+            <h2 className="text-[18px] font-semibold mb-3">
+              {t("whatIsZens")}
+            </h2>
             <div className="space-y-3 text-[14px] leading-relaxed text-[var(--muted)]">
-              <p>
-                Take control of your money — with the Budget App! It helps you
-                track income and expenses and instantly see where your money
-                goes.
-              </p>
-              <p>
-                Add one-off or recurring entries, filter &amp; categorize, and
-                explore clear charts. Everything stays neatly organized in one
-                place, and you can export your data anytime.
-              </p>
-              <p>Modern, clean, and easy to use — built with React & Node.js.</p>
+              <p>{t("p1")}</p>
+              <p>{t("p2")}</p>
+              <p>{t("p3")}</p>
             </div>
           </article>
 
@@ -70,7 +67,9 @@ export default function About() {
 
           {/* Team */}
           <article className="rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
-            <h2 className="text-[18px] font-semibold mb-5">This is our Team</h2>
+            <h2 className="text-[18px] font-semibold mb-5">
+              {t("thisIsOurTeam")}
+            </h2>
             <div className="grid gap-6 sm:grid-cols-2">
               {team.map((m) => (
                 <div
