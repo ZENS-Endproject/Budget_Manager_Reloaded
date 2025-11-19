@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
+
 export default function ContactMini() {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
@@ -17,58 +18,67 @@ export default function ContactMini() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ subject, message }),
       });
+
       if (!res.ok) {
         const text = await res.text();
         throw new Error(text || "Unknown error");
       }
+
       setState({ loading: false, ok: true, error: "" });
       setSubject("");
       setMessage("");
     } catch (err) {
+      console.error("Contact error:", err);
       setState({ loading: false, ok: false, error: "Failed to send" });
-      console.error("Contact form error:", err);
     }
   }
 
   return (
-    <div
-      className="rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7"
-    >
+    <div className="rounded-2xl bg-[var(--surface)] shadow-sm ring-1 ring-[var(--border)] p-6 md:p-7">
       <h2 className="text-[18px] font-semibold mb-3 text-[var(--text)]">
         Contact us
       </h2>
 
-      <div className="mb-4">
-        <label className="block mb-1 text-[14px] text-[var(--text)]">
-          Subject
-        </label>
-        <input
-          type="text"
-          placeholder="What’s your message about?"
-          className="w-full rounded-lg p-2"
+      <form onSubmit={onSubmit}>
+        <div className="mb-4">
+          <label className="block mb-1 text-[14px] text-[var(--text)]">
+            Subject
+          </label>
+          <input
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+            type="text"
+            placeholder="What’s your message about?"
+          />
+        </div>
+
+        <label className="block text-sm mb-1 text-[var(--text)]">Message</label>
+
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          rows={4}
+          placeholder="Type your message here..."
+          className="mb-3"
         />
-      </div>
 
-      <label className="block text-sm mb-1">Message</label>
-      <textarea
-        value={message}
-        onChange={(e) => setMessage(e.target.value)}
-        rows={4}
-        className="w-full mb-4 rounded-lg p-2"
-        placeholder="Type your message here..."
-      />
-      <div className="flex items-center gap-3">
-        {state.ok && (
-          <span className="text-sm text-green-700">Thank you! ✉️</span>
-        )}
-        {state.ok === false && (
-          <span className="text-sm text-red-700">{state.error}</span>
-        )}
-      </div>
+        <div className="flex items-center gap-3 mt-3">
+          <button
+            type="submit"
+            disabled={state.loading || !subject.trim() || !message.trim()}
+            className="contact-btn"
+          >
+            {state.loading ? "Sending..." : "Send"}
+          </button>
 
-      <button className="contact-btn">
-        Send
-      </button>
+          {state.ok && (
+            <span className="text-sm text-green-700">Thank you! ✉️</span>
+          )}
+          {state.ok === false && (
+            <span className="text-sm text-red-700">{state.error}</span>
+          )}
+        </div>
+      </form>
     </div>
   );
 }
