@@ -24,7 +24,7 @@ const options = {
       labels: {
         boxWidth: 40,
         padding: 15,
-        color: "black",
+        color: "var(--text-black)",
         font: {
           family: "Voces, sans-serif",
           size: 12,

@@ -1,7 +1,7 @@
 /* ==== Light / Default ==== */
 :root {
   --bg: #FEFEEF;
-  --bg-white: #E8EFEF;
+  --bg-white: #FFFFFF;
   --text: #0A4A56;
   --text-blue: #02586E;
   --text-black: #000000;
@@ -13,11 +13,11 @@
   --active: #E8EFEF;
 }
 
-/* ==== Dark Mode (dunkles Blau) ==== */
+/* ==== Dark Mode ==== */
 .dark {
   --bg: #071822;
-  --bg-white: #0A4A56;
-  --text: #E8EFEF;
+  --bg-white: rgba(255,255,255,0.06);
+  --text: #FFFFFF;
   --text-blue: #FEFEEF;
   --text-black: #E8EFEF;
   --button-blue: 2, 88, 110;
@@ -32,27 +32,23 @@
 header {
   background: var(--header-bg);
   color: var(--text);
-  transition: background-color .3s ease, color .3s ease;
 }
 
 /* ==== Hauptbereich ==== */
 .app-content {
   background: var(--bg);
   color: var(--text);
-  transition: background-color .3s ease, color .3s ease;
 }
 
 /* ==== Sidebar ==== */
 .app-sidebar {
   background: var(--sidebar-bg);
-  transition: background-color .3s ease, color .3s ease;
   will-change: transform;
 }
 
-/* ==== Sidebar: Links ==== */
+/* ==== Sidebar-Links ==== */
 .app-sidebar a {
   color: var(--text);
-  transition: background-color .2s ease, color .2s ease;
 }
 .app-sidebar a:hover {
   background: var(--hover);
@@ -115,7 +111,6 @@ input, textarea {
   border: 1px solid var(--border);
   color: var(--text);
   font-size: 14px;
-  transition: background-color .3s ease, color .3s ease, border-color .3s ease;
 }
 
 input::placeholder,
@@ -130,9 +125,17 @@ button.contact-btn {
   border: 1px solid var(--chip-border);
   border-radius: 12px;
   padding: 10px 20px;
-  transition: background-color .3s ease, border-color .3s ease;
 }
 
 button.contact-btn:hover {
   background: var(--chip-border);
 }
+
+/* Remove borders from header icon buttons */
+header button {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
+}
+

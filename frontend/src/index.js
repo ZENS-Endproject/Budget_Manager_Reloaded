@@ -1,4 +1,5 @@
 import "./index.css";
+import "./styles/responsive_neu.css";   // <- diese Zeile neu
 import React from "react";
 import ReactDOM from "react-dom/client";
 import reportWebVitals from "./reportWebVitals";

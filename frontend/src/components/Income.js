@@ -15,7 +15,7 @@ import { Input } from "./ui/input";
 import { API_URL } from "../lib/utils";
 import Text from "./Text";
 import App from "../App";
-import AddIncomeForm from "./AddIncomeOnce";
+import AddIncomeOnceForm from "./AddIncomeOnce";
 import { useTranslation } from "react-i18next";
 import i18n from "../locales/i18n";
 
@@ -115,7 +115,7 @@ function Income() {
       <Text variant="subtitleBlue">
         {t("oneTimeIncome")} {selectedMonthYear}
       </Text>
-      <AddIncomeForm />
+      <AddIncomeOnceForm />
       <Button
         onClick={() => setShowMonthFilter(!showMonthFilter)}
         className="button mb-2"
