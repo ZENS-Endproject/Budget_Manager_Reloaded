@@ -41,3 +41,17 @@ button:focus-visible {
   outline: none !important;
   box-shadow: none !important;
 }
+
+/* Desktop Standard (über 1080px) */
+.about-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 16px;
+}
+
+/* Unter 1080px → 1 Spalte */
+@media (max-width: 1080px) {
+  .about-grid {
+    grid-template-columns: 1fr !important;
+  }
+}
