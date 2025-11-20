@@ -100,7 +100,9 @@ jobs:
           HOST=$(echo "$ENDPOINT" | cut -d':' -f1)
 
           # Copy project files to EC2
-          scp -i ~/.ssh/myPrivateKey -r /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded ubuntu@$ip:/home/ubuntu
+          sudo apt-get update && sudo apt-get install -y rsync
+
+          rsync -avz -e "ssh -i ~/.ssh/myPrivateKey" --exclude='.git'  /home/runner/work/Budget_Manager_Reloaded/Budget_Manager_Reloaded/ ubuntu@$ip:/home/ubuntu/Budget_Manager_Reloaded/
           # Install psql client if missing
           ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
             sudo apt update && sudo apt install -y postgresql-client
