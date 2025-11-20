@@ -5,12 +5,6 @@ services:
     container_name: backend
     ports:
       - "5005:5005"
-    environment:
-      DB_HOST: ${DB_HOST}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_NAME: ${DB_NAME}
-      PORT: ${PORT}
-      JWT_SECRET: ${JWT_SECRET}
     env_file:
       - ./backend/.env.local
     restart: always
