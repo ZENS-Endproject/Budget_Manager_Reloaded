@@ -101,7 +101,7 @@ const InExBarChart = () => {
             tickFormatter={(value) => value.slice(0, 3)}
             tick={{
               style: {
-                fill: "#000",
+                fill: "var(--text-black)",
                 fontSize: "12px",
                 fontFamily: "Voces, sans-serif",
               },
@@ -110,7 +110,7 @@ const InExBarChart = () => {
           <ChartTooltip content={<ChartTooltipContent />} />
           <ChartLegend
             content={
-              <ChartLegendContent className="font-voces text-xs text-black" />
+              <ChartLegendContent className="font-voces text-xs text-[var(--text-black)]" />
             }
           />
           <Bar dataKey="expenses" fill="var(--color-expenses)" radius={4} />
