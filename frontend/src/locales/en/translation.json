@@ -76,5 +76,20 @@
 "editRegularIncome": "Edit Regular Income",
 "editOneTimeIncome": "Edit One-Time Income",
 "updateFields": "Update the fields below",
-"submit": "Submit"
+"submit": "Submit",
+
+"whatIsZens": "What is ZENS?",
+"p1": "Take control of your money — with the Budget App! It helps you track income and expenses and instantly see where your money goes.",
+"p2": "Add one-off or recurring entries, filter &amp; categorize, and explore clear charts. Everything stays neatly organized in one place, and you can export your data anytime.",
+"p3": "Modern, clean, and easy to use — built with React & Node.js.",
+
+"thisIsOurTeam": "This is our Team",
+"contactUs": "Contact Us",
+"subject": "Subject",
+"whatIsYourMessageAbout": "What is your message about?",
+"message": "Message",
+"typeYourMessageHere": "Type your message here...",
+"sending": "Sending...",
+"send": "Send",
+"thankYou": "Thank you!"  
 }

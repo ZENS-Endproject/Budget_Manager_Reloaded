@@ -24,9 +24,10 @@ const options = {
       labels: {
         boxWidth: 40,
         padding: 15,
-        color: "black",
+        color: "var(--text-black)",
         font: {
           family: "Voces, sans-serif",
+          color: "var(--text-black)",
           size: 12,
         },
       },
@@ -154,7 +155,7 @@ const PieChart = () => {
                 {...register("year")}
                 defaultValue={currentYear}
                 required
-                className="hover:bg-[#02586E]/10 text-[10pt] h-[25px] w-[120px] shadow"
+                className="hover:bg-[#02586E]/10 text-[10pt] h-[25px] w-[115px] shadow"
               />
             </FormControl>
           </div>
@@ -164,11 +165,11 @@ const PieChart = () => {
               <Text variant="bodyBlack">{t("month")}</Text>
             </FormLabel>
             <FormControl>
-              <div className="h-[25px] w-[120px]">
+              <div className="h-[25px] w-[115px]">
                 <Select
                   {...register("month")}
                   defaultValue={currentMonth}
-                  className="hover:bg-[#02586E]/10 text-[10pt] shadow"
+                  className="hover:bg-[var(--text-blue)]/10 text-[10pt] shadow"
                 >
                   <SelectItem value="1">{t("january")}</SelectItem>
                   <SelectItem value="2">{t("february")}</SelectItem>
