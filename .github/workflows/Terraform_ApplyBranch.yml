@@ -115,6 +115,7 @@ jobs:
           # Create frontend environment file
           echo "DB_HOST=$HOST" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
           echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
+          echo "DB_USER=postgres" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
           echo "DB_NAME=budget" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
           echo "PORT=5005" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
