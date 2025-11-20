@@ -114,11 +114,12 @@ jobs:
           ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
 
           # Create frontend environment file
-          echo "DB_HOST=$HOST" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
-          echo "DB_PASSWORD=${{ secrets.DB_PASSWORD }}" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
-          echo "DB_NAME=budget" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
-          echo "PORT=5005" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
-          echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
+          echo "DB_HOST='"$HOST"'" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
+          echo "DB_PASSWORD='"${{ secrets.DB_PASSWORD }}"'" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
+          echo "DB_NAME=budget" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
+          echo "PORT=5005" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
+          echo "JWT_SECRET='"${{ secrets.JWT_SECRET }}"'" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
+
           # echo "REACT_APP_API_URL=http://$ip:5005"  > "/home/ubuntu/Budget_Manager_Reloaded/frontend/.env.local"
           export REACT_APP_API_URL=http://$ip:5005
           cd ~/Budget_Manager_Reloaded
