@@ -111,7 +111,7 @@ jobs:
             PGPASSWORD='${{ secrets.DB_PASSWORD }}' psql -h '$HOST' -p 5432 -U postgres -f /home/ubuntu/Budget_Manager_Reloaded/backend/budget_2025-05-08.sql
           "
           # Create .env.local files and start containers
-          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip "
+          ssh -i ~/.ssh/myPrivateKey ubuntu@$ip  << EOF
           # Create frontend environment file
           echo "DB_HOST=$HOST" >> "/home/ubuntu/Budget_Manager_Reloaded/backend/.env.local"
           echo "DB_PASSWORD='${{ secrets.DB_PASSWORD }}'" >> /home/ubuntu/Budget_Manager_Reloaded/backend/.env.local
@@ -125,7 +125,7 @@ jobs:
           docker compose down -v || true
           # docker compose build --no-cache 
           docker compose up -d --build
-          "
+          EOF
     
      # Generate test data
       - name: Generate test data
