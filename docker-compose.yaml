@@ -5,11 +5,12 @@ services:
     container_name: backend
     ports:
       - "5005:5005"
-    # environment:
-    #   DB_HOST: mainchanges-postgres-db.crwi4cya2xob.eu-central-1.rds.amazonaws.com
-    #   DB_PASSWORD: 123Senda?456
-    #   DB_NAME: Budget
-    #   PORT: 5005
+    environment:
+      DB_HOST: ${DB_HOST}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      PORT: ${PORT}
+      JWT_SECRET: ${JWT_SECRET}
     env_file:
       - ./backend/.env.local
     restart: always
