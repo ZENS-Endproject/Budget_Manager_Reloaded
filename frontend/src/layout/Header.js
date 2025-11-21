@@ -3,7 +3,6 @@ import { useTheme } from "next-themes";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-
 // Icons
 import logo from "../assets/header/logo.png";
 import deutschIcon from "../assets/header/deutsch.png";
@@ -30,7 +29,11 @@ const LightWave = () => (
       <g clipPath="url(#clipPathHeader)">
         <g transform="translate(1922.402 376.183) rotate(180)">
           <g transform="translate(-0.001 156.821)">
-            <path d="M1066.64,0" transform="translate(855.763 370.031)" fill="#fff" />
+            <path
+              d="M1066.64,0"
+              transform="translate(855.763 370.031)"
+              fill="#fff"
+            />
             <path
               d="M0-497.29s-1.562,11.965,158.719,17.379,269.016-14.533,482.4,4.276c213.625,18.808,426.533,60.906,640.158,52.5,213.389-8.4,301.65-32.082,453.229-56.778S1922.4-508.266,1922.4-508.266V-258.9H110.882C102.621-258.9,0-258.821,0-259V-497.29"
               transform="translate(0.001 508.266)"
@@ -70,7 +73,11 @@ const DarkWave = () => (
         <g transform="translate(1922.402 376.183) rotate(180)">
           <g transform="translate(-0.001 156.821)">
             {/* Dummy-Pfad (unsichtbar) */}
-            <path d="M1066.64,0" transform="translate(855.763 370.031)" fill="none" />
+            <path
+              d="M1066.64,0"
+              transform="translate(855.763 370.031)"
+              fill="none"
+            />
             {/* Unten */}
             <path
               d="M0-497.29s-1.562,11.965,158.719,17.379,269.016-14.533,482.4,4.276c213.625,18.808,426.533,60.906,640.158,52.5,213.389-8.4,301.65-32.082,453.229-56.778S1922.4-508.266,1922.4-508.266V-258.9H110.882C102.621-258.9,0-258.821,0-259V-497.29"
@@ -96,7 +103,6 @@ const DarkWave = () => (
   </div>
 );
 
-
 export default function Header({ onToggleSidebar }) {
   const { resolvedTheme, setTheme } = useTheme();
   const toggleTheme = () =>
@@ -120,7 +126,6 @@ export default function Header({ onToggleSidebar }) {
 
   return (
     <header className="sticky top-0 z-50 w-full h-[120px] bg-[var(--header-bg)] transition-colors duration-300">
-
       {/* Hamburger nur Mobile */}
       <button
         type="button"
@@ -135,11 +140,9 @@ export default function Header({ onToggleSidebar }) {
       <div className="absolute inset-0 pointer-events-none select-none">
         {resolvedTheme === "dark" ? <DarkWave /> : <LightWave />}
       </div>
-            {/* Inhalte */}
-            <div className="relative z-10 h-full px-20">
-              <div className="mx-auto flex h-full items-center justify-between">
-
-
+      {/* Inhalte */}
+      <div className="relative z-10 h-full px-20">
+        <div className="mx-auto flex h-full items-center justify-between">
           {/* LEFT: LOGO */}
           <div className="flex items-center">
             <Link to="/">
@@ -152,46 +155,50 @@ export default function Header({ onToggleSidebar }) {
           </div>
 
           {/* RIGHT: ICONS — ORIGINAL SIZE, NO BACKGROUND, NO CIRCLES */}
-          <div className="flex items-center gap-8">
-            <span className="username">
+          {/* <div className="flex items-center gap-8"> */}
+          <div className="flex items-center gap-0 md:gap-8">
+            <span className="username hidden md:block">
               <Text variant="subtitleBlue">{user_email}</Text>
             </span>
 
-                  {/* LANGUAGE ICON */}
-                  <button
-                    onClick={toggleLanguage}
-                    className="flex items-center justify-center hover:opacity-80 transition cursor-pointer"
-                  >
-                    <img
-                      src={i18n.language === "en" ? deutschIcon : englischIcon}
-                      alt="Language toggle"
-                      className="h-14 w-14 object-contain"
-                    />
-                  </button>
+            {/* LANGUAGE ICON */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center justify-center hover:opacity-80 transition cursor-pointer"
+            >
+              <img
+                src={i18n.language === "en" ? deutschIcon : englischIcon}
+                alt="Language toggle"
+                className="h-14 w-14 object-contain"
+              />
+            </button>
 
-                  {/* DARKMODE ICON */}
-                  <button
-                    onClick={toggleTheme}
-                    className="flex items-center justify-center hover:opacity-80 transition cursor-pointer"
-                  >
-                    <img
-                      src={resolvedTheme === "dark" ? sun : moon}
-                      alt="Theme toggle"
-                      className="h-14 w-14 object-contain"
-                    />
-                  </button>
+            {/* DARKMODE ICON */}
+            <button
+              onClick={toggleTheme}
+              className="flex items-center justify-center hover:opacity-80 transition cursor-pointer"
+            >
+              <img
+                src={resolvedTheme === "dark" ? sun : moon}
+                alt="Theme toggle"
+                className="h-14 w-14 object-contain"
+              />
+            </button>
 
-                  {/* LOGOUT ICON */}
-                  <button
-                    onClick={handleLogout}
-                    className="flex items-center justify-center hover:opacity-80 transition cursor-pointer"
-                  >
-                    <img src={power} alt="Logout" className="h-14 w-14 object-contain" />
-                  </button>
-
-                </div>
-              </div>
-            </div>
+            {/* LOGOUT ICON */}
+            <button
+              onClick={handleLogout}
+              className="flex items-center justify-center hover:opacity-80 transition cursor-pointer"
+            >
+              <img
+                src={power}
+                alt="Logout"
+                className="h-14 w-14 object-contain"
+              />
+            </button>
+          </div>
+        </div>
+      </div>
     </header>
   );
 }
