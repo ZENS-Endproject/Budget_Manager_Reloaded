@@ -32,6 +32,7 @@ export default function ContactMini() {
       setMessage("");
     } catch (err) {
       console.error("Contact error:", err);
+      console.error("Contact error:", err);
       setState({ loading: false, ok: false, error: "Failed to send" });
     }
   }
