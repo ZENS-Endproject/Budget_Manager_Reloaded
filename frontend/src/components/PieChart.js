@@ -14,7 +14,9 @@ import { useTranslation } from "react-i18next";
 import i18n from "../locales/i18n";
 
 ChartJS.register(ArcElement, Tooltip, Legend, Title, ChartDataLabels);
+
 const token = localStorage.getItem("token");
+
 const options = {
   responsive: true,
   maintainAspectRatio: false,
@@ -22,12 +24,12 @@ const options = {
     legend: {
       position: "bottom",
       labels: {
+        color: "#037B99",
         boxWidth: 40,
         padding: 15,
-        color: "var(--text-black)",
         font: {
           family: "Voces, sans-serif",
-          color: "var(--text-black)",
+          // weight: "bold",
           size: 12,
         },
       },
@@ -35,7 +37,6 @@ const options = {
     datalabels: {
       color: "white", // Color of the data labels
       font: {
-        // weight: "bold",
         family: "Voces, sans-serif",
         size: 12,
       },
@@ -192,9 +193,7 @@ const PieChart = () => {
         <br />
         <div className="max-h-[400px] max-w-[800px] ">
           {isChartEmpty ? (
-            <p style={{ color: "red" }}>
-              No expenses available for the selected month and year.
-            </p>
+            <p style={{ color: "red" }}>{t("noExpenses")}</p>
           ) : (
             <Pie data={chartData} options={options} width={400} height={400} />
           )}

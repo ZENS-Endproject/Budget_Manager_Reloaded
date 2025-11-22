@@ -131,6 +131,11 @@ function Expenses() {
     {
       accessorKey: "category",
       header: t("category"),
+      cell: ({ row }) => {
+        const catRaw = row.getValue("category");
+        const cat = String(catRaw);
+        return t(`categories.${cat}`, { defaultValue: cat });
+      },
     },
     {
       accessorKey: "date",
