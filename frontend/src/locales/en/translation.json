@@ -19,6 +19,7 @@
 "october": "October",
 "november": "November",
 "december": "December",
+"noExpenses": "No expenses available for the selected month and year.",
 
 "monthlyOverview": "Monthly Overview",
 "totalExpenses": "Total Expenses",
@@ -70,6 +71,14 @@
 "rentEnergy": "Rent & Energy",
 "other": "Other",
 "save": "Save",
+
+"categories": {
+    "Shopping": "Shopping",
+    "Entertainment": "Entertainment",
+    "Transport": "Transport",
+    "Rent&Energy": "Rent&Energy",
+    "Other": "Other"
+},
 
 "editRegularExpense": "Edit Regular Expense",
 "editOneTimeExpense": "Edit One-Time Expense",

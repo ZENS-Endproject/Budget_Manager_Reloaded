@@ -19,6 +19,7 @@
 "october": "Oktober",
 "november": "November",
 "december": "Dezember",
+"noExpenses": "Keine Ausgaben vorhanden für den gewählten Monat und Jahr.",
 
 "monthlyOverview": "Monatliche Übersicht",
 "totalExpenses": "Gesamtausgaben",
@@ -70,6 +71,14 @@
 "rentEnergy": "Miete & Energie",
 "other": "Sonstiges",
 "save": "Speichern",
+
+"categories": {
+    "Shopping": "Einkauf",
+    "Entertainment": "Unterhaltung",
+    "Transport": "Transport",
+    "Rent&Energy": "Miete&Energie",
+    "Other": "Sonstiges"
+},
 
 "editRegularExpense": "Regelmäßige Ausgabe bearbeiten",
 "editOneTimeExpense": "Einmalige Ausgabe bearbeiten",
